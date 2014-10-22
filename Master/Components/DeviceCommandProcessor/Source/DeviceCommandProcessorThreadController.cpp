@@ -38,8 +38,8 @@ DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(
     Threads::ThreadController(TheHeartBeatSource, name),
     m_RefInitDCL(Global::RefManager<Global::tRefType>::INVALID),
     m_InLoaderChangedRef(Global::RefManager<Global::tRefType>::INVALID),
+    m_pDeviceProcessing(NULL),
     m_InUnloaderChangedRef(Global::RefManager<Global::tRefType>::INVALID)
-  , m_pDeviceProcessing(NULL)
 {
     //qRegisterMetaType<quint32>("DevInstanceID_t");
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");

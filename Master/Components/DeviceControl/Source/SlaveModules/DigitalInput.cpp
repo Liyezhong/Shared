@@ -46,7 +46,7 @@ CDigitalInput::CDigitalInput(const CANMessageConfiguration* p_MessageConfigurati
     m_unCanIDDigInputConfigInput(0), m_unCanIDDigInputConfigLimits(0), m_unCanIDDigInputStateReq(0), m_unCanIDDigInputState(0),
     m_LifeCycle(0),
     m_bLogLifeCycle(false),
-    m_LastInputValue(-999999)
+    m_LastInputValue(65535)
 {
     m_mainState = FM_MAIN_STATE_BOOTUP;
     m_SubStateConfig = FM_DINP_SUB_STATE_CONFIG_INIT;
