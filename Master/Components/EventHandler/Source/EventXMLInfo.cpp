@@ -200,7 +200,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 EventName = m_pXMLReader->attributes().value("Name").toString();
             }
             // for service string id
-            quint32 ServiceString = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
+            quint32 ServiceString = 0;
             if (m_pXMLReader->attributes().hasAttribute("ServiceString"))
             {
                 bool ok;
