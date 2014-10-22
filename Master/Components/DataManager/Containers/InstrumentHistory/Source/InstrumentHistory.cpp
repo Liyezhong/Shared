@@ -23,6 +23,7 @@
 #include "Global/Include/Utils.h"
 #include "DataManager/Helper/Include/Helper.h"
 #include <QtXml>
+#include <unistd.h>
 
 namespace DataManager {
 

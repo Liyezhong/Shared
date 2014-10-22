@@ -24,6 +24,7 @@
 #include <QDomElement>
 #include <QFile>
 #include <Global/Include/SystemPaths.h>
+#include <unistd.h>
 
 using namespace DeviceControl;
 
