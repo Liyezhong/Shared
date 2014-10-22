@@ -164,6 +164,9 @@ void DeviceLifeCycleRecord::WriteRecord()
     (void)file.flush();
     (void)fsync(file.handle());
     file.close();
+    const QString MD5sumGenerator = QString("%1%2 %3").arg(Global::SystemPaths::Instance().GetScriptsPath()).
+    arg(QString("/EBox-Utils.sh update_md5sum_for_file_in_settings")).arg(m_DeviceLifeCycleRecordFileName);
+    (void)system(MD5sumGenerator.toStdString().c_str());
 }
 
 void DeviceLifeCycleRecord::FreeObjects()
