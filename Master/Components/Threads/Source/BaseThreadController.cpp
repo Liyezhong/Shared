@@ -280,7 +280,7 @@ void BaseThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Glob
         if(!m_PendingCommands.contains(Ref)) {
             // unknown command reference. maybe already timed out.
 //            qDebug() << "BaseThreadController::OnProcessAcknowledge, unknown command ref" << Ref;
-            Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::FmtArgs() << Ref << m_ThreadID, true);
+            Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::FmtArgs() << Ref << m_ThreadID << Ack->GetName(), true);
 //            LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::tTranslatableStringList() << QString::number(Ref, 10)
 //                      , Global::NO_NUMERIC_DATA, false);
             return;
@@ -318,7 +318,7 @@ void BaseThreadController::OnProcessTimeout(Global::tRefType Ref, const QString 
     if(!m_PendingCommands.contains(Ref)) {
         // unknown command reference. maybe already processed?.
         qDebug() << "BaseThreadController::OnProcessTimeout, unknown command ref" << Ref;
-        Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::FmtArgs() << Ref << m_ThreadID, true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::FmtArgs() << Ref << m_ThreadID << CmdName, true);
 //        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, QString::number(Ref, 10)
 //                  , Global::NO_NUMERIC_DATA, false);
         return;
