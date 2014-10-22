@@ -72,6 +72,7 @@ CInfoOtherModule::CInfoOtherModule(COtherModule *p_OtherModule, DataManager::CSu
 /****************************************************************************/
 bool CInfoOtherModule::Finished(QEvent *p_Event)
 {
+    Q_UNUSED(p_Event)
     PartLifeCycleRecord* pPartLifeCycleRecord = mp_OtherModule->GetPartLifeCycleRecord();
     if (!pPartLifeCycleRecord)
         return false;

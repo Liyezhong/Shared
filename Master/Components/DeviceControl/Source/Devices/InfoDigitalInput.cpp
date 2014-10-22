@@ -73,6 +73,7 @@ CInfoDigitalInput::CInfoDigitalInput(CDigitalInput *p_DigitalInput, DataManager:
 /****************************************************************************/
 bool CInfoDigitalInput::Finished(QEvent *p_Event)
 {
+    Q_UNUSED(p_Event)
     QString Version = QString().setNum(mp_DigitalInput->GetBaseModule()->GetModuleSWVersion(mp_DigitalInput->GetType()));
 
     if (!mp_SubModule->UpdateParameterInfo("SoftwareVersion", Version)) {

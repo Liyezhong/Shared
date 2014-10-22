@@ -387,6 +387,8 @@ void HimalayaEventHandlerThreadController::SendALMCommand(quint32 EventKey, cons
     case Global::ALARMPOS_DEVICE:
         opcode = active ? 1 : 0;
         break;
+    case Global::ALARMPOS_NONE:
+        break;
     }
 
     if (opcode == 1 || opcode == 3 || opcode == 5) {

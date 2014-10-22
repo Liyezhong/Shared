@@ -1467,7 +1467,7 @@ ReturnCode_t CAirLiquidDevice::FillingForService(quint32 DelayTime, bool EnableI
                 {
                     //NeedOverflowChecking = false;
                     //waiting for some time
-                    int MaxDelayTime = 70*1000;
+                    quint32 MaxDelayTime = 70*1000;
                     if(DelayTime <= MaxDelayTime)
                     {
                         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << DelayTime<<" milliseconds.";

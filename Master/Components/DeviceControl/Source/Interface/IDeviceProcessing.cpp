@@ -2274,6 +2274,8 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             density = 1;
             basePressure = 0.6;
         }
+        Q_UNUSED(density)
+        Q_UNUSED(basePressure)
         // Move RV to tube position
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)

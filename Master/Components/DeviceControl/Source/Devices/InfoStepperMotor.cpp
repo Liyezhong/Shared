@@ -163,8 +163,8 @@ bool CInfoStepperMotor::RequestDirChangeCountData(QEvent *p_Event)
 bool CInfoStepperMotor::Finished(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode;
-    quint32 StepCounter;
-    quint32 DirChangeCounter;
+//    quint32 StepCounter;
+//    quint32 DirChangeCounter;
     quint32 OperationTime;
     QString Version = QString().setNum(mp_StepperMotor->GetBaseModule()->GetModuleSWVersion(mp_StepperMotor->GetType()));
 

@@ -481,6 +481,7 @@ CBaseModule* CBaseDevice::GetCANNodeFromID(quint16 CANNodeID)
 quint16 CBaseDevice::GetBaseModuleVoltage(quint16 CANNodeID)
 {
     quint16 retValue = 0;
+    Q_UNUSED(CANNodeID)
 #if 0
     if(m_pDevProc)
     {
@@ -521,6 +522,9 @@ void CBaseDevice::OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo,
 {
     m_BaseModuleVoltageState = State;
     m_BaseModuleVoltage = Value;
+    Q_UNUSED(InstanceID)
+    Q_UNUSED(HdlInfo)
+    Q_UNUSED(Failures)
 #if 0
     (void)State;
     (void)Failures;
@@ -551,6 +555,7 @@ void CBaseDevice::OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo,
 quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
 {
     quint16 retValue = 0;
+    Q_UNUSED(CANNodeID)
 #if 0
     if(m_pDevProc)
     {
@@ -666,6 +671,9 @@ void CBaseDevice::OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo,
 {
     m_BaseModuleCurrentState = State;
     m_BaseModuleCurrent = Value;
+    Q_UNUSED(InstanceID)
+    Q_UNUSED(HdlInfo)
+    Q_UNUSED(Failures)
 #if 0
     (void)State;
     (void)Failures;

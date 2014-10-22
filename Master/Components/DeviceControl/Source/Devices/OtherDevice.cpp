@@ -143,6 +143,7 @@ ReturnCode_t COtherDevice::HandleInitializationState()
     RetVal = InitFunctionModuleLifeTime(CANObjectKeyLUT::m_OtherDevicePressureSensor, "PressureSensor");
     if (DCL_ERR_FCT_CALL_FAILED == RetVal)
         return RetVal;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 

@@ -91,6 +91,7 @@ bool CArchiveServiceInforState::EmitGetServiceInfor(QEvent *p_Event)
 /****************************************************************************/
 bool CArchiveServiceInforState::Finished(QEvent *p_Event)
 {
+    Q_UNUSED(p_Event)
     return true;
 }
 

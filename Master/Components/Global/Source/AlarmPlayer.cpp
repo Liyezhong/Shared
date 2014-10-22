@@ -113,9 +113,12 @@ void AlarmPlayer::emitAlarm(Global::AlarmType alarmType, bool UsePresetValues, Q
         }
     }//Mutex scope ends
 
-    quint8 volume = UsePresetValues ? ActiveVolume : Volume;
-    if (volume < 0)
-        volume = 0;
+    quint8 volume = 0;
+    if (UsePresetValues)
+        volume = ActiveVolume;
+    else
+        volume = Volume;
+
     if (volume > MAX_VOLUME)
         volume = MAX_VOLUME;
 
