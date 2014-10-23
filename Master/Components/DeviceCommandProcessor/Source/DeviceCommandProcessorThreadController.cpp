@@ -36,9 +36,9 @@ namespace DeviceCommandProcessor {
 DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(
     Global::gSourceType TheHeartBeatSource, QString name) :
     Threads::ThreadController(TheHeartBeatSource, name),
+    m_pDeviceProcessing(NULL),
     m_RefInitDCL(Global::RefManager<Global::tRefType>::INVALID),
     m_InLoaderChangedRef(Global::RefManager<Global::tRefType>::INVALID),
-    m_pDeviceProcessing(NULL),
     m_InUnloaderChangedRef(Global::RefManager<Global::tRefType>::INVALID)
 {
     //qRegisterMetaType<quint32>("DevInstanceID_t");
