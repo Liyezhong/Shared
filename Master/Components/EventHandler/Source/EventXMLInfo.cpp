@@ -98,6 +98,13 @@ bool EventXMLInfo::InitXMLInfo()
 bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
 {
     QSharedPointer<XMLEvent> pXMLEvent;
+#if !defined(__arm__)
+        QFile csv(strSrcName + ".csv");
+        QString csvLine = "";
+        csv.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream csvout(&csv);
+        csvout<<"EVENT_ID,EVENT_NAME,EVENT_TYPE,ALARM_TYPE,USER_LOG,SER_STRING_ID,STEP_ID,STATUS_BAR,STRING_ID\n";
+#endif
     while (m_pXMLReader->name()!="Source" || !m_pXMLReader->isEndElement())
     {
         m_pXMLReader->readNextStartElement();
@@ -114,6 +121,9 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLReader->attributes().hasAttribute("ErrorID"))
             {
                 bool ok = false;
+#if !defined(__arm__)
+                csvLine = m_pXMLReader->attributes().value("ErrorID").toString() + ",";
+#endif
                 errorId = m_pXMLReader->attributes().value("ErrorID").toString().toInt(&ok);
                 if (ok == false)
                 {
@@ -121,10 +131,21 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
+            QString EventName = "";
+            if (m_pXMLReader->attributes().hasAttribute("Name"))
+            {
+                EventName = m_pXMLReader->attributes().value("Name").toString();
+            }
+#if !defined(__arm__)
+                csvLine += EventName + ",";
+#endif
             Global::EventType errorType = EVTTYPE_UNDEFINED;
             if (m_pXMLReader->attributes().hasAttribute("ErrorType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("ErrorType").toString().toUpper();
+#if !defined(__arm__)
+                csvLine += strRet + ",";
+#endif
                 if (strRet.trimmed() == "ERROR")
                 {
                     errorType = EVTTYPE_ERROR;
@@ -165,6 +186,9 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLReader->attributes().hasAttribute("AlarmType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("AlarmType").toString().toUpper();
+#if !defined(__arm__)
+                csvLine += strRet + ",";
+#endif
                 if (strRet.trimmed() == "AL_LOCAL")
                 {
                     alarmType = ALARMPOS_LOCAL;
@@ -183,6 +207,22 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
+            bool UserLog = false;
+            if (m_pXMLReader->attributes().hasAttribute("UserLog"))
+            {
+                QString strUserLog = m_pXMLReader->attributes().value("UserLog").toString().toUpper();
+                UserLog = ((strUserLog.toUpper() == "TRUE") || (strUserLog.toUpper() == "YES"));
+            }
+#if !defined(__arm__)
+            if(UserLog)
+            {
+                csvLine += QString("TRUE,");
+            }
+            else
+            {
+                csvLine += QString("FALSE,");
+            }
+#endif
             quint32 rootStep = 0;
             if (m_pXMLReader->attributes().hasAttribute("RootStep"))
             {
@@ -194,11 +234,6 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
-            QString EventName = "";
-            if (m_pXMLReader->attributes().hasAttribute("Name"))
-            {
-                EventName = m_pXMLReader->attributes().value("Name").toString();
-            }
             // for service string id
             quint32 ServiceString = 0;
             if (m_pXMLReader->attributes().hasAttribute("ServiceString"))
@@ -206,7 +241,9 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 bool ok;
                 ServiceString = m_pXMLReader->attributes().value("ServiceString").toString().toUInt(&ok);
             }
-
+#if !defined(__arm__)
+            csvLine += QString::number(ServiceString)+ ",";
+#endif
             Global::EventLogLevel logLevel = Global::LOGLEVEL_NONE;
             if (m_pXMLReader->attributes().hasAttribute("LogLevel"))
             {
@@ -223,13 +260,6 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 {
                     logLevel = Global::LOGLEVEL_HIGH;
                 }
-            }
-
-            bool UserLog = false;
-            if (m_pXMLReader->attributes().hasAttribute("UserLog"))
-            {
-                QString strUserLog = m_pXMLReader->attributes().value("UserLog").toString().toUpper();
-                UserLog = ((strUserLog.toUpper() == "TRUE") || (strUserLog.toUpper() == "YES"));
             }
 
             Global::EventSourceType eventSource = EVENTSOURCE_NONE;
@@ -309,6 +339,9 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLEventList.find(pXMLEvent->m_ErrorId) == m_pXMLEventList.end())
             {
                 m_pXMLEventList.insert(pXMLEvent->m_ErrorId, pXMLEvent);
+#if !defined(__arm__)
+                csvout << csvLine << "\n";
+#endif
             }
         }
         else if (m_pXMLReader->name() == "Step"&& !m_pXMLReader->isEndElement()) // For the "Step" elements
@@ -366,7 +399,6 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 bool ok;
                 StringId = m_pXMLReader->attributes().value("StringID").toString().toUInt(&ok);
             }
-
             QString TimeOut="";
             if (m_pXMLReader->attributes().hasAttribute("TimeOut"))
             {
@@ -466,7 +498,12 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                     StatusBar = false;
                 }
             }
-
+#if !defined(__arm__)
+            if(Type.compare("MSG") == 0)
+            {
+                csvLine += QString("%1,%2,%3,").arg(Id).arg(StatusBar?"YES":"NO").arg(StringId);
+            }
+#endif
             QSharedPointer<EventStep> pEventStep(new EventStep(Id, Type));
             pEventStep->m_Action = Action;
             pEventStep->m_NextStepOnFail = NextStepOnFail;
