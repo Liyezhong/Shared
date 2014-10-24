@@ -204,7 +204,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
         Global::EventObject::Instance().RaiseEvent(Global::EVENT_RECOVERED_FROM_POWER_FAIL);
     }
 
-    mp_GPIOThreadController->SkipSoftSwitchAtBoot(true);
+    //mp_GPIOThreadController->SkipSoftSwitchAtBoot(true);
 
 }
 
@@ -318,7 +318,7 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
     CONNECTSIGNALSLOT(this, GUIConnected(),
                       mp_DataLoggingThreadController, CheckLoggingEnabled());
 
-    mp_GPIOThreadController = new GPIOManager::GPIOThreadController(m_ThreadIDGPIOManager);
+    //mp_GPIOThreadController = new GPIOManager::GPIOThreadController(m_ThreadIDGPIOManager);
 
     try {
         try {
@@ -333,8 +333,8 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
         delete mp_EventThreadController;
         mp_EventThreadController = NULL;
 
-        delete mp_GPIOThreadController;
-        mp_GPIOThreadController= NULL;
+//        delete mp_GPIOThreadController;
+//        mp_GPIOThreadController= NULL;
         // rethrow exception
         throw;
     }
@@ -356,20 +356,20 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
         throw;
     }
 
-    try {
-        try {
-            AddAndConnectController(mp_GPIOThreadController, &m_CommandChannelGPIOManager,
-                                    m_ThreadIDGPIOManager, true);
-        }
-        CATCHALL_RETHROW();
-    }
-    catch(...) {
-        // delete m_pEventThreadController
-        delete mp_GPIOThreadController;
-        mp_GPIOThreadController = NULL;
-        // rethrow exception
-        throw;
-    }
+//    try {
+//        try {
+//            AddAndConnectController(mp_GPIOThreadController, &m_CommandChannelGPIOManager,
+//                                    m_ThreadIDGPIOManager, true);
+//        }
+//        CATCHALL_RETHROW();
+//    }
+//    catch(...) {
+//        // delete m_pEventThreadController
+//        delete mp_GPIOThreadController;
+//        mp_GPIOThreadController = NULL;
+//        // rethrow exception
+//        throw;
+//    }
 
     //create heartbeat thread;
     try {
