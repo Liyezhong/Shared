@@ -28,6 +28,7 @@
 #include <QTimer>
 #include <QLabel>
 
+//lint -e578
 namespace MainMenu {
 
 namespace Ui {
@@ -50,7 +51,7 @@ public:
         Admin,
         Operator,
         Service
-    } UserRole_t;
+    } UserRole_t; 
 
     //!<
     /****************************************************************************/
