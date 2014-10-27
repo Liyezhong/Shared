@@ -842,7 +842,7 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPressure, bool IsMoveRV)
+ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPressure, QString ReagentGrpID)
 {
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -857,31 +857,28 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         {
             return retCode;
         }
-        if(IsMoveRV)
+        // Move RV to sealing position
+        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            // Move RV to sealing position
-            retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
-            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
-            {
-                return retCode;
-            }
+            return retCode;
+        }
 
-            bool IsRightPos = false;
-            delayTime = QTime::currentTime().addMSecs(30*1000);
-            while (QTime::currentTime() < delayTime)
+        bool IsRightPos = false;
+        delayTime = QTime::currentTime().addMSecs(30*1000);
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            RVPosition_t position = m_pRotaryValve->ReqActRVPosition();
+            if (position == RVPos+1)
             {
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-                RVPosition_t position = m_pRotaryValve->ReqActRVPosition();
-                if (position == RVPos+1)
-                {
-                    IsRightPos = true;
-                    break;
-                }
+                IsRightPos = true;
+                break;
             }
-            if (false == IsRightPos)
-            {
-                return DCL_ERR_FCT_CALL_FAILED;
-            }
+        }
+        if (false == IsRightPos)
+        {
+            return DCL_ERR_FCT_CALL_FAILED;
         }
 
         // Set positive pressure (40 kpa)
@@ -918,24 +915,38 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
             }
         }
 
-        if(IsMoveRV)
+        // Move RV to tube position
+        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos));
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            // Move RV to tube position
-            retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos));
-            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
-            {
-                m_pAirLiquid->ReleasePressure();
-                return retCode;
-            }
+            m_pAirLiquid->ReleasePressure();
+            return retCode;
         }
 
         // Check if there is No reagent in the bottle
-        delayTime = QTime::currentTime().addMSecs(60*1000);
+        qreal BasePressure = 1.33;
+        if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
+        {
+            BasePressure = 1.33;
+        }
+        else if((ReagentGrpID == "RG3")||(ReagentGrpID == "RG4")||(ReagentGrpID == "RG8"))
+        {
+            BasePressure = 1.05;
+        }
+        else if((ReagentGrpID == "RG5")||(ReagentGrpID == "RG7"))
+        {
+            BasePressure = 1.14;
+        }
+        else if((ReagentGrpID == "RG6"))
+        {
+            BasePressure = 0.53;
+        }
+        delayTime = QTime::currentTime().addMSecs(180*1000);
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
             pressure = m_pAirLiquid->GetRecentPressure();
-            if (pressure < DRAINGING_TARGET_FINISHED_PRESSURE)
+            if (pressure < 2 * BasePressure)
             {
                 m_pAirLiquid->ReleasePressure();
                 return DCL_ERR_FCT_CALL_SUCCESS;
