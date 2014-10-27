@@ -946,7 +946,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
             pressure = m_pAirLiquid->GetRecentPressure();
-            if (pressure < 2 * BasePressure)
+            if (pressure < 3 * 1.33)
             {
                 m_pAirLiquid->ReleasePressure();
                 return DCL_ERR_FCT_CALL_SUCCESS;
