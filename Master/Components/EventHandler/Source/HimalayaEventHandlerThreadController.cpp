@@ -271,7 +271,9 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                         ResetRmtLocAlarm(EventKey, pEvent);
                         ResetAlarm();
                         break;
-
+                    case NetCommands::YES_BUTTON:
+                        NextStepID = pCurrentStep->GetNextStepOnClickYES();
+                        break;
                     case NetCommands::TIMEOUT:
                     default: //time out
                         qDebug() << "I get the timeout message";
