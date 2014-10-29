@@ -35,6 +35,7 @@
 #include <QDomDocument>
 #include <QFile>
 #include <QTimer>
+#include <QVector>
 
 #include "DeviceControl/Include/CanCommunication/CANCommunicator.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcTask.h"
@@ -72,6 +73,25 @@ typedef QList<DeviceProcTask*> ListDeviceProcTask;
 
 //! List of devices used by device processing
 typedef QList<CBaseDevice*> ListDevice;
+
+class DCLEventLoop : public QEventLoop
+{
+    Q_OBJECT
+public:
+    void SetCmdType(SyncCmdType_t cmdType) { m_CmdType = cmdType; }
+    SyncCmdType_t GetCmdType() { return m_CmdType; }
+public slots:
+    void TimeOut()
+    {
+        if (this->isRunning())
+        {
+            this->exit(DCL_ERR_TIMER_TIMEOUT);
+        }
+    }
+private:
+    SyncCmdType_t    m_CmdType;
+
+};
 
 /****************************************************************************/
 /*!
@@ -713,15 +733,8 @@ private:
 #ifndef HAL_CV_TEST
     QWaitCondition m_WaitConditionForSyncCall[SYNC_CMD_TOTAL_NUM]; //!< Last Wait condition array used for synchronized call
 #else
-   typedef struct
-    {
-       QEventLoop eventloop;
-       bool timerActive;
-       qint64 endTime;
-    } EventLoopWithTimeout_t;
+    QVector< DCLEventLoop*>     m_EventLoopsForSyncCall; //!< DCLEventLoop list
 
-    EventLoopWithTimeout_t m_EventLoopsForSyncCall[SYNC_CMD_TOTAL_NUM];
-    QTimer* m_pTimer;
 #endif
     ReturnCode_t m_SyncCallResult[SYNC_CMD_TOTAL_NUM]; //!< Synchronized call results
     QMutex m_Mutex[SYNC_CMD_TOTAL_NUM];                //!< Mutexs for waitconditions

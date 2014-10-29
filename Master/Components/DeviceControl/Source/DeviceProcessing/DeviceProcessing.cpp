@@ -120,10 +120,10 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
 
     m_MainState = DP_MAIN_STATE_INTERNAL_CONFIG;
 #ifdef HAL_CV_TEST
-    for(quint32 i = 0; i< SYNC_CMD_TOTAL_NUM; i++)
-    {
-        m_EventLoopsForSyncCall[i].timerActive = false;
-    }
+
+    // Make empty when initialization
+    QVector< DCLEventLoop*> emptyVector;
+    m_EventLoopsForSyncCall.swap(emptyVector);
 #endif
     //Heartbeat timer initialization
     if (ftime(&m_tbTimerHeartbeatTime) != 0) {
@@ -2140,12 +2140,21 @@ void DeviceProcessing::WriteDeviceLifeCycle()
 /****************************************************************************/
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
 {
-    ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
-    if(!m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+    DCLEventLoop* event = new DCLEventLoop();
+    event->SetCmdType(CmdType);
+    m_EventLoopsForSyncCall.push_back(event);
+    ReturnCode_t ret = (ReturnCode_t)(event->exec());
+    for (QVector<DCLEventLoop*>::iterator iter = m_EventLoopsForSyncCall.begin(); iter!= m_EventLoopsForSyncCall.end(); ++iter)
     {
-        retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
+        if (*iter == event)
+        {
+            delete event;
+            event = NULL;
+            m_EventLoopsForSyncCall.erase(iter);
+            break;
+        }
     }
-    return retValue;
+    return ret;
 }
 
 /****************************************************************************/
@@ -2157,9 +2166,12 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
 /****************************************************************************/
 void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, ReturnCode_t Value)
 {
-    if(m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+    for (int i =0; i<m_EventLoopsForSyncCall.size(); ++i)
     {
-        m_EventLoopsForSyncCall[CmdType].eventloop.exit(Value);
+        if (CmdType == m_EventLoopsForSyncCall[i]->GetCmdType())
+        {
+            m_EventLoopsForSyncCall[i]->exit(Value);
+        }
     }
 }
 
@@ -2173,34 +2185,42 @@ void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, ReturnCode_t Va
 /****************************************************************************/
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
 {
-        ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
+    DCLEventLoop* event = new DCLEventLoop();
+    event->SetCmdType(CmdType);
+    QTimer::singleShot(Timeout, event, SLOT(TimeOut()));
+    m_EventLoopsForSyncCall.push_back(event);
+    ReturnCode_t ret = (ReturnCode_t)(event->exec());
 
-        if(!m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+    for (QVector<DCLEventLoop*>::iterator iter = m_EventLoopsForSyncCall.begin(); iter!= m_EventLoopsForSyncCall.end(); ++iter)
+    {
+        if (*iter == event)
         {
-            QTimer timer;
-            timer.setSingleShot(true);
-            connect(&timer, SIGNAL(timeout()), this, SLOT(BlockingTimerCallback()));
-            qint64 Before = QDateTime::currentMSecsSinceEpoch();
-            m_EventLoopsForSyncCall[CmdType].timerActive = true;
-            m_EventLoopsForSyncCall[CmdType].endTime = Before + Timeout;
-
-            timer.start((qint32)Timeout);
-            //LOG()<<Before<<"timer start"<<CmdType<<"timer in"<<timer.interval();
-            retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
+            delete event;
+            event = NULL;
+            m_EventLoopsForSyncCall.erase(iter);
+            break;
         }
-        return retValue;
+    }
+    return ret;
 }
-
 
 void DeviceProcessing::OnStopCommandExec(quint8 CmdType)
 {
     if (0 == CmdType)
     {
-        m_EventLoopsForSyncCall[SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR].eventloop.exit(DCL_ERR_UNEXPECTED_BREAK);
+        CmdType = SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR;
     }
     else if (1 == CmdType)
     {
-        m_EventLoopsForSyncCall[SYNC_CMD_AL_PROCEDURE_DRAINING].eventloop.exit(DCL_ERR_UNEXPECTED_BREAK);
+        CmdType = SYNC_CMD_AL_PROCEDURE_DRAINING;
+    }
+
+    for (int i =0; i<m_EventLoopsForSyncCall.size(); ++i)
+    {
+        if (CmdType == m_EventLoopsForSyncCall[i]->GetCmdType())
+        {
+            m_EventLoopsForSyncCall[i]->exit(DCL_ERR_UNEXPECTED_BREAK);
+        }
     }
 }
 
@@ -2211,6 +2231,7 @@ void DeviceProcessing::OnStopCommandExec(quint8 CmdType)
 /****************************************************************************/
 void DeviceProcessing::BlockingTimerCallback()
 {
+#if 0
     for(quint32 i = 0; i< SYNC_CMD_TOTAL_NUM; i++)
     {
         if(m_EventLoopsForSyncCall[i].timerActive)
@@ -2224,6 +2245,7 @@ void DeviceProcessing::BlockingTimerCallback()
             }
         }
     }
+#endif
 }
 #else
 

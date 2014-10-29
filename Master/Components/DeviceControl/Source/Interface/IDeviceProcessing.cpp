@@ -842,7 +842,7 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPressure, QString ReagentGrpID)
+ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPressure, const QString& ReagentGrpID)
 {
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     if(QThread::currentThreadId() != m_ParentThreadID)

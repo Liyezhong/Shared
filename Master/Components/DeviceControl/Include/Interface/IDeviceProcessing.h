@@ -153,7 +153,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE, QString ReagentGrpID = "RG2");
+    ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE, const QString& ReagentGrpID = "RG2");
 
     /****************************************************************************/
     /*!
