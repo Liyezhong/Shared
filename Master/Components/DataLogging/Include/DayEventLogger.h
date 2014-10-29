@@ -165,6 +165,14 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief Checks whether file needs to swichted to new file or not
+     *
+     */
+    /****************************************************************************/
+    void CheckNewFile();
+
+    /****************************************************************************/
+    /**
      * \brief Removes outdated files from the system
      *
      * \iparam      Prefix      Prefix of the file name

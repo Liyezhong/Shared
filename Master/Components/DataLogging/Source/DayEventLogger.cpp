@@ -221,16 +221,8 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
     }
     else
     {
-        // check if date changed
-        QDate Now = Global::AdjustedTime::Instance().GetCurrentDate();
-        if(m_LastLogDate != Now)
-        {
-            m_LastLogDateBackUp = m_LastLogDate;
-            // remember new date
-            m_LastLogDate = Now;
-            // switch to new file
-            SwitchToNewFile();
-        }
+        CheckNewFile();
+
         /// check if file ready for logging - usually log file opens at the
         /// start of the Data Logging component. Suppose if the system unable to write
         /// the file to the file system or file error
@@ -270,6 +262,20 @@ void DayEventLogger::Configure(const DayEventLoggerConfig &Config) {
 
 }
 
+/****************************************************************************/
+void DayEventLogger::CheckNewFile()
+{
+    // check if date changed
+    QDate Now = Global::AdjustedTime::Instance().GetCurrentDate();
+    if(m_LastLogDate != Now)
+    {
+        m_LastLogDateBackUp = m_LastLogDate;
+        // remember new date
+        m_LastLogDate = Now;
+        // switch to new file
+        SwitchToNewFile();
+    }
+}
 
 /****************************************************************************/
 void DayEventLogger::FlushDataToFile(bool Enable) {
