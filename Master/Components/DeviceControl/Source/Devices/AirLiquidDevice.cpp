@@ -1217,13 +1217,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure,
     }
 
 SORTIE:
-    //stop compressor
-    StopCompressor();
-    //close both valve
-    (void)SetValve(VALVE_1_INDEX,VALVE_STATE_CLOSE);
-    (void)SetValve(VALVE_2_INDEX,VALVE_STATE_CLOSE);
-    (void)TurnOffFan();
-
+    ReleasePressure();
     return RetValue;
 }
 
@@ -1279,8 +1273,8 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
             m_pDevProc->OnReportLevelSensorStatus1();
             if(TimeStopFilling == 0)
             {
-                FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Hit target level. Sucking Finished.";
-                LogDebug(QString("INFO: Hit target level. Sucking Finished."));
+                FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Hit target level. Filling Finished.";
+                LogDebug(QString("INFO: Hit target level. Filling Finished."));
                 if(DelayTime > 0)
                 {
                     NeedOverflowChecking = false;
