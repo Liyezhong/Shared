@@ -164,7 +164,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
-            Global::GuiUserLevel authType;
+            Global::GuiUserLevel authType = ADMIN;
             if (m_pXMLReader->attributes().hasAttribute("AuthorityType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("AuthorityType").toString();
@@ -182,7 +182,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
-            Global::AlarmPosType alarmType;
+            Global::AlarmPosType alarmType = ALARMPOS_NONE;
             if (m_pXMLReader->attributes().hasAttribute("AlarmType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("AlarmType").toString().toUpper();

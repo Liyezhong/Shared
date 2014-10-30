@@ -836,8 +836,8 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
  *  \brief  Device Force Draining function
  *
  *  \iparam  RVPos = RV position
- *  \iparam  targetPressure target pressure
- *  \iparam  IsMoveRV move flag
+ *  \iparam  targetPressure = target pressure
+ *  \iparam  ReagentGrpID = reagent group ID
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -941,12 +941,13 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         {
             BasePressure = 0.53;
         }
+
         delayTime = QTime::currentTime().addMSecs(180*1000);
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
             pressure = m_pAirLiquid->GetRecentPressure();
-            if (pressure < 3 * 1.33)
+            if (pressure < 3 * BasePressure)
             {
                 m_pAirLiquid->ReleasePressure();
                 return DCL_ERR_FCT_CALL_SUCCESS;

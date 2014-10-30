@@ -74,13 +74,48 @@ typedef QList<DeviceProcTask*> ListDeviceProcTask;
 //! List of devices used by device processing
 typedef QList<CBaseDevice*> ListDevice;
 
+/****************************************************************************/
+/*!
+ *  \brief  EventLoop class for DeviceControl, which is inherited
+ *          from QEventLoop
+ */
+/****************************************************************************/
 class DCLEventLoop : public QEventLoop
 {
     Q_OBJECT
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Set command type
+     *
+     *  \param  cmdType = command type
+     *
+     *  \return void
+     */
+    /****************************************************************************/
     void SetCmdType(SyncCmdType_t cmdType) { m_CmdType = cmdType; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get command type
+     *
+     *  \param  void
+     *
+     *  \return Command type of the object
+     */
+    /****************************************************************************/
     SyncCmdType_t GetCmdType() { return m_CmdType; }
 public slots:
+
+    /****************************************************************************/
+    /*!
+     *  \brief  slot for timer time out
+     *
+     *  \param  void
+     *
+     *  \return void
+     */
+    /****************************************************************************/
     void TimeOut()
     {
         if (this->isRunning())
@@ -89,7 +124,7 @@ public slots:
         }
     }
 private:
-    SyncCmdType_t    m_CmdType;
+    SyncCmdType_t    m_CmdType; //!< command type
 
 };
 

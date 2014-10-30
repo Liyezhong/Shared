@@ -123,6 +123,7 @@ public:
      *  \brief  Log the events which are there in queue
      *
      *  \iparam EventInfo EventEntry event entry object
+     *  \iparam Service flag to indicate if Service SW is calling it
      */
     /****************************************************************************/
     void LogEntry(const EventRuntimeInfo_t& EventInfo, bool Service = false);
