@@ -69,6 +69,7 @@ RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThre
     , m_EventClass(RC_EVENT_CLASS_ALARM_WARN_INFO)
     , m_EventPriority(Global::LOGLEVEL_NONE)
     , m_RCAAvailable(false)
+    , m_IsConnectedToWeb(false)
     , m_SubscriptionStatus(false)
     , m_NumberOfLogFiles(5)
     , mp_RCConfigurationInterface(RCConfigurationInterface)
@@ -168,9 +169,6 @@ void RemoteCareManager::RegisterCommands()
 void RemoteCareManager::RCAConnected() {
 
     m_RCAAvailable = true;
-
-    //broadcast this msg so that gui receives this.
-    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
 }
 
 /****************************************************************************/
@@ -221,10 +219,18 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
             return;
     }
 
-    if (RCEventData.EventCode == RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS) {
-        //broadcast this msg so that gui receives this.
-        emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
-    }
+    switch(RCEventData.EventCode)
+    {
+        case RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS:
+            //broadcast this msg so that gui receives this.
+            emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+            m_IsConnectedToWeb = false;
+            break;
+        case RCAgentNamespace::EVENT_REMOTECARE_INFO_CONNECTED_ENTERPRISE_SERVER:
+            emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
+            m_IsConnectedToWeb = true;
+            break;
+    }	
 
     // check the string list count
     if (RCEventData.EventStringList.count() > 0) {
@@ -313,7 +319,7 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
     qDebug() << "==================" << "TheEvent.GetEventName ="<< TheEvent.GetEventName() << "GetEventCode=" << TheEvent.GetEventCode() << "TheEvent.GetEventType() =" \
              << TheEvent.GetEventType() << "TheEvent.GetLogLevel() =" << TheEvent.GetLogLevel();
 
-    if (m_RCAAvailable && m_SubscriptionStatus) {
+    if (m_RCAAvailable && m_SubscriptionStatus && m_IsConnectedToWeb) {
         bool SendEvent = false;
 
         if (EventId64 == EVENT_RCMANAGER_RECEIVED_COMMAND ||

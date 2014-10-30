@@ -33,6 +33,9 @@
 #include <NetCommands/Include/CmdRCNotifyDataItem.h>
 #include <NetCommands/Include/CmdRCSoftwareUpdate.h>
 
+namespace DataLogging {
+    class DayEventEntry;
+}
 namespace RemoteCare {
 
 class TestRemoteCareManager;
@@ -73,6 +76,7 @@ private:
     QString m_EventClass;                                                //!< The event class
     Global::EventLogLevel m_EventPriority;                               //!< The event priority
     bool m_RCAAvailable;                                                 //!< is remote care agent active
+    bool m_IsConnectedToWeb;                                             //!< connected to web flag
     bool m_SubscriptionStatus;                                           //!< is remote care subscribed
     bool m_RCSoftwareAvailable;                                          //!< is remote care software update
     quint8 m_NumberOfLogFiles;                                           //!< total number of log files to be exported to RC

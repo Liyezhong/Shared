@@ -145,7 +145,7 @@ public:
      */
     /****************************************************************************/
     TestMasterThreadController() :
-        MasterThreadController("ColoradoShutdown"),
+        MasterThreadController("HimalayaShutdown"),
         m_CommandChannelGui(this, "Gui", Global::EVENTSOURCE_NONE)
     {
     }
