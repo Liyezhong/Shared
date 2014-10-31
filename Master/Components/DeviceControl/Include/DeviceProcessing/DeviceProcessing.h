@@ -99,9 +99,7 @@ public:
     /*!
      *  \brief  Get command type
      *
-     *  \param  void
-     *
-     *  \return Command type of the object
+     *  \return SyncCmdType_t Command type of the object
      */
     /****************************************************************************/
     SyncCmdType_t GetCmdType() { return m_CmdType; }
@@ -110,8 +108,6 @@ public slots:
     /****************************************************************************/
     /*!
      *  \brief  slot for timer time out
-     *
-     *  \param  void
      *
      *  \return void
      */
