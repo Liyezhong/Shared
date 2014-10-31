@@ -148,8 +148,8 @@ public:
      *  \brief  Definition/Declaration of function IDForceDraining
      *
      *  \param RVPos = rv pos
-     *  \param targetPressure target pressure
-     *  \param  IsMoveRV move flag
+     *  \param targetPressure =  target pressure
+     *  \param ReagentGrpID = reagent group ID
      *  \return from ALDraining
      */
     /****************************************************************************/
