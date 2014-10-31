@@ -617,15 +617,15 @@ CreateDirAndFileFilterListForSettings()
 RemoveObsoleteFiles()
 {
     cd $SETTINGDIR 
-    find . -type f | while read FileName; do
-        if [ ! -f $TMPSETTINGDIR/$FileName ]; then 
-            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_REMOVE_OBSOLETE_FILE" "$SETTINGDIR"/"$FileName"
-            rm $FileName
-            local BaseFileName=${FileName##*/}
-            #remove entry from md5sum file
-            sed -i "/$BaseFileName/d" .md5sum.txt
-        fi
-    done
+    # find . -type f | while read FileName; do
+    #     if [ ! -f $TMPSETTINGDIR/$FileName ]; then 
+    #         Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_REMOVE_OBSOLETE_FILE" "$SETTINGDIR"/"$FileName"
+    #         rm $FileName
+    #         local BaseFileName=${FileName##*/}
+    #         #remove entry from md5sum file
+    #         sed -i "/$BaseFileName/d" .md5sum.txt
+    #     fi
+    # done
     cd - >/dev/null 2>&1
 }
 
