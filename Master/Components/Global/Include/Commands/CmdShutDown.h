@@ -41,6 +41,7 @@ private:
      */
     /****************************************************************************/
     void CopyFrom(const CmdShutDown &rOther);
+    bool m_IsReboot;    ///< need to reboot or not
 protected:
 public:
     static QString  NAME;                   ///< Command name.
@@ -49,7 +50,7 @@ public:
      * \brief Constructor.
      */
     /****************************************************************************/
-    CmdShutDown();
+    CmdShutDown(bool Reboot = false);
     /****************************************************************************/
     /**
      * \brief Copy constructor.
@@ -82,6 +83,26 @@ public:
     /****************************************************************************/
     virtual QString GetName() const {
         return NAME;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set reboot
+     *
+     * \return  void
+     */
+    /****************************************************************************/
+    void SetReboot(bool Reboot){
+        m_IsReboot = Reboot;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Get reboot.
+     *
+     * \return  true - need reboot, false - shutdown only
+     */
+    /****************************************************************************/
+    bool GetReboot() const{
+        return m_IsReboot;
     }
 }; // end class CmdShutDown
 }// end of namespace global

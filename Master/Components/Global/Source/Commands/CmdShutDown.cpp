@@ -25,8 +25,9 @@ namespace Global {
 QString CmdShutDown::NAME = "Global::CmdShutDown";
 
 /****************************************************************************/
-CmdShutDown::CmdShutDown() :
-    Command(NOTIMEOUT)
+CmdShutDown::CmdShutDown(bool Reboot) :
+    Command(NOTIMEOUT),
+    m_IsReboot(Reboot)
 {
 }
 
