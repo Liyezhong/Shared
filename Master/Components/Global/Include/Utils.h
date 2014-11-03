@@ -602,6 +602,17 @@ void DumpToConsole(const QString StringToDump);
 
 /****************************************************************************/
 /**
+ * \brief   Workaround checking
+ *
+ * \param  type = workaround type
+ *
+ * \return bool true - workaround enabled, false - workaround disabled
+ */
+/****************************************************************************/
+bool Workaroundchecking(const QString& Type);
+
+/****************************************************************************/
+/**
  * \brief  Thread Priority types
  *
  */

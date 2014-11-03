@@ -431,4 +431,43 @@ void UpdateRebootFile(const QMap<QString, QString> RebootFileContent)
     fsync(RebootFile.handle());
     RebootFile.close();
 }
+
+bool Workaroundchecking(const QString& Type)
+{
+    if (false == QFile::exists("TEST_BEAN"))
+    {
+        return false;
+    }
+    QFile file("TEST_BEAN");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream in(&file);
+
+    while (!in.atEnd())
+    {
+        QString line = in.readLine().trimmed();
+        QStringList list = line.split("=");
+        if (list.size() != 2)
+        {
+            continue;
+        }
+        QString leftStr = static_cast<QString>(list.at(0));
+        leftStr = leftStr.trimmed();
+        if (Type == leftStr)
+        {
+            QString rightStr = static_cast<QString>(list.at(1));
+            rightStr = rightStr.trimmed();
+            if ("0" == rightStr)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+    file.close();
+    return false;
+}
+
 } // end namespace Global

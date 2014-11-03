@@ -1004,11 +1004,12 @@ private:
     CPeripheryDevice *m_pPeriphery;                 //!< Periphery device
 
 
-    QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
-    QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing
+    QMutex m_IMutex;                //!< Handles thread safety of IDeviceProcessing
+    QMutex m_Mutex;                 //!< Handles thread safety of DeviceProcessing
     QStateMachine m_machine;        //!< State machine
-    QTimer m_TimerSaveServiceInfor;
-    QList<quint32> m_deviceList;
+    QTimer m_TimerSaveServiceInfor; //!< timer for service info
+    QList<quint32> m_deviceList;    //!< device list
+    bool    m_EnableWorkaround;     //!< enable workaround or not
 };
 
 } //namespace
