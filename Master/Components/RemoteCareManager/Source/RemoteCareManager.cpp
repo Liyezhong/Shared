@@ -180,6 +180,7 @@ void RemoteCareManager::ExternalProcessExited(const QString &name, int code)
 
     //broadcast this msg so that gui receives this.
     emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+    m_IsConnectedToWeb = false;
 }
 
 /****************************************************************************/
@@ -191,6 +192,7 @@ void RemoteCareManager::ExternalProcessStoppedForever()
 
     //broadcast this msg so that gui receives this.
     emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+    m_IsConnectedToWeb = false;
 
     Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_RCA_STOPPED_FOREVER);
 }
@@ -223,12 +225,16 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
     {
         case RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS:
             //broadcast this msg so that gui receives this.
-            emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
-            m_IsConnectedToWeb = false;
+            if (m_IsConnectedToWeb) {
+                emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+                m_IsConnectedToWeb = false;
+            }
             break;
         case RCAgentNamespace::EVENT_REMOTECARE_INFO_CONNECTED_ENTERPRISE_SERVER:
-            emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
-            m_IsConnectedToWeb = true;
+            if (!m_IsConnectedToWeb) {
+                emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
+                m_IsConnectedToWeb = true;
+            }
             break;
     }	
 
