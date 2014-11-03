@@ -139,17 +139,14 @@ QString StateHandler::getCurrentAvailabilityState()
 
 void StateHandler::setActivityUpdate(bool active, quint32 activityId)
 {
+    Q_UNUSED(activityId)
     if (active)
     {
-        m_rackList.append(activityId);
-        if (m_rackList.count() == 1)
-            emit enterBusyState();
+        emit enterBusyState();
     }
     else
     {
-        m_rackList.removeOne(activityId);
-        if (m_rackList.count() == 0)
-            emit enterIdleState();
+        emit enterIdleState();
     }
 }
 
