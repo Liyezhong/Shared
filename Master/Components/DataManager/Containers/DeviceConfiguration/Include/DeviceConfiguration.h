@@ -166,9 +166,9 @@ public:
         if(key.toUpper().compare("SERIALNUMBER") == 0){
             sn.remove(QRegExp("\\W"));
         }
-        else if(key.toUpper().compare("DEVICENAME") == 0){
-            sn.remove(QRegExp("\\s"));
-        }
+//        else if(key.toUpper().compare("DEVICENAME") == 0){
+//            sn.remove(QRegExp("\\s"));
+//        }
 
         return sn;
     }
