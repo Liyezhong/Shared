@@ -24,7 +24,7 @@
 
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
-#include "DeviceControl/Include/Global/DeviceControlError.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "Global/Include/SystemPaths.h"
 
 #include <QDomDocument>

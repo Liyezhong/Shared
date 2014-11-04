@@ -192,7 +192,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         if(m_pDigitalOutputs[PER_MAIN_RELAY] == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO);
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -214,7 +214,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         if(m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO);
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCTRLDO not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -236,7 +236,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         if(m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO);
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCTRLDO not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -259,7 +259,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS] == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_LOCALALARMDI not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -282,7 +282,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         if(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS] == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMDI not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -315,21 +315,21 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
     if(!connect(m_pDigitalOutputs[PER_MAIN_RELAY], SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnSetDOOutputValue(quint32, ReturnCode_t, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO);
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital output signal 'ReportOutputValueAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
     if(!connect(m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL], SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnSetDOOutputValue(quint32, ReturnCode_t, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO);
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital output signal 'ReportOutputValueAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
     if(!connect(m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL], SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnSetDOOutputValue(quint32, ReturnCode_t, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO);
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital output signal 'ReportOutputValueAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -352,7 +352,7 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
     if(!connect(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS], SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -360,7 +360,7 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
     if(!connect(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
                 this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -368,7 +368,7 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
     if(!connect(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS], SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -376,7 +376,7 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
     if(!connect(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
                 this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }

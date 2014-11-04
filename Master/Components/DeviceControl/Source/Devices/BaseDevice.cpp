@@ -28,6 +28,7 @@
 #include "Global/Include/AdjustedTime.h"
 #include "DeviceControl/Include/Devices/ServiceState.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include <QMetaType>
 
 namespace DeviceControl

@@ -35,6 +35,41 @@ typedef enum {
 	DCL_ERR_DEV_TEMP_CTRL_ALREADY_ON                = 0x002A,  //!< Temperatuer control is already on
 	DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR              = 0x002B,  //!< Temperatuer control set temperature error
 	DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR             = 0x002C,  //!< Temperatuer control set state error
+	ERROR_DCL_NODE_INIT_WRONG_CHANNEL_COUNT         = 0x002D,  //!< the number if channels read from hardware configuration file and the number of channels
+	ERROR_DCL_NODE_CONFIG_INVALID_MODULE            = 0x002E,  //!< the module information as read from configuration file does not match to the information
+	ERROR_DCL_NODE_HEARTBEAT_TIMEOUT                = 0x002F,  //!< node heartbeat timeout
+	ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR               = 0x0030,  //!< Problems with heartbeat distribution
+	ERROR_DCL_CONFIG_DEVICE_TYPE_INVALID            = 0x0031,  //!< Invalid device type key
+	ERROR_DCL_CONFIG_CAN_NODE_ERROR                 = 0x0032,  //!< CAN node switched to error node while waiting for idle mode
+	ERROR_DCL_CONFIG_CAN_NODE_IDLE_TIMEOUT          = 0x0033,  //!< timeout while waiting for all CAN nodes switching to idle mode
+	ERROR_DCL_CONFIG_CAN_MSG_CFG_OPEN_FAILED        = 0x0034,  //!< CAN message configuration, open config file failed
+	ERROR_DCL_CONFIG_CAN_MSG_CFG_PARSE_ERROR        = 0x0035,  //!< CAN message configuration, general parsing error
+	ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR       = 0x0036,  //!< CAN message configuration, format error
+	ERROR_DCL_CONFIG_CAN_MSG_CFG_VERSION_ERROR      = 0x0037,  //!< CAN message configuration, version confict
+	ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_BASE  = 0x0038,  //!< CAN message configuration, section base module
+	ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_FCT   = 0x0039,  //!< CAN message configuration, section function module
+	ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_MSG   = 0x003A,  //!< CAN message configuration, section message
+	ERROR_DCL_CONFIG_CAN_MESSAGE_ASSIGN             = 0x003B,  //!< CAN message assignment failed
+	ERROR_DCL_CONFIG_HW_CFG_OPEN_FAILED             = 0x003C,  //!< hardware configuration, open config file failed
+	ERROR_DCL_CONFIG_HW_CFG_PARSE_ERROR             = 0x003D,  //!< hardware configuration, general parsing error
+	ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR            = 0x003E,  //!< hardware configuration, format error
+	ERROR_DCL_CONFIG_HW_CFG_VERSION_ERROR           = 0x003F,  //!< hardware configuration, version confict
+	ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_MST        = 0x0040,  //!< hardware configuration, section master
+	ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_CAN        = 0x0041,  //!<  hardware configuration, can interface missed
+	ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV        = 0x0042,  //!< hardware configuration, section slave
+	ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT        = 0x0043,  //!< hardware configuration, section function module
+	ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV        = 0x0044,  //!< hardware configuration, section device
+	ERROR_DCL_DEVCTRL_ACTIVATE_TASK_FAILED          = 0x0045,  //!< Could not activate a device processing task
+	ERROR_DCL_DEVCTRL_SERIALNO_FAILED               = 0x0046,  //!< serial number not correct
+	ERROR_DCL_DIAG_FINISHED                         = 0x0047,  //!< event notification 'diagnostic finished'
+	ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED          = 0x0048,  //!< function module allocation failed
+	ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED          = 0x0049,  //!< signal slot connect failed
+	ERROR_DCL_RT_DEV_INIT_FCT_ALLOC_FAILED          = 0x004A,  //!< function module allocation failed
+	ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED          = 0x004B,  //!< signal slot connect failed
+	ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED        = 0x004C,  //!< function module allocation failed
+	ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED        = 0x004D,  //!< signal slot connect failed
+	ERROR_DCL_PER_DEV_INIT_FCT_ALLOC_FAILED         = 0x004E,  //!< function module allocation failed
+	ERROR_DCL_PER_DEV_CONFIG_CONNECT_FAILED         = 0x004F,  //!< signal slot connect failed
 	DCL_ERR_DEV_RETORT_TSENSOR1_TEMPERATURE_OVERRANGE          	= 500010201,
 	DCL_ERR_DEV_RETORT_TSENSOR2_TEMPERATURE_OVERRANGE          	= 500010221,
 	DCL_ERR_DEV_RETORT_TSENSOR3_TEMPERATURE_OVERRANGE          	= 500010241,
@@ -97,8 +132,8 @@ typedef enum {
 	DCL_ERR_DEV_MC_LOCALALARM_UNCONNECTED                      	= 500050411,
 	DCL_ERR_DEV_ASB5_AC_CURRENT_OUTOFRANGE                     	= 500050501,
 	DCL_ERR_DEV_POWERFAILURE                                   	= 500060100,
-    DCL_ERR_DEV_POWERFAILURE_AFTER_ERRHANDLING_FAILED           = 500060200,
-	DCL_ERR_DEV_TISSUE_PROTECT_REPORT                          	= 500070001
+	DCL_ERR_DEV_TISSUE_PROTECT_REPORT                          	= 500070001,
+	DCL_ERR_DEVRR_DEV_POWERFAILURE_AFTER_ERRHANDLING_FAILED    	= 500060200
 } ReturnCode_t;
 }
 

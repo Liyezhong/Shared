@@ -60,7 +60,7 @@ CANCommunicator::CANCommunicator() :
     // initialize and increment instance ids
     m_nInstanceNo = m_nInstanceCnt_s++;
     m_nErrorCode = ERR_COMM_NONE;
-    errorUntransmitted = 0;
+    m_errorUntransmitted = 0;
 }
 
 /****************************************************************************/
@@ -272,7 +272,7 @@ void CANCommunicator::SetCommunicationError(qint16 nError, qint16 nErrorAddition
     {
         m_nErrorCode = nError;
         m_nErrorAdditionalInfo = nErrorAdditionalInfo;
-        errorUntransmitted = 1;
+        m_errorUntransmitted = 1;
         FILE_LOG_L(laCAN, llERROR) << "SetCommErr.: " << m_nErrorCode;
     }
     //pthread_mutex_unlock( &mutexCOB );
@@ -292,9 +292,9 @@ qint16 CANCommunicator::GetCommunicationError(qint16& nErrorAdditionalInfo)
     qint16 errorToTransmit = 0;
 
     //pthread_mutex_lock( &mutexCOB );
-    if(errorUntransmitted)
+    if(m_errorUntransmitted)
     {
-        errorUntransmitted = 0;
+        m_errorUntransmitted = 0;
         nErrorAdditionalInfo = m_nErrorAdditionalInfo;
         errorToTransmit = m_nErrorCode;
     }

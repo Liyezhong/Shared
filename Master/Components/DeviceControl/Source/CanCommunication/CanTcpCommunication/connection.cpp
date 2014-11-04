@@ -23,7 +23,7 @@
 /****************************************************************************/
 
 #include "DeviceControl/Include/CanCommunication/CanTcpCommunication/connection.h"
-#include "DeviceControl/Include/Global/DeviceControlError.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 
 #include <QtNetwork>

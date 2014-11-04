@@ -272,14 +272,14 @@ ReturnCode_t CRotaryValveDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrl, SIGNAL(ReportActTemperature(quint32, ReturnCode_t, quint8, qreal)),
                 this, SLOT(OnGetTemp(quint32, ReturnCode_t, quint8, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportActTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
     if(!connect(m_pTempCtrl, SIGNAL(ReportRefTemperature(quint32, ReturnCode_t, qreal)),
                 this, SLOT(OnSetTemp(quint32, ReturnCode_t, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportSetTemperatureAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }

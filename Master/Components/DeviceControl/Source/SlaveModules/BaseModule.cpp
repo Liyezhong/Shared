@@ -752,7 +752,7 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                 }
 
                 errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, ERROR_DCL_NODE_TIMEOUT_CONFIG,
+                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, DCL_ERR_TIMER_TIMEOUT,
                                  nAdditonalData, errorTimeStamp);
 
                 if(pFctModule)
@@ -883,7 +883,7 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                     quint16 AdditonalData;
                     AdditonalData = (quint16) RetVal;
                     errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                    emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_FCT_CALL_FAILED,
+                    emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_FCT_CALL_FAILED,
                                      AdditonalData, errorTimeStamp);
 
                     m_MainState = CN_MAIN_STATE_ERROR;
@@ -921,7 +921,7 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                     quint16 AdditonalData;
                     AdditonalData = (quint16) RetVal;
                     errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                    emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_FCT_CALL_FAILED,
+                    emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_FCT_CALL_FAILED,
                                      AdditonalData, errorTimeStamp);
 
                     m_MainState = CN_MAIN_STATE_ERROR;
@@ -945,7 +945,7 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
         {
             QDateTime errorTimeStamp;
             errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_CONFIG_UNEXP_CANMSG, 0, errorTimeStamp);
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_CANMSG_INVALID, 0, errorTimeStamp);
         }
     }
 }
@@ -1032,7 +1032,7 @@ void CBaseModule::HandleTaskFctConfiguration()
 
             //throw error
             errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, ERROR_DCL_NODE_TIMEOUT_FCT_CONFIG,
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, DCL_ERR_TIMER_TIMEOUT,
                              nAdditonalData, errorTimeStamp);
         }
     }
@@ -2256,7 +2256,7 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
             FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " HardwareID received within delay (" << nMilliSeconds << "). 2 or more?";
 
             errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_HWID_REC_INVALID_STATE, nAdditonalData, errorTimeStamp);
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_INVALID_STATE, nAdditonalData, errorTimeStamp);
 
             m_bHardwareIDErrorState = 1;
         }
@@ -2282,7 +2282,7 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
                 FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " HardwareID received. Reboot?" ;
 
                 errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_HWID_REC_INVALID_STATE,
+                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_INVALID_STATE,
                                  0, errorTimeStamp);
 
                 m_bHardwareIDErrorState = 0;
@@ -2303,7 +2303,7 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
     else
     {
         QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_CANMSG_INVALID_DLC,
+        emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_CANMSG_INVALID,
                          ((quint16)(pCANframe->can_id >> 13)), errorTimeStamp);
     }
 }
@@ -2332,7 +2332,7 @@ void CBaseModule::HandleCANMsgConfig(can_frame* pCANframe)
             QDateTime errorTimeStamp;
 
             errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_HWID_REC_INVALID_STATE,
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_INVALID_STATE,
                              (int) m_MainState, errorTimeStamp);
 
             m_bHardwareIDErrorState = 2;
@@ -2341,7 +2341,7 @@ void CBaseModule::HandleCANMsgConfig(can_frame* pCANframe)
     else
     {
         QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_CANMSG_INVALID_DLC,
+        emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, DCL_ERR_CANMSG_INVALID,
                          ((quint16)(pCANframe->can_id >> 13)), errorTimeStamp);
     }
 }

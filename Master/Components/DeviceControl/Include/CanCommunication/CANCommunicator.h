@@ -252,7 +252,7 @@ private:
     qint16  m_nErrorCode;           ///< the error code used to log it
     qint16  m_nErrorAdditionalInfo; ///< additional error information
 
-    quint8 errorUntransmitted;  ///< flag for error forwarding
+    quint8 m_errorUntransmitted;  ///< flag for error forwarding
 
     QMutex m_mutexCOB;  ///< Access serialisation object
 };

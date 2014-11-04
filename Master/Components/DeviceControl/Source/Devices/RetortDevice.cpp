@@ -204,7 +204,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         if(m_pTempCtrls[RT_BOTTOM] == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -235,7 +235,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         if(m_pTempCtrls[RT_SIDE] == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_SIDETEMPCTRL not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -258,7 +258,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         if(m_pLockDigitalOutput == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDO);
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDO);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDO not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -277,7 +277,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         if(m_pLockDigitalInput == 0)
         {
             // the function module could not be allocated
-            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
@@ -317,7 +317,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportRefTemperature(quint32, ReturnCode_t, qreal)),
                 this, SLOT(OnSetTemp(quint32, ReturnCode_t, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportRefTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -325,7 +325,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportRefTemperature(quint32, ReturnCode_t, qreal)),
                 this, SLOT(OnSetTemp(quint32, ReturnCode_t, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportRefTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -333,7 +333,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportActTemperature(quint32, ReturnCode_t, quint8, qreal)),
                 this, SLOT(OnGetTemp(quint32, ReturnCode_t, quint8, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -341,7 +341,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportActTemperature(quint32, ReturnCode_t, quint8, qreal)),
                 this, SLOT(OnGetTemp(quint32, ReturnCode_t, quint8, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -350,14 +350,14 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportSetPidAckn(quint32, ReturnCode_t, quint16, quint16, quint16, quint16)),
                 this, SLOT(OnSetTempPid(quint32, ReturnCode_t, quint16, quint16, quint16, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportSetPidAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
     if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportSetPidAckn(quint32, ReturnCode_t, quint16, quint16, quint16, quint16)),
                 this, SLOT(OnSetTempPid(quint32, ReturnCode_t, quint16, quint16, quint16, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportSetPidAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -365,14 +365,14 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportSetSwitchState(quint32, ReturnCode_t, qint8, qint8)),
                 this, SLOT(OnSetSwitchState(quint32, ReturnCode_t, qint8, qint8))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportSetSwitchState'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
     if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportSetSwitchState(quint32, ReturnCode_t, qint8, qint8)),
                 this, SLOT(OnSetSwitchState(quint32, ReturnCode_t, qint8, qint8))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportSetSwitchState'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -380,21 +380,21 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
                 this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
     if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
                 this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
     if(!connect(m_pLockDigitalOutput, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnSetDOOutputValue(quint32, ReturnCode_t, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDO);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDO);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportOutputValueAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -402,7 +402,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
                 this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -410,7 +410,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
                 this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -418,7 +418,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
             this, SLOT(OnGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -426,7 +426,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
             this, SLOT(OnGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -434,7 +434,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pLockDigitalInput, SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
             this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -442,7 +442,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
     if(!connect(m_pLockDigitalInput, SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
                 this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RT_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
