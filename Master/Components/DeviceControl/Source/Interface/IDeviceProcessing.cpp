@@ -107,7 +107,7 @@ IDeviceProcessing::IDeviceProcessing() :
                   << DEVICE_INSTANCE_ID_MAIN_CONTROL
                   << DEVICE_INSTANCE_ID_OTHER_DEVICE;
 
-    m_EnableWorkaround = Global::Workaroundchecking("NORMAL_PRESSURE");
+    m_EnableWorkaround = Global::Workaroundchecking("LOWER_PRESSURE");
 }
 
 /****************************************************************************/

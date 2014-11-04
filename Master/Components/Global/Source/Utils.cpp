@@ -456,13 +456,13 @@ bool Workaroundchecking(const QString& Type)
         {
             QString rightStr = static_cast<QString>(list.at(1));
             rightStr = rightStr.trimmed();
-            if ("0" == rightStr)
+            if ("1" == rightStr)
             {
-                return false;
+                return true;
             }
             else
             {
-                return true;
+                return false;
             }
         }
     }
