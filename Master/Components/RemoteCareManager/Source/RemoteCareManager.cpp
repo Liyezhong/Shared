@@ -430,10 +430,14 @@ void RemoteCareManager::RequestAssetInfoHandler(const Global::tRefType &Ref, con
 
     //send the acknowledgement
     m_MasterThreadControllerRef.SendAcknowledgeOK(Ref, AckCommandChannel);
+    QString CurrentSytemState = EventHandler::StateHandler::Instance().getCurrentOperationState();
 
-    //emit the signal
-    emit RemoteCareExport(m_NumberOfLogFiles);
-    UpdateContainerDataItem(Cmd);
+    //if the system is in busy state or if the remote care is disabled, then deny the session
+    if (CurrentSytemState != "BusyState") {
+        //emit the signal
+        emit RemoteCareExport(m_NumberOfLogFiles);
+        UpdateContainerDataItem(Cmd);
+    }
 }
 
 /****************************************************************************/
