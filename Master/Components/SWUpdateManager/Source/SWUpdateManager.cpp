@@ -95,14 +95,14 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
                                                  arg(Option).
                                                  arg(UpdateFrom).
                                                  arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)).
-                                                 arg(m_MasterThreadControllerRef.m_InstrumentName.simplified().remove(" ")));
+                                                 arg(m_MasterThreadControllerRef.m_InstrumentName.simplified().replace(QRegExp("\\s"),"")));
                 #else
                 //Need "sudo" on Desktop
                 mp_SWUpdateStarter->StartProcess(QString("sudo ./%1 %2 %3 %4 %5").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
                                                 arg(Option).
                                                 arg(UpdateFrom).
                                                 arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)).
-                                                 arg(m_MasterThreadControllerRef.m_InstrumentName.simplified().remove(" ")));
+                                                 arg(m_MasterThreadControllerRef.m_InstrumentName.simplified().replace(QRegExp("\\s"),"")));
                 #endif
             }
             else if (Option == SW_UPDATE_OPTION_UPDATEROLLBACK || Option == SW_UPDATE_OPTION_CLEAN) {
