@@ -87,6 +87,7 @@ public:
     /****************************************************************************/
     /**
      * \brief Set reboot
+     * \param[in]   Reboot  set reboot flag.
      *
      * \return  void
      */

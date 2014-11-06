@@ -604,7 +604,7 @@ void DumpToConsole(const QString StringToDump);
 /**
  * \brief   Workaround checking
  *
- * \param  type = workaround type
+ * \param  Type = workaround type
  *
  * \return bool true - workaround enabled, false - workaround disabled
  */
