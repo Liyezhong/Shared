@@ -87,7 +87,7 @@ void TestEventScenarioErrorXMLInfo::UTAll()
 
     //"range" type
     errorId = m_pESEXMLInfo->GetErrorCode(500010201, 211);
-    id = 513010201;
+    id = 513010200;
     QCOMPARE(errorId, id);
 
     //"all" type
