@@ -377,8 +377,11 @@ bool HeartBeatThreadController::ReadHeartBeatConfigFile(QString filename)
 void HeartBeatThreadController::OnMissingHeartBeats(quint32 ThreadId)
 {
     Global::EventObject::Instance().RaiseEvent(Threads::EVENT_THREADS_ERROR_NO_HEARTBEAT, Global::FmtArgs() << ThreadId);
-    //increase the number of counts that the heartbeat has been missed from this controller
+    //send thread shutdown command to MasterThreadController
+    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(new Global::CmdShutDown(true)));
+
     #if 0
+    //increase the number of counts that the heartbeat has been missed from this controller
     if(m_HeartBeatInfoHash.contains(ThreadId))
     {
 
