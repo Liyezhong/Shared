@@ -1009,7 +1009,7 @@ private:
     QStateMachine m_machine;        //!< State machine
     QTimer m_TimerSaveServiceInfor; //!< timer for service info
     QList<quint32> m_deviceList;    //!< device list
-    bool    m_EnableWorkaround;     //!< enable workaround or not
+    bool    m_EnableLowerPressure;  //!< enable lower pressure
 };
 
 } //namespace

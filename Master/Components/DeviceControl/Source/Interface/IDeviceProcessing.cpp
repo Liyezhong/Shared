@@ -107,7 +107,7 @@ IDeviceProcessing::IDeviceProcessing() :
                   << DEVICE_INSTANCE_ID_MAIN_CONTROL
                   << DEVICE_INSTANCE_ID_OTHER_DEVICE;
 
-    m_EnableWorkaround = Global::Workaroundchecking("LOWER_PRESSURE");
+    m_EnableLowerPressure = Global::Workaroundchecking("LOWER_PRESSURE");
 }
 
 /****************************************************************************/
@@ -2361,7 +2361,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
 
         // Make sure to get the target pressure (30Kpa) in 30 seconds
         qreal targetPressure = 0.0;
-        if(m_EnableWorkaround)
+        if(m_EnableLowerPressure)
         {
             targetPressure = 15.0;
             retCode = m_pAirLiquid->SealingCheckPressure();
