@@ -138,8 +138,8 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventInfo.Event = pEvent;
                 EventInfo.EventStringParList = EventStringParList;
                 EventInfo.EventRDStringParList = EventRDStringParList;
-                m_ActiveEvents.insert(EventKey,EventInfo);
                 EventInfo.AlarmActFlag = false;
+                m_ActiveEvents.insert(EventKey,EventInfo);
                 if(pEvent->GetServiceString() > 0){
                     LogEntry(EventInfo,true);
                 }
