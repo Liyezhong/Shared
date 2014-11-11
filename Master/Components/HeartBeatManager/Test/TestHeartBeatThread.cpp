@@ -123,7 +123,7 @@ void TestHeartBeatThread::utTestHeartbeat()
     p_HeartBeat->CleanupAndDestroyObjects();
 
     //p_HeartBeat->OnGoReceived();
-    QCOMPARE(p_HeartBeat->m_HeartbeatCheckTimeout, 5000);
+    QCOMPARE(p_HeartBeat->m_HeartbeatCheckTimeout, 30000);
     QCOMPARE(p_HeartBeat->m_ControllerHeartbeatTimeout, 3000);
     HeartBeatManager::CmdAddControllerForHeartBeatCheck *p_CmdForHeartBeatCheck = new HeartBeatManager::CmdAddControllerForHeartBeatCheck(5000, 19);
     p_HeartBeat->AddControllerForHeartBeatCheck(19);
