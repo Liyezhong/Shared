@@ -2652,7 +2652,7 @@ quint16 IDeviceProcessing::IDGetLocalAlarmStatus()
     return m_pPeriphery->GetLocalAlarmStatus();
 }
 
-ReturnCode_t IDeviceProcessing::IDSetAlarm(int opcode)
+ReturnCode_t IDeviceProcessing::IDSetAlarm(quint8 opcode)
 {
     if (m_pPeriphery == NULL)
         return DCL_ERR_FCT_CALL_FAILED;
