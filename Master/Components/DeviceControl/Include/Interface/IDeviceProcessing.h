@@ -763,7 +763,7 @@ public:
      *
      *  \return operate result
      */
-    ReturnCode_t IDSetAlarm(quint8 opcode);
+    ReturnCode_t IDSetAlarm(qint8 opcode);
 
     /****************************************************************************/
     /*!
