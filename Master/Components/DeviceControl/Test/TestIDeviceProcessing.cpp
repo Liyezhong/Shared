@@ -81,6 +81,7 @@ private slots:
     void caseALFilling();
     void caseRTLock();
     void casePerMainRelay();
+    void caseGetRecentValues();
 
     void cleanupTestCase();
 
@@ -148,6 +149,8 @@ void TestIDeviceProcessing::caseALDraining()
 void TestIDeviceProcessing::caseALFilling()
 {
     QCOMPARE(p_IDeviceProcessing->ALFilling(100, false), DCL_ERR_FCT_CALL_SUCCESS);
+    QCOMPARE(p_IDeviceProcessing->ALStopCmdExec(2), DCL_ERR_FCT_CALL_SUCCESS);
+    QCOMPARE(p_IDeviceProcessing->ALFillingForService(2, false), DCL_ERR_FCT_CALL_SUCCESS);
 }
 
 void TestIDeviceProcessing::caseRTLock()
@@ -160,6 +163,25 @@ void TestIDeviceProcessing::casePerMainRelay()
 {
     QCOMPARE(p_IDeviceProcessing->PerTurnOnMainRelay(), DCL_ERR_FCT_CALL_SUCCESS);
     QCOMPARE(p_IDeviceProcessing->PerTurnOffMainRelay(), DCL_ERR_FCT_CALL_SUCCESS);
+}
+
+void TestIDeviceProcessing::caseGetRecentValues()
+{
+    qreal value = p_IDeviceProcessing->ALGetRecentPressure();
+    value = p_IDeviceProcessing->ALGetRecentTemperature(AL_LEVELSENSOR,0);
+    value = p_IDeviceProcessing->ALGetTemperatureControlState(AL_LEVELSENSOR);
+    value = p_IDeviceProcessing->RTGetRecentLockStatus();
+    value = p_IDeviceProcessing->RTGetRecentTemperature(RT_BOTTOM,0);
+    value = p_IDeviceProcessing->OvenGetHeatingStatus(OVEN_BOTTOM);
+    value = p_IDeviceProcessing->OvenGetRecentLidStatus();
+    value = p_IDeviceProcessing->OvenGetRecentTemperature(OVEN_BOTTOM,0);
+    value = p_IDeviceProcessing->RVGetRecentTemperature(0);
+    value = p_IDeviceProcessing->RVGetTemperatureControlState();
+    value = p_IDeviceProcessing->IDGetSlaveCurrent(Slave_3);
+    value = p_IDeviceProcessing->IDGetSlaveVoltage(Slave_3);
+    value = p_IDeviceProcessing->IDGetRemoteAlarmStatus();
+    value = p_IDeviceProcessing->IDGetLocalAlarmStatus();
+    QCOMPARE(p_IDeviceProcessing->IDSetAlarm(1), DCL_ERR_FCT_CALL_SUCCESS);
 }
 
 void TestIDeviceProcessing::cleanupTestCase()
