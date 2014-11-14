@@ -170,7 +170,7 @@ void TestDeviceConfigurationSepia::utTestWriteReadDeviceConfigurationInterface()
 
     // check all the values
     //QCOMPARE(DeviceConfig->GetLanguage(),(QLocale::German));
-    QCOMPARE(DeviceConfig->GetValue("DeviceName"), QString("CV8020"));
+    QCOMPARE(DeviceConfig->GetValue("DeviceName"), QString("CV 8020"));
     QCOMPARE(DeviceConfig->GetValue("SerialNumber"), QString("12345678"));
     QCOMPARE(DeviceConfig->GetBoolValue("WorkstationMode"), true);
     QCOMPARE(DeviceConfig->GetValue("StainerName"), QString("ST 8020"));
@@ -213,7 +213,7 @@ void TestDeviceConfigurationSepia::utTestWriteReadDeviceConfigurationInterface()
 
     // now test DeviceConfig
    // QCOMPARE(DeviceConfig->GetLanguage(),(QLocale::English));
-    QCOMPARE(DeviceConfig->GetValue("DeviceName") ,QString("ST9200"));
+    QCOMPARE(DeviceConfig->GetValue("DeviceName") ,QString("ST 9200"));
     QCOMPARE(DeviceConfig->GetValue("SerialNumber") ,QString("99998888"));
     QCOMPARE(DeviceConfig->GetBoolValue("WorkstationMode") ,true);
     QCOMPARE(DeviceConfig->GetValue("StainerName") ,QString("ST 9200"));

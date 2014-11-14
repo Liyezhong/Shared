@@ -148,14 +148,14 @@ void TestPasswordManager::utClear() {
 
 /****************************************************************************/
 void TestPasswordManager::utComputeHash() {
-    CPasswordManager Obj;
-    QCOMPARE(Obj.ComputeHash(""),                       QString("D41D8CD98F00B204E9800998ECF8427E"));
-    QCOMPARE(Obj.ComputeHash("12345"),                  QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
-    QCOMPARE(Obj.ComputeHash("1234512345"),             QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
-    QCOMPARE(Obj.ComputeHash("123451234512345"),        QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
-    QCOMPARE(Obj.ComputeHash("1234512345123451"),       QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
-    QCOMPARE(Obj.ComputeHash("12345123451234519"),      QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
-    QCOMPARE(Obj.ComputeHash("1234512345123451987"),    QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
+       CPasswordManager Obj;
+       QCOMPARE(Obj.ComputeHash(""),                       QString("1B6F91FC1EE08208BEA1F1CB1255E0DB"));
+       QCOMPARE(Obj.ComputeHash("12345"),                  QString("8458929C4CA77209D499ED0339CCA765"));
+       QCOMPARE(Obj.ComputeHash("1234512345"),             QString("C6858E6897338C2F28E3A611AA0BB167"));
+       QCOMPARE(Obj.ComputeHash("123451234512345"),        QString("3EC0519D235A1A83AADC28B99E787F0E"));
+       QCOMPARE(Obj.ComputeHash("1234512345123451"),       QString("9FDE9A7B9C6C80C55766869E1B12CF74"));
+       QCOMPARE(Obj.ComputeHash("12345123451234519"),      QString("6FA5190D52CCE26670A9C317C86C9C7B"));
+       QCOMPARE(Obj.ComputeHash("1234512345123451987"),    QString("5BAA825C5C8139DB2E784406145EBD71"));
 }
 
 /****************************************************************************/
@@ -196,8 +196,8 @@ void TestPasswordManager::utPasswords() {
     // check default administrator password
     QCOMPARE(Obj.CheckPassword("Administrator", "1234"),        false);
     QCOMPARE(Obj.CheckPassword("Administratos", "12345"),       false);
-    QCOMPARE(Obj.CheckPassword("Administrator", "12345"),       true);
-    QCOMPARE(Obj.CheckPassword("Administrator", "1234512345"),  true);
+    QCOMPARE(Obj.CheckPassword("Administrator", "12345"),       false);
+    QCOMPARE(Obj.CheckPassword("Administrator", "1234512345"),  false);
 
     // check some not existing passwords
     QCOMPARE(Obj.CheckPassword("name1", "password1"),   false);
@@ -223,10 +223,10 @@ void TestPasswordManager::utPasswords() {
     Obj.SetPasswordHash("name5", "72B66F8729A8724AF62C5499482DBBF8");
     // check
     QCOMPARE(Obj.CheckPassword("name1", "password1"),   true);
-    QCOMPARE(Obj.CheckPassword("name2", "password2"),   true);
+    QCOMPARE(Obj.CheckPassword("name2", "password2"),   false);
     QCOMPARE(Obj.CheckPassword("name3", "password3"),   false);
     QCOMPARE(Obj.CheckPassword("name4", "password4"),   true);
-    QCOMPARE(Obj.CheckPassword("name5", "password5"),   true);
+    QCOMPARE(Obj.CheckPassword("name5", "password5"),   false);
     QCOMPARE(Obj.CheckPassword("name6", "password6"),   false);
 
     // override passwords
@@ -235,10 +235,10 @@ void TestPasswordManager::utPasswords() {
     QCOMPARE(Obj.CheckPassword("name1", "password1"),   false);
     QCOMPARE(Obj.CheckPassword("name1", "password11"),  true);
     QCOMPARE(Obj.CheckPassword("name2", "password2"),   false);
-    QCOMPARE(Obj.CheckPassword("name2", "password22"),  true);
+    QCOMPARE(Obj.CheckPassword("name2", "password22"),  false);
     QCOMPARE(Obj.CheckPassword("name3", "password3"),   false);
     QCOMPARE(Obj.CheckPassword("name4", "password4"),   true);
-    QCOMPARE(Obj.CheckPassword("name5", "password5"),   true);
+    QCOMPARE(Obj.CheckPassword("name5", "password5"),   false);
     QCOMPARE(Obj.CheckPassword("name6", "password6"),   false);
 
     // check for case sensitivity
