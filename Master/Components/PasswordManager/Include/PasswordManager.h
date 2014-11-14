@@ -84,16 +84,6 @@ private:
     /****************************************************************************/
     long ComputeFallbackPassword();
 
-    /****************************************************************************/
-    /**
-     * \brief Set the fall back password flag.
-     *
-     * \iparam   Value  Fall back pwd flag value.
-     */
-    /****************************************************************************/
-    inline void SetFallbackPasswordFlag(const bool &Value) {
-        m_FallbackPassword = Value;
-    }
 
 protected:
 public:
@@ -120,6 +110,17 @@ public:
     /****************************************************************************/
     inline bool GetFallbackPasswordFlag() {
         return m_FallbackPassword;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set the fall back password flag.
+     *
+     * \iparam   Value  Fall back pwd flag value.
+     */
+    /****************************************************************************/
+    inline void SetFallbackPasswordFlag(const bool &Value) {
+        m_FallbackPassword = Value;
     }
 
     /****************************************************************************/
