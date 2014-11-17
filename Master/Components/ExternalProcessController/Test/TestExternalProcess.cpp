@@ -139,8 +139,9 @@ void TestExternalProcess::utTestSimpleProcessStart()
     CheckForNull();
 
     // start process with one command:
-    QCOMPARE(m_myExtProcess->StartProcess(QCoreApplication::applicationDirPath() + "/" + ProcessCmd1), true);
-    QVERIFY(m_myExtProcessPID == 0);
+    QCOMPARE(m_myExtProcess->StartProcess(ProcessCmd1), true);
+    QString test = QCoreApplication::applicationDirPath() + "/" + ProcessCmd1;
+    qDebug() << "=====QCoreApplication::applicationDirPath(): " << test;
     // check if process actually started:
     m_myExtProcessPID = m_myExtProcess->m_myProcess->pid();
     qDebug() << "TestExternalProcess: got Process PID: " << m_myExtProcessPID;
@@ -157,8 +158,11 @@ void TestExternalProcess::utTestSimpleProcessStart()
     //check the process is still alive:
     QCOMPARE(m_myExtProcess->m_myProcess->state(), QProcess::Running);
     // kill process:
+
     QCOMPARE(m_myExtProcess->TerminateProcess(), true);
+
     QCOMPARE(m_myExtProcess->KillProcess(), false);
+
     // wait to give process time to die:
     QTest::qWait(5000);
     // check if process actually was killed:
@@ -232,15 +236,35 @@ void TestExternalProcess::utTestBadInputHandling()
 {
     CheckForNull();
 
+    delete m_myExtProcess;
+    // create process:
+    m_myExtProcess = new ExternalProcess(MY_PROCESS_NAME, this);
+    // verify pointer value:
+    QVERIFY(m_myExtProcess->m_myProcess == NULL);
+    // verify name value:
+    QVERIFY(m_myExtProcess->m_myName == MY_PROCESS_NAME);
+    // initialize my process:
+    m_myExtProcess->Initialize();
+    // check that object got created:
+    QVERIFY(m_myExtProcess->m_myProcess != NULL);
+
+    QCOMPARE(m_myExtProcess->StartProcess(QCoreApplication::applicationDirPath() + "/" + ProcessCmd2), true);
+    QTest::qWait(500);
+    m_myExtProcess->WaitForFinished();
+
     // make sure that m_myExtProcess->m_myProcess == NULL:
     delete m_myExtProcess;
     m_myExtProcess = new ExternalProcess((QString)"Test", this);
+    QVERIFY(m_myExtProcess->GetProcessName() == "Test");
     QVERIFY(m_myExtProcess->m_myProcess == NULL);
+
     // try to start non-existent process:
     QCOMPARE(m_myExtProcess->StartProcess(QCoreApplication::applicationDirPath() + "/" + ProcessCmd1), false);
+
+//        exit(0);
+    // try to start non-existent process with parameters:
     QStringList ParamList;
     ParamList << Param1 << Param2;
-    // try to start non-existent process with parameters:
     QCOMPARE(m_myExtProcess->StartProcess(QCoreApplication::applicationDirPath() + "/" + ProcessCmd2, ParamList), false);
     // run stdout-reading functions just to make sure they do not blowup anything:
     m_myExtProcess->ReadStdError();
@@ -248,6 +272,7 @@ void TestExternalProcess::utTestBadInputHandling()
     // try to kill non-existent process:
     QCOMPARE(m_myExtProcess->KillProcess(), false);
     QCOMPARE(m_myExtProcess->TerminateProcess(), false);
+//    m_myExtProcess->WaitForFinished();
 }
 
 /****************************************************************************/
@@ -275,7 +300,7 @@ void TestExternalProcess::TestProcessExited(const QString &Name, int Code)
 void TestExternalProcess::TestProcessStarted(const QString &Name)
 {
     m_myProcessStartedString = Name;
-    //qDebug() << "TestExternalProcess: TestProcessStarted " << Name;
+    qDebug() << "=====TestExternalProcess: TestProcessStarted ====" << Name;
 }
 
 /****************************************************************************/
@@ -288,7 +313,7 @@ void TestExternalProcess::TestProcessStarted(const QString &Name)
 void TestExternalProcess::TestProcessError(int Code)
 {
     m_myProcessErrorCode = Code;
-    //qDebug() << "TestExternalProcess: TestProcessError " << Code;
+    qDebug() << "=====TestExternalProcess: TestProcessError =====" << Code;
 }
 
 } // end namespace ExternalProcessControl

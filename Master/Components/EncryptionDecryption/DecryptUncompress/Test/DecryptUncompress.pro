@@ -3,8 +3,24 @@ TEMPLATE = app
 TARGET = utTestDecryptUncompress
 QT -= gui
 
-MOC_DIR = moc
-OBJECTS_DIR = obj
+# compute CONFIG_SUFFIX depending on debug / release
+CONFIG(debug, debug|release) {
+        CONFIG_SUFFIX = dbg
+} else {
+        CONFIG_SUFFIX = rel
+        CONFIG(gcov) {
+                QMAKE_CXXFLAGS_RELEASE += -fprofile-arcs -ftest-coverage
+                QMAKE_LFLAGS_RELEASE += -fprofile-arcs
+                QMAKE_CXXFLAGS_RELEASE -= -O2
+                QMAKE_CXXFLAGS_RELEASE += -O0
+                LIBS += -lgcov
+        }
+}
+
+# set compile output directories
+OBJECTS_DIR = obj_$$CONFIG_SUFFIX
+MOC_DIR = moc_$$CONFIG_SUFFIX
+DESTDIR = bin_$$CONFIG_SUFFIX
 
 INCLUDEPATH += ../../..
 #INCLUDEPATH += ../Include

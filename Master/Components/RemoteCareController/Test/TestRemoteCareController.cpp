@@ -27,6 +27,7 @@
 #include "Global/Include/Utils.h"
 #include "ExternalProcessController/Include/ExternalProcessController.h"
 #include "RemoteCareController/Include/RemoteCareThreadController.h"
+#include "NetCommands/Include/CmdRemoteCareState.h"
 
 
 namespace RemoteCare {
@@ -98,6 +99,10 @@ void TestRemoteCareController::utTestRemoteCareController() {
     try {
 
         Controller->CreateAndInitializeObjects();
+
+        Global::tRefType Ref = 1;
+        NetCommands::CmdRemoteCareState Cmd(15000, false, "RemoteCare");
+        Controller->SendCmdToExternalProcess(Ref, Cmd);
     }
     catch (...) {
         // catch the exception here
