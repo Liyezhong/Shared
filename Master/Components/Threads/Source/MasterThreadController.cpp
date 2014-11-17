@@ -387,14 +387,6 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
     }
 }
 
-
-////****************************************************************************/
-void MasterThreadController::SetRemoteCareConnection(const EventHandler::RemoteCareHandler *pRemoteCareHandler) const {
-    // connect error receiving slot of RemoteCareHandler
-    CONNECTSIGNALSLOT(mp_EventThreadController, ForwardToRemoteCare(const DataLogging::DayEventEntry &),
-                      pRemoteCareHandler, ForwardEventToRemoteCare(const DataLogging::DayEventEntry &));
-}
-
 /****************************************************************************/
 void MasterThreadController::DestroyControllersAndThreads(const bool BasicThreadController) {
     tControllerMap Controllers;

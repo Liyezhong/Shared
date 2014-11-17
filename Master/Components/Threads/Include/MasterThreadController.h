@@ -28,8 +28,6 @@
 
 #include <NetCommands/Include/CmdSystemAction.h>
 
-#include <EventHandler/Include/RemoteCareHandler.h>
-
 #include <Global/Include/Commands/CmdSoftSwitchPressed.h>
 #include <Global/Include/EventObject.h>
 #include <Global/Include/AlarmHandler.h>
@@ -643,26 +641,6 @@ protected:
     /****************************************************************************/
     void AddAndConnectController(ThreadController *pController, CommandChannel *pCommandChannel, quint32 ControllerNumber, bool BasicThreadController = false);
 
-    /****************************************************************************/
-    /**
-     * \brief Set connection between EventHandler and RemoteCare Controller.
-     *
-     *    It is required to send all system Errors to Leica Remote Care
-     *    Server. This function shall connect EventHandler's signal so
-     *    the EventHandler can forward system errors to the local Remote
-     *    Care Controller.
-     *
-     * WARNING! Call this function to be able to report errors to Remote
-     *          Care Server!
-     * Workflow:
-     *          create and initialize EventHandler;
-     *          create and initialize RemoteCareHandler's derived class object;
-     *          set the connection;
-     *
-     * \iparam  pRemoteCareHandler = pointer to the system's RemoteCare Controller object
-     */
-    /****************************************************************************/
-    void SetRemoteCareConnection(const EventHandler::RemoteCareHandler *pRemoteCareHandler) const;
     /****************************************************************************/
     /**
      * \brief Read set of needed event string translations.
