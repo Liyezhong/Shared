@@ -1005,9 +1005,9 @@ void CKeyBoard::OnOkClicked()
     //m_EnteredCharsValid is true by default. If there is no widget specific Validation, then its assumed that
     //string entered by user is valid .
     if (m_EnteredCharsValid) {
-        emit OkButtonClicked(EnteredText);
         //Hide & Reset Keyboard
         hide();
+        emit OkButtonClicked(EnteredText);
         m_ButtonList.at(LETTER_ABC_INDEX)->SetToggledState(false);
         KeyBoardReset();
         SetNumericMode(false);

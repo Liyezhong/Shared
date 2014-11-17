@@ -290,5 +290,7 @@
         <file>HimalayaImages/Digits/AmbientTemperatureBig.png</file>
         <file>HimalayaImages/Icons/User_Status/User_Admin.png</file>
         <file>HimalayaImages/Icons/Dashboard/ScreenSaver/ScreenSaver.png</file>
+	<file>HimalayaImages/Icons/Dashboard/ScreenSaver/ScreenLock1.png</file>
+	<file>HimalayaImages/Icons/Dashboard/ScreenSaver/ScreenLock2.png</file>
     </qresource>
 </RCC>
