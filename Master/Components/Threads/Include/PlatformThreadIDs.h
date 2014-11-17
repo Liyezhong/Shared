@@ -1,5 +1,8 @@
 #include <QtGlobal>
 
+#ifndef PLATFORM_THREAD_IDS_H
+#define PLATFORM_THREAD_IDS_H
+
 namespace Threads {
     const quint32 THREAD_ID_MASTERTHREAD   = 0x0001;  ///< Colorado master thread
     const quint32 THREAD_ID_DATALOGGING    = 0x0002;  ///< Data logging
@@ -13,4 +16,5 @@ namespace Threads {
     const quint32 THREAD_ID_LEICAAPPS      = 0x000A;  ///< Leica Apps
 }
 
+#endif // PLATFORM_THREAD_IDS_H
 
