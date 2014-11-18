@@ -45,27 +45,6 @@ private:
     XmlConfigFile(const XmlConfigFile &);                       ///< Not implemented.
     const XmlConfigFile & operator = (const XmlConfigFile &);   ///< Not implemented.
 
-    /****************************************************************************/
-    /**
-     * \brief Initialize stream reader.
-     *
-     * \oparam  rReader     Reference to the stream reader.
-     * \oparam  rDevice     Reference to IO device.
-     */
-    /****************************************************************************/
-    void InitStreamReader(QXmlStreamReader &rReader, QIODevice &rDevice);
-
-    /****************************************************************************/
-    /**
-     * \brief Initialize stream writer.
-     *
-     * \oparam  rWriter     Reference to the stream writer.
-     * \oparam  rDevice     Reference to IO device.
-     */
-    /****************************************************************************/
-    void InitStreamWriter(QXmlStreamWriter &rWriter, QIODevice &rDevice);
-
-
 protected:    
     QString m_FileName;                                         ///< Store the file name locally to log the data
 

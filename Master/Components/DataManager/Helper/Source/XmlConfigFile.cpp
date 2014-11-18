@@ -50,17 +50,6 @@ void XmlConfigFile::InitStreamReader(QXmlStreamReader &rReader, QFile &rFile, co
 }
 
 /****************************************************************************/
-void XmlConfigFile::InitStreamReader(QXmlStreamReader &rReader, QIODevice &rDevice) {
-    // check if we can open device
-    rDevice.close();
-    if(!rDevice.open(QIODevice::Text | QIODevice::ReadOnly)) {
-        THROW(Global::EVENT_GLOBAL_ERROR_FILE_OPEN);
-    }
-    // set stream reader device
-    rReader.setDevice(&rDevice);
-}
-
-/****************************************************************************/
 void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, const QString &FileName) {
     rFile.close();
     rFile.setFileName(FileName);
@@ -71,19 +60,6 @@ void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, co
     m_FileName = FileName;
     // set stream writer device
     rWriter.setDevice(&rFile);
-    rWriter.setCodec("UTF-8");
-    rWriter.setAutoFormatting(true);
-    rWriter.setAutoFormattingIndent(4);
-}
-
-/****************************************************************************/
-void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QIODevice &rDevice) {
-    rDevice.close();
-    if(!rDevice.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate)) {
-        THROW(Global::EVENT_GLOBAL_ERROR_FILE_CREATE);
-    }
-    // set stream writer device
-    rWriter.setDevice(&rDevice);
     rWriter.setCodec("UTF-8");
     rWriter.setAutoFormatting(true);
     rWriter.setAutoFormattingIndent(4);

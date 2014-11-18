@@ -23,6 +23,11 @@
 #include <DataManager/Helper/Include/DataManagerEventCodes.h>
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
+#include <DataManager/Helper/Include/Helper.h>
+#include <DataManager/Helper/Include/XmlConfigFileStrings.h>
+#include <DataManager/Helper/Include/XmlConfigFilePasswords.h>
+#include <PasswordManager/Include/PasswordManager.h>
+#include <DataManager/Helper/Include/XmlConfigFileTimeOffset.h>
 
 namespace DataManager {
 
@@ -116,6 +121,15 @@ private slots:
      */
     /****************************************************************************/
     void utTestWriteFormatVersion();
+
+    void utTestHelper();
+
+    void utTestXmlConfigFileStrings();
+
+    void utTestXmlConfigFilePasswords();
+
+    void utTestXmlConfigFileTimeOffset();
+
 }; // end class TestXmlConfigFile
 
 /****************************************************************************/
@@ -580,6 +594,66 @@ void TestXmlConfigFile::utTestWriteFormatVersion() {
     // remove dummy file again
     QFile::remove(FileName);
 }
+
+
+/****************************************************************************/
+void TestXmlConfigFile::utTestHelper()
+{
+    Helper *helper = new Helper();
+    delete helper;
+
+    QXmlStreamReader XmlStreamReader;
+    qDebug() << Helper::ReadNode(XmlStreamReader, "ProgramSettings");
+    qDebug() << Helper::ConvertDateTimeStringToQDateTime("UNDEFINED");
+    qDebug() << Helper::ConvertDateStringToQDate("UNDEFINED");
+    qDebug() << Helper::ConvertTimeStringToSeconds("UNDEFINED");
+    qDebug() << Helper::ConvertSecondsToTimeString(1000);
+    ListOfErrors_t ErrorList;
+    QString ErrorString;
+    Helper::ErrorIDToString(ErrorList, ErrorString);
+}
+
+
+/****************************************************************************/
+void TestXmlConfigFile::utTestXmlConfigFileStrings()
+{
+    DataManager::XmlConfigFileStrings TranslatorDataFile;
+    QString StringsFileName = "../Settings/EventStrings_en.xml";
+    QSet<QLocale::Language> LanguageList;
+    LanguageList << QLocale::English << QLocale::English;
+    // try to read the file
+    try {
+        TranslatorDataFile.ReadStrings(StringsFileName, LanguageList);
+    }
+    CATCHALL();
+
+    // now configure translator with read languages.
+    for(Global::tTranslations::const_iterator it = TranslatorDataFile.Data().constBegin();
+        it != TranslatorDataFile.Data().constEnd(); ++it) {
+        // Set language data. No default no fallback.
+//        Global::EventTranslator::TranslatorInstance().SetLanguageData(it.key(), it.value(), false, false);
+    }
+}
+
+
+/****************************************************************************/
+void TestXmlConfigFile::utTestXmlConfigFilePasswords()
+{
+   PasswordManager::CPasswordManager    m_PasswordManager;
+   DataManager::XmlConfigFilePasswords PwdFile("12345678");
+   PwdFile.ReadPasswords("../Settings/Password.xml", m_PasswordManager);
+}
+
+/****************************************************************************/
+void TestXmlConfigFile::utTestXmlConfigFileTimeOffset()
+{
+    DataManager::XmlConfigFileTimeOffset ConfigFileTimeOffset;
+    int NewTimeOffset = 0;
+    QString FileName("../Settings/TimeOffset.xml");
+    ConfigFileTimeOffset.ReadTimeOffset(FileName, NewTimeOffset);
+    ConfigFileTimeOffset.WriteTimeOffset(FileName, Global::AdjustedTime::Instance().GetOffsetSeconds());
+}
+
 
 } // end namespace DataLogging
 

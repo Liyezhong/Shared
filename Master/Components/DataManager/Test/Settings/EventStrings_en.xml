@@ -1,0 +1,798 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings version="1">
+        <language name="en">
+		<string id="16843520" text1="Sound files for alarm are missing" text2=""/>
+		<string id="19398660" text1="ConnectionManager: Authentication of Client %1 with version failed." text2=""/>
+		<string id="19398659" text1="ConnectionManager: Client %1 with version %2 connected." text2=""/>
+		<string id="19398657" text1="ConnectionManager: Client %1. message not yet complete." text2=""/>
+		<string id="19398658" text1="ConnectionManager: Client %1. parse incoming XMl doc failed at %2." text2=""/>
+		<string id="19398661" text1="ConnectionManager: Client %1. cannot convert outgoing QString message to QDomDocument! Error:%2" text2=""/>
+		<string id="19398662" text1="ConnectionManager: Client %1. outgoing QByteArray is empty." text2=""/>
+		<string id="19398663" text1="ConnectionManager: Client %1. writing outgoing data to Socket failed !." text2=""/>
+		<string id="17039371" text1="Event %1 is not properly configured in column %2" text2=""/>
+		<string id="17039372" text1="Event Code: %1,  Scenario: %2,  Action: %3,  Action Result: %4." text2=""/>
+		<string id="17825795" text1="Switch off not allowed. Wait until transportation is completed." text2=""/>
+		<string id="16973834" text1="Data logging is disabled. Please contact yor service specialist." text2=""/>
+		<string id="16973828" text1="Event Id %1 does not exist in the event string xml file" text2=""/>
+		<string id="16973829" text1="Unable to create file %1" text2=""/>
+		<string id="16973832" text1="Unable to flush to file %1" text2=""/>
+		<string id="16973825" text1="Unable to open the file %1" text2=""/>
+		<string id="16973830" text1="Unable to remove file %1" text2=""/>
+		<string id="16973831" text1="Unable to write to file %1" text2=""/>
+		<string id="19529732" text1="Can not change the date and time less/more than 24 hours of the current system date time is %1." text2=""/>
+		<string id="17235997" text1="Check user log for more info." text2=""/>
+		<string id="17235986" text1="DeviceConfiguration Verification Failed" text2=""/>
+		<string id="17235984" text1="Device Configuration XML file Read failed" text2=""/>
+		<string id="17760268" text1="%1 is not a valid DirectConnection on/off state" text2=""/>
+		<string id="17760271" text1="%1 is not a valid Proxy IP Address." text2=""/>
+		<string id="17760272" text1="%1 is not a valid Proxy IP Port." text2=""/>
+		<string id="17760267" text1="%1 is not a valid RemoteCare on/off state." text2=""/>
+		<string id="17235976" text1="Translations for language  %1  not found." text2=""/>
+		<string id="17235973" text1="%1  is not a supported language." text2=""/>
+		<string id="17235972" text1="%1  is not a valid number." text2=""/>
+		<string id="17235977" text1="Password does not fit requirements. Length between 4 and 16 characters." text2=""/>
+		<string id="17235969" text1="Error reading xml start element  %1  in  %2 ." text2=""/>
+		<string id="17760264" text1="Error Sound Level values are Out Of Range" text2=""/>
+		<string id="17760263" text1="Error Sound Number values are Out Of Range" text2=""/>
+		<string id="17235970" text1="Unexpected xml start element  %1 . Expected:  %2  in  %3 " text2=""/>
+		<string id="17235975" text1="Unsupported version  %1  in  %2 ." text2=""/>
+		<string id="17235971" text1="xml attribute not found:  %1  in  %2 ." text2=""/>
+		<string id="17235988" text1="%1 file open operation failed" text2=""/>
+		<string id="17235995" text1="Group verification failed" text2=""/>
+		<string id="17235987" text1="%1 Initialization Error" text2=""/>
+		<string id="17235979" text1="%1  is not a valid date format." text2=""/>
+		<string id="17760270" text1="%1 is not a valid Proxy Password." text2=""/>
+		<string id="17760269" text1="%1 is not a valid Proxy UserName." text2=""/>
+		<string id="17235974" text1="%1  is not a valid on/off state." text2=""/>
+		<string id="17235981" text1="%1  is not a valid temperature format ." text2=""/>
+		<string id="17235980" text1="%1  is not a valid time format." text2=""/>
+		<string id="17235996" text1="NULL pointer error in DataManager component" text2=""/>
+		<string id="19136513" text1="ParameterSet list count %1 exceeds the limit .Maximum 10 racks allowed." text2=""/>
+		<string id="17236016" text1="Reading ProcessSettings.xml failed." text2=""/>
+		<string id="17236017" text1="Verifying ProcessSettings.xml failed." text2=""/>
+		<string id="18808846" text1="Rack %1 colorado end time %2 is invalid. Time should not be zero and should be in MMddyyyyyhh:mm:ss format." text2=""/>
+		<string id="18808844" text1="Rack %1 color %2 in invalid. Only white-yellow-lightblue-darkblue-pink-red-green-black-grey are allowed." text2=""/>
+		<string id="18808837" text1="Rack list count %1 exceeds the limit .Maximum 100 racks allowed." text2=""/>
+		<string id="18808836" text1="Deleting rack failed .Rack with rfid %1 not found in the list." text2=""/>
+		<string id="18808838" text1="Rack RF ID %1 is too big. Maximum 9999999999 allowed." text2=""/>
+		<string id="18808834" text1="Rack with rfid %1 not found in the list." text2=""/>
+		<string id="18808833" text1="Rack with rfid %1 already exists in the list." text2=""/>
+		<string id="17236018" text1="Rack %1 has been inserted into drawer %2 and consists of %3 slides" text2=""/>
+		<string id="18808835" text1="Deleting rack failed. Invalid rack index." text2=""/>
+		<string id="18808848" text1="Invalid rack size: %1. Valid rack size : 30/20/5." text2=""/>
+		<string id="18808841" text1=" Invalid Parameter Set ID for Rack %1. Valid range for Parameter Set ID is 1-8. Current Value is %2." text2=""/>
+		<string id="17236019" text1="Rack %1 has been removed from instrument." text2=""/>
+		<string id="18808847" text1="Rack %1 coverslipper end time %2 is invalid. Time should not be zero and should be in MMddyyyyyhh:mm:ss format." text2=""/>
+		<string id="18808845" text1="Rack %1 start time %2 is invalid. Time should not be zero and should be in MMddyyyyyhh:mm:ss format." text2=""/>
+		<string id="18808843" text1="Rack %1 Station ID %2 is too big. Max 10 characters are allowed." text2=""/>
+
+		<string id="19070983" text1="RCConfig: Certificate FileName %1 length is out of range min %2 max %3." text2=""/>
+		<string id="17236007" text1="Verifying RCConfig.xml failed." text2=""/>
+		<string id="17236006" text1="Reading RCConfig.xml failed." text2=""/>
+		<string id="19071008" text1="RCCOnfig: %1 data item has invalid type." text2=""/>
+		<string id="19071009" text1="RCCOnfig: %1 data item has invalid quality." text2=""/>
+		<string id="19070981" text1="RCConfig: Encryption level size %1 is out of range min %2 max %3." text2=""/>
+		<string id="19070982" text1="RCConfig: %1 is not a valid Authentication on/off state." text2=""/>
+		<string id="19070984" text1="RCConfig: Exec Time is out of range min %2 max %3." text2=""/>
+		<string id="19070985" text1="RCConfig: Server type %1 is out of range min %2 max %3." text2=""/>
+		<string id="19070986" text1="RCConfig: Target Database %1 length is out of range min %2 max %3." text2=""/>
+		<string id="19070987" text1="RCConfig: Server URL %1 length is out of range min %2 max %3." text2=""/>
+		<string id="19070988" text1="RCConfig: Server Id %1 is out of range min %2 max %3." text2=""/>
+		<string id="19071007" text1="RCConfig: %1 is not a valid Compression on/off state." text2=""/>
+		<string id="19070978" text1="RCConfig: %1 is not a valid HTTP connection persistence on/off state." text2=""/>
+		<string id="19070979" text1="RCConfig: %1 is not a valid Debug on/off state." text2=""/>
+		<string id="19070980" text1="RCConfig: %1 is not a valid HTTP secure connection on/off state." text2=""/>
+		<string id="19071004" text1="RCConfig: %1 is not a valid remote session IP address." text2=""/>
+		<string id="19071006" text1="RCConfig: MaxChunkSize %1 is out of range min %2 max %3." text2=""/>
+		<string id="19070991" text1="RCConfig: Device Id %1 is out of range min %2 max %3." text2=""/>
+		<string id="19070992" text1="RCConfig: Device type %1 is out of range min %2 max %3." text2=""/>
+		<string id="19070994" text1="RCConfig: Proxy protocol %1 is out of range min %2 max %3." text2=""/>
+		<string id="19070977" text1="RCConfig: Queue size %1 is out of range min %2 max %3." text2=""/>
+		<string id="19071002" text1="RCConfig: remote session name %1 length is out of range min %2 max %3." text2=""/>
+		<string id="19267598" text1="Internal Software Error. Reagent Add failed. " text2=""/>
+		<string id="19267600" text1="Internal Software Error. Reagent Delete failed. " text2=""/>
+		<string id="19267589" text1="Reagents count exceeds the limit. Max 100 allowed." text2=""/>
+		<string id="19267588" text1="Reagent ID %1 of reagent %2 does not exists in the list." text2=""/>
+		<string id="19267587" text1="Reagent ID %1 of reagent %2 already in use." text2=""/>
+		<string id="19267585" text1="Reagent name %1 already in use. Please choose different reagent name." text2=""/>
+		<string id="19267599" text1="Internal Software Error. %1 failed." text2=""/>
+		<string id="17236009" text1="Verifying Reagents.xml failed." text2=""/>
+		<string id="17236008" text1="Reading Reagents.xml failed." text2=""/>
+		<string id="17760274" text1="Saving user settings failed. Please contact service." text2=""/>
+		<string id="17235985" text1="UserSettings Verification Failed" text2=""/>
+		<string id="17235983" text1="UserSettings XML File Read failed" text2=""/>
+		<string id="17235998" text1="Writing the XML %1 failed during shutdown." text2=""/>
+		<string id="17236013" text1="Reading InstrumentHistory.xml failed." text2="Internal Software Error. Please contact your Leica Service Organization."/>
+		<string id="17236010" text1="Reading Stations.xml failed." text2=""/>
+		<string id="17236011" text1="Verifying Station.xml failed." text2=""/>
+		<string id="17235990" text1="%1 Stream In Operation failed" text2=""/>
+		<string id="17235991" text1="%1 Stream Out Operation failed" text2=""/>
+		<string id="17760266" text1="Warning Sound Level values are Out Of Range" text2=""/>
+		<string id="17760265" text1="Warning Sound Number values are Out Of Range" text2=""/>
+		<string id="17235994" text1="%1 XML De Serialization failed" text2=""/>
+		<string id="17235992" text1="%1 XML file not exists" text2=""/>
+		<string id="17235993" text1="%1 XML Serialization failed" text2=""/>
+		<string id="17498130" text1="ConfigfileLoader. Process %1: Error in opening file %2." text2=""/>
+		<string id="17498122" text1="EPC. Process %1: Could not dispatch event %2 at %3." text2=""/>
+		<string id="17498131" text1="EPC. Process %1: Can not kill external process at %2." text2=""/>
+		<string id="17498124" text1="EPC. Process %1: NUll pointer at %2." text2=""/>
+		<string id="17498132" text1="EPC. Process %1: Can not start device/process at %2." text2=""/>
+		<string id="17498126" text1="EPC. Process %1: Starting state machine with initial state %2 failed at %3" text2=""/>
+		<string id="17498133" text1="Process: %1 exited with code %2." text2=""/>
+		<string id="17498125" text1="EPC. Process %1: Initialization failed at %2." text2=""/>
+		<string id="17498123" text1="EPC. Process %1: Reported error %2." text2=""/>
+		<string id="17498129" text1="EPD. Process %1: ExternalProcess login timedout." text2=""/>
+		<string id="17498127" text1="EPD. Process %1: Missing input." text2=""/>
+		<string id="17498128" text1="EPD. Process %1: NetworkServerDevicewas could not be started." text2=""/>
+		<string id="17039361" text1="Primaris has switched to error state" text2=""/>
+		<string id="17039364" text1="Internal software error: EventId is missing %1" text2=""/>
+		<string id="17629209" text1="Export failed. Advance Encryption Standard is not initialized" text2=""/>
+		<string id="17629201" text1="Export failed. Cannot open the file for reading" text2=""/>
+		<string id="17629202" text1="Export failed. Cannot open the file for writing" text2=""/>
+		<string id="18939905" text1="ExportConfig:Empty file name found in file list of %1 configuration." text2=""/>
+		<string id="18939906" text1="ExportConfig:Empty file name found in group file list of %1 configuration." text2=""/>
+		<string id="18939908" text1="ExportConfig:Empty Source directory name." text2=""/>
+		<string id="18939909" text1="ExportConfig:Empty target file name." text2=""/>
+		<string id="18939907" text1="ExportConfig:The package type of %1 configuration is invalid it should be native or nonnative." text2=""/>
+		<string id="17629200" text1="Export failed. Trying to run more than one Cryptoservice" text2=""/>
+		<string id="17629185" text1="Export failed. Directory creation failed" text2=""/>
+		<string id="17629203" text1="Export failed. Error in reading file" text2=""/>
+		<string id="17629204" text1="Export failed. Error in writing file" text2=""/>
+		<string id="17629194" text1="Export failed." text2=""/>
+		<string id="17629186" text1="Export failed. File copying failed" text2=""/>
+		<string id="17629213" text1="Export failed. Hash-based message authentication code computation already started" text2=""/>
+		<string id="17629208" text1="Export failed. Hash-based message authentication code is not initialized" text2=""/>
+		<string id="17629205" text1="Export failed. Hash chain index and USB device indexes are matching" text2=""/>
+		<string id="17629190" text1="Export failed. Container initialization failed" text2=""/>
+		<string id="17629210" text1="Export failed. Size of the array shall be either 4 or 2 or 1" text2=""/>
+		<string id="17629199" text1="Export failed. Invalid type of requested export" text2=""/>
+		<string id="17629212" text1="Export failed. Wrong file mode is detected" text2=""/>
+		<string id="17629207" text1="Export failed. Key file size is not matching with the in-built key file size" text2=""/>
+		<string id="17629206" text1="Export failed. Key file size is more by comparing with hash block size" text2=""/>
+		<string id="17629197" text1="Export failed. Log directory does not exist" text2=""/>
+		<string id="17629211" text1="Export failed. Most significant bit not set for calculations" text2=""/>
+		<string id="17629195" text1="Export failed. Source directory does not exist" text2=""/>
+		<string id="17629193" text1="Export successful." text2=""/>
+		<string id="17629196" text1="Export failed. Target directory does not exist" text2=""/>
+		<string id="17629198" text1="Export failed. Target file name format is wrong" text2=""/>
+		<string id="17629192" text1="Export failed. Unable to archive the files" text2=""/>
+		<string id="17629187" text1="Export failed. Unable to create the RMS_Status.csv file" text2=""/>
+		<string id="17629188" text1="Export failed. Unable to create the TempConfiguration.xml file" text2=""/>
+		<string id="17629189" text1="Export failed. Unable to read the TempConfiguration.xml file" text2=""/>
+		<string id="17629191" text1="Export failed. Verification of the container failed" text2=""/>
+		<string id="17629215" text1="Export failed. Zip command not found in the system" text2=""/>
+		<string id="17629214" text1="Export failed. Unable to zip the files" text2=""/>
+		<string id="17629216" text1="Export failed. Zip is taking long time to complete the request" text2=""/>
+		<string id="17498118" text1="Creator functor already registered for:  %1 ." text2=""/>
+		<string id="17498114" text1="Error initializing external process device." text2=""/>
+		<string id="17498116" text1="Error initializing full state machine." text2=""/>
+		<string id="17498117" text1="Error initializing process manager." text2=""/>
+		<string id="17498115" text1="Error initializing simple state machine." text2=""/>
+		<string id="17498113" text1="Error loading settings." text2=""/>
+		<string id="17498119" text1="Error no creator functor registered for class:  %1 ." text2=""/>
+		<string id="17498120" text1="Error reference already registered  %1  for command  %2 ." text2=""/>
+		<string id="17498121" text1="External Process Controller: Unknown Command Reference %1. File %2 Line %3" text2=""/>
+		<string id="16846859" text1="Current time offset is  %1  seconds" text2=""/>
+		<string id="16842774" text1="Unable to compute new command ref." text2=""/>
+		<string id="16842765" text1="Error creating file %1." text2=""/>
+		<string id="16842766" text1="Error opening file %1." text2=""/>
+		<string id="16842755" text1="Std exception (Memory allocation error) caught: file: %1 line: %2." text2=""/>
+		<string id="16842763" text1="Error reading monotonic clock." text2=""/>
+		<string id="16842756" text1="NULL_POINTER: %1 file: %2 line: %3." text2=""/>
+		<string id="16842758" text1="Command or acknowledgement has no receiver (command  %1  - channel  %2 )" text2=""/>
+		<string id="16842775" text1="Unexpected signal received" text2=""/>
+		<string id="16842760" text1="Signal is not connected to any signal" text2=""/>
+		<string id="16842759" text1="Signal is not connected to any slot" text2=""/>
+		<string id="16842754" text1="Unknown exception caught: file: %1 line: %2." text2=""/>
+		<string id="16842777" text1="Global exception (EventCode %1 thrown in %2) caught in %3 at line %4" text2=""/>
+		<string id="16842778" text1="Std exception (%1) caught in %2 at line %3" text2=""/>
+		<string id="16846862" text1="User acknowledged by pressing button" text2=""/>
+		<string id="16846848" text1="Debug message:  %1 " text2=""/>
+		<string id="16846854" text1="Debug" text2=""/>
+		<string id="16846851" text1="Error" text2=""/>
+		<string id="16846850" text1="FatalError" text2=""/>
+		<string id="16846853" text1="Info" text2=""/>
+		<string id="16846849" text1="Undefined Type" text2=""/>
+		<string id="16846852" text1="Warning" text2=""/>
+		<string id="16846861" text1="Resolved:" text2=""/>
+		<string id="16846857" text1="Shutting down device" text2=""/>
+		<string id="16842776" text1="Unhandled exception caught" text2=""/>
+		<string id="16842753" text1="Unknown String ID" text2=""/>
+		<string id="16843278" text1="User Login" text2=""/>
+		<string id="16843304" text1="Heated cuvette is %1 for the Reagent %2 and temperature is %3" text2=""/>
+		<string id="16843302" text1="Heated cuvette start mode is changed to %1 for the Reagent %2" text2=""/>
+		<string id="16843303" text1="Heated cuvette temperature is changed to %1 for the Reagent %2" text2=""/>
+		<string id="16843295" text1="OFF" text2=""/>
+		<string id="16843294" text1="On" text2=""/>
+		<string id="16843289" text1="Agitation speed changed to %1" text2=""/>
+		<string id="16843292" text1="Alarm error sound note changed" text2=""/>
+		<string id="16843301" text1="Alarm error volume note tone changed" text2=""/>
+		<string id="16843291" text1="Alarm warning sound note changed" text2=""/>
+		<string id="16843300" text1="Alarm warning volume note tone changed" text2=""/>
+		<string id="16843288" text1="Date format changed to %1" text2=""/>
+		<string id="16843272" text1="Language set to %1" text2=""/>
+		<string id="16843275" text1="Network Settings changed" text2=""/>
+		<string id="16843285" text1="Oven start mode changed to %1" text2=""/>
+		<string id="16843298" text1="Permanent" text2=""/>
+		<string id="16843299" text1="Program Start" text2=""/>
+		<string id="16843274" text1="Oven temperature changed to %1" text2=""/>
+		<string id="16843293" text1="RMS state changed to %1" text2=""/>
+		<string id="16843286" text1="Temperature format changed to %1" text2=""/>
+		<string id="16843287" text1="Time format changed to %1" text2=""/>
+		<string id="16843284" text1="Water type changed to %1" text2=""/>
+		<string id="16843297" text1="Distilled" text2=""/>
+		<string id="16843296" text1="Tap" text2=""/>
+		<string id="17825801" text1="GPIO Error: %1." text2=""/>
+		<string id="17825802" text1="GPIO:Info:%1" text2=""/>
+		<string id="17039363" text1="GUI is available" text2=""/>
+		<string id="17039365" text1="Initialization of instrument failed" text2=""/>
+		<string id="17039370" text1="Initialization stage %1 completed with restrictions." text2=""/>
+		<string id="17039369" text1="Initialization of instrument completed with restrictions. Staining is possible though." text2=""/>
+		<string id="17039368" text1="Initialization stage %1 failed" text2=""/>
+		<string id="17039367" text1="Initialization stage %1 completed successfully" text2=""/>
+		<string id="17039366" text1="Initialization of instrument was successful" text2=""/>
+		<string id="19398669" text1="MessageChecker: cannot load messages at %1. Error %2." text2=""/>
+		<string id="19398671" text1="MessageChecker ERROR: incoming MSG document is invalid." text2=""/>
+		<string id="19398670" text1="MessageChecker ERROR: validator is NULL." text2=""/>
+		<string id="19398665" text1="MasterLinkController: IP %1. Connecting LinkDevice signal &quot;&quot;%2&quot;&quot; failed." text2=""/>
+		<string id="19398664" text1="MasterLinkController: IP %1. Cannot create/initialise MasterClient at %2." text2=""/>
+		<string id="19398666" text1="MasterLinkController: IP %1. message emitting signal is not connected." text2=""/>
+		<string id="19398667" text1="MasterLinkDevice: Connecting LinkDevice signal &quot;&quot;%1&quot;&quot; failed." text2=""/>
+		<string id="19398668" text1="MasterLinkDevice: Cannot initialise network object." text2=""/>
+		<string id="19398675" text1="MessageLoader::ParseCommands:No valid messages." text2=""/>
+		<string id="19398672" text1="MessageLoader: Opening of file %1 failed." text2=""/>
+		<string id="19398673" text1="MessageLoader: Parsing of file %1 failed." text2=""/>
+		<string id="19398674" text1="MessageLoader: File %1 element tag mismatch with tag %2." text2=""/>
+		<string id="19398686" text1="NetworkClient: Client %1. Authentication failed." text2=""/>
+		<string id="19398693" text1="NetworkClient: Client %1. config parameter(s) missing." text2=""/>
+		<string id="19398692" text1="NetworkClient: Client %1. setting config parameters failed." text2=""/>
+		<string id="19398685" text1="NetworkClient: Client %1. Working conenction lost." text2=""/>
+		<string id="19398694" text1="NetworkClientDevice: IP %1. initializing NetworkDevice/Client failed." text2=""/>
+		<string id="19398699" text1="NetworkClientDevice: IP %1. Missing input." text2=""/>
+		<string id="19398695" text1="NetworkClientDevice: IP %1. Message handler registration failed." text2=""/>
+		<string id="19398698" text1="NetworkClientDevice: IP %1. Network error %2 ." text2=""/>
+		<string id="19398688" text1="NetworkClient: Client %1. Msg Handler Pointer null at %2." text2=""/>
+		<string id="19398689" text1="NetworkClient: Client %1. cannot convert outgoing QString message to QDomDocument! Error:%2" text2=""/>
+		<string id="19398690" text1="NetworkClient: Client %1. outgoing QByteArray is empty." text2=""/>
+		<string id="19398684" text1="NetworkClient: Client %1. Socket error %2." text2=""/>
+		<string id="19398691" text1="NetworkClient: Client %1. Writing to socket failed." text2=""/>
+		<string id="19398687" text1="NetworkClient: Client %1. Connection failed due to wrong server message." text2=""/>
+		<string id="19398708" text1="NetworkDevice: command element %1 not found." text2=""/>
+		<string id="19398709" text1="NetworkDevice: command element %1 is empty." text2=""/>
+		<string id="19398703" text1="NetworkDevice: command with REF %1 is already in hash." text2=""/>
+		<string id="19398704" text1="NetworkDevice: creating %1 command failed " text2=""/>
+		<string id="19398705" text1="NetworkDevice: %1 command execution failed." text2=""/>
+		<string id="19398710" text1="NetworkDevice: command %1 cannot be initialized." text2=""/>
+		<string id="19398701" text1="NetworkDevice: cannot load messages." text2=""/>
+		<string id="19398707" text1="NetworkDevice: cannot parse message! Error %1." text2=""/>
+		<string id="19398706" text1="NetworkDevice: unknown message type %1." text2=""/>
+		<string id="19398700" text1="NetworkDevice: cannot initialize wrong type of device %1." text2=""/>
+		<string id="19398720" text1="NetworkLayer: attribute %1 is empty at %2." text2=""/>
+		<string id="19398721" text1="NetworkLayer: Message sending failed with status %1." text2=""/>
+		<string id="19398724" text1="NetworkLayer: command %1 is corresponds to invalid reference at %2." text2=""/>
+		<string id="19398722" text1="NetworkLayer: command %1 is empty at %2." text2=""/>
+		<string id="19398723" text1="NetworkLayer: command %1 is not a running command at %2." text2=""/>
+		<string id="19398697" text1="NetworkLayer: IP/client %1. Null pointer error at %2." text2=""/>
+		<string id="17039362" text1="Colorado has switched to normal state" text2=""/>
+		<string id="19398719" text1="NetworkServerDevice: Client %1: DateTimeSync cannot be started." text2=""/>
+		<string id="19398717" text1="NetworkServerDevice: Client %1: cannot initialize Server." text2=""/>
+		<string id="19398718" text1="NetworkServerDevice: Client %1: cannot register protocol handler." text2=""/>
+		<string id="19398712" text1="NETSERVER: IP %1: Failed to destroy Manager Object %2." text2=""/>
+		<string id="19398696" text1="NetworkServerDevice: initializing NetworkDevice/Server failed." text2=""/>
+		<string id="19398716" text1="NetworkServerDevice: Client %1: NetworkServer reported problem %2." text2=""/>
+		<string id="19398715" text1="NETSERVER: IP %1: PORT %2: Listening failed." text2=""/>
+		<string id="19398714" text1="NETSERVER: IP %1: Loading settings failed reason: %2." text2=""/>
+		<string id="19398711" text1="NETSERVER: IP %1: PORT %2: Connection attempt failed: no free slots." text2=""/>
+		<string id="19398713" text1="NETSERVER: IP %1: Server Disconnect reason %2." text2=""/>
+		<string id="19398678" text1="NetSettings: Element tag %1 mismatch with tag %2." text2=""/>
+		<string id="19398677" text1="NetSettings: Parsing of file with error %1." text2=""/>
+		<string id="19398679" text1="NetSettings: Version mismatch with %1." text2=""/>
+		<string id="19398681" text1="NetSettings: Connection settings empty." text2=""/>
+		<string id="19398676" text1="NetSettings: Opening of file %1 failed." text2=""/>
+		<string id="19398683" text1="NetSettings: No authentication values." text2=""/>
+		<string id="19398682" text1="NetSettings: Novalid client connections." text2=""/>
+		<string id="19398680" text1="NetSettings: Pointer null at %1." text2=""/>
+		<string id="19529731" text1="Password changed successfully." text2=""/>
+		<string id="19529729" text1="Login failed. Incorrect password. Valid password consists of 4 to 16 characters." text2=""/>
+		<string id="17694727" text1="Service authentication failed. Service User is not trained for this instrument." text2=""/>
+		<string id="17694724" text1="Service authentication failed. Service Key file is invalid." text2=""/>
+		<string id="17694725" text1="Service authentication failed. Training date is expired." text2=""/>
+		<string id="17694726" text1="Service authentication failed. Instrument  not available in the Service Key file." text2=""/>
+		<string id="17694723" text1="Service authentication failed. Service PIN is invalid." text2=""/>
+		<string id="17694722" text1="Service authentication failed. Unable to read Service Key file from USB." text2=""/>
+		<string id="17694728" text1="Service login successful and the service id is %1" text2=""/>
+		<string id="17694721" text1="Service authentication failed. No USB device found." text2=""/>
+		<string id="19529730" text1="Unable to change the password. Passwords are not matching." text2=""/>
+		<string id="17825800" text1="System recovered from power failure." text2=""/>
+		<string id="17825798" text1="Power Failure Stage 1." text2=""/>
+		<string id="17825799" text1="Power failed! Shutting down system." text2=""/>
+		<string id="17825793" text1="To switch off press button again" text2=""/>
+		<string id="17825794" text1="Staining procedure is still in progress.To switch off press button again." text2=""/>
+        <string id="19464193" text1="RCManager.Received command %1 with data %n from RCA." text2=""/>
+        <string id="19464194" text1="RCManager.Remote Session request denied. %1." text2=""/>
+        <string id="19464195" text1="RCManager.Remote Session request accepted by user." text2=""/>
+        <string id="19464196" text1="RCManager.Sent command %1 with data %n to RCA." text2=""/>
+        <string id="19464197" text1="Connection to RemoteCare client failed" text2=""/>
+        <string id="19464198" text1="RCManager.Data item name %1 is invalid." text2=""/>
+        <string id="19464199" text1="RCManager.Value %1 of data item %2 is invalid." text2=""/>
+        <string id="19464200" text1="RCManager.Type %1 of data item %2 is invalid." text2=""/>
+        <string id="19464201" text1="RCManager.RemoteCare subscription is not set." text2=""/>
+		<string id="17825803" text1="Shutdown will take some seconds." text2=""/>
+		<string id="17891329" text1="SoftSwitch monitor started" text2=""/>
+		<string id="17825796" text1="Shutdown is not possible at the moment. System is in initialization phase. Please wait till initialization completes" text2=""/>
+		<string id="17825797" text1="Shutdown is not possible at the moment. %1 is in progress. Please wait till %1 completes" text2=""/>
+		<string id="17891330" text1="SoftSwitch pressed for the first time after bootup" text2=""/>
+		<string id="17367045" text1="Error adding state  %1 ." text2=""/>
+		<string id="17367042" text1="Error adding transition between states  %1  and  %2  for index %3." text2=""/>
+		<string id="17367044" text1="Error removing all state transitions between states  %1  and  %2 ." text2=""/>
+		<string id="17367047" text1="Can not remove state  %1 . It is the current state." text2=""/>
+		<string id="17367046" text1="Error removing state  %1 ." text2=""/>
+		<string id="17367043" text1="Error removing transition between states  %1  and  %2  for index %3." text2=""/>
+		<string id="17367041" text1="Transition between states  %1  and  %2  for index %3 already exists." text2=""/>
+		<string id="17367048" text1="Unknown state  %1 ." text2=""/>
+		<string id="19595266" text1="File writing failed for RMS/Data logging/Configuration files. Don t accept any racks" text2=""/>
+		<string id="19005441" text1="Software update could not started due to error" text2=""/>
+		<string id="19005442" text1="Software update failed" text2=""/>
+		<string id="19005443" text1="Software update rollback failed" text2=""/>
+		<string id="19005447" text1="Software update successful." text2=""/>
+		<string id="19005448" text1="Software update exited since never version of Software is not available." text2=""/>
+		<string id="18874369" text1="The release date or version is empty in SW_Version.xml." text2=""/>
+		<string id="18874373" text1="The SW Component %1 already exists in SW_Version.xml." text2=""/>
+		<string id="18874372" text1="The SW Component %1 already exists in the SW_Version.xml." text2=""/>
+		<string id="18874370" text1="The release date or version of component %1 is empty in SW_Version.xml." text2=""/>
+		<string id="18874371" text1="Empty SW component name in SW_Version.xml." text2=""/>
+		<string id="17891331" text1="System initialization complete" text2=""/>
+		<string id="19595268" text1="Debug message: %1 thread create and initialize is called" text2=""/>
+		<string id="19595267" text1="Debug message: %1 thread on go received" text2=""/>
+		<string id="16908300" text1="Functor already registered for acknowledge:  %1 ." text2=""/>
+		<string id="16908299" text1="Functor already registered for command:  %1 ." text2=""/>
+		<string id="16908304" text1="Error: Command %1 has a timeout." text2=""/>
+		<string id="16908302" text1="Command timeout  %1  (ref %2)" text2=""/>
+		<string id="16908291" text1="Heartbeat not received from thread with ID: %1" text2=""/>
+		<string id="16908305" text1="Heartbeat missing count for %1 crossed %2: restarting the thread." text2=""/>
+		<string id="16908306" text1="Heartbeat missing count for %1 crossed %2: shutting down the system." text2=""/>
+		<string id="16908295" text1="Error sending acknowledge  %1  with reference %2" text2=""/>
+		<string id="16908290" text1="Thread %1 did not stop within %2 milliseconds" text2=""/>
+		<string id="16908301" text1="Functor already registered for timeout:  %1 ." text2=""/>
+		<string id="16908296" text1="Unknown command reference %1 from thread ID %2 and the command name %3" text2=""/>
+		<string id="16908293" text1="Heartbeat with ID: %1 was received from unknown source" text2=""/>
+		<string id="16908298" text1="Unsupported acknowledgement %1" text2=""/>
+		<string id="16908297" text1="Unsupported command %1" text2=""/>
+		<string id="16908292" text1="Heartbeat checking for thread controllers disabled" text2=""/>
+		<string id="16973837" text1="Cancel" text2=""/>
+		<string id="16973840" text1="Continue" text2=""/>
+		<string id="16973839" text1="No" text2=""/>
+		<string id="16973836" text1="OK" text2=""/>
+		<string id="16973841" text1="Stop" text2=""/>
+		<string id="16973838" text1="Yes" text2=""/>
+		<string id="33619990" text1="Can not change the date and time more than 24 hours of the current system date time is %1." text2=""/>
+		<string id="33817094" text1="Group verification failed. Base container is not initialized." text2=""/>
+		<string id="33817095" text1="Group verification failed. Container type is not valid." text2=""/>
+		<string id="33817097" text1="Group verification failed. Program container is not initialized." text2=""/>
+		<string id="33817088" text1="Reagent ID exists in Program list but not in Reagent list: %1" text2=""/>
+		<string id="33817092" text1="Reagent ID exist in User settings but not in Reagent list: %1" text2=""/>
+		<string id="33817096" text1="Group verification failed. Reagent container is not initialized." text2=""/>
+		<string id="33817093" text1="Station ID exist in Station list but not in Station matrix : %1" text2=""/>
+		<string id="33817098" text1="Group verification failed. Station container is not initialized." text2=""/>
+		<string id="33817101" text1="Group verification failed. User settings container is not initialized." text2=""/>
+		<string id="33818114" text1="Program  %1  Reagents  for Step %2 and Step %3 are not compatible." text2=""/>
+		<string id="33817861" text1="The sound level parameter is out of range" text2=""/>
+		<string id="33817860" text1="The sound volume parameter is out of range" text2=""/>
+		<string id="33817859" text1="The sound periodic parameter is out of range" text2=""/>
+		<string id="33816577" text1="%1  is not a valid Program ID." text2=""/>
+		<string id="33816578" text1="Error in retrieving service information for device %1" text2=""/>
+		<string id="33816608" text1="Step ID %2 in Program %1 is invalid" text2=""/>
+		<string id="33817862" text1="The Parafin temperature is out of range" text2=""/>
+		<string id="33816626" text1="Internal Software Error. Adding rogram failed. Please contact service." text2=""/>
+		<string id="33816597" text1="Program list contains more than %1 programs. Only %1 programs allowed" text2=""/>
+		<string id="33816624" text1="Delete program failed due to invalid Program ID %1." text2=""/>
+		<string id="33816631" text1="Internal Software Error. Program delete failed. Please contact service." text2=""/>
+		<string id="33816623" text1="Program ID %1 associated with Program %2 is not unique ." text2=""/>
+		<string id="33816620" text1="Program step(s) in Program %1 contains invalid duration format" text2=""/>
+		<string id="33818117" text1="Length of the Program name exceeds limit for the program  %1 . Valid Range  %2  -  %3  characters." text2=""/>
+		<string id="33818113" text1="Program name  %1  already in use. Please choose different Program name." text2=""/>
+		<string id="33816596" text1="Invalid Index in program hash table." text2=""/>
+		<string id="33816592" text1="Verifying Programs.xml failed." text2=""/>
+		<string id="33816584" text1="Reading Programs.xml failed." text2=""/>
+		<string id="33816605" text1="Number of steps in Program %1 exceeds limit. Max 14 steps allowed." text2=""/>
+		<string id="33818116" text1="Program  %1  must have  %2  step(s) at least." text2=""/>
+		<string id="33818118" text1="Duration in Step  %1  of Program  %2  exceeds limits, validated range :  %3  -  %4 ." text2=""/>
+		<string id="33818119" text1="Temperature in Step  %1  of Program  %2  exceeds limits, validated range :  %3  -  %4  (Celsius)." text2=""/>
+		<string id="33816606" text1="Program Verifier found invalid Reagent ID %2 in the program %1." text2=""/>
+		<string id="33816846" text1="ReagentList reading failed  %1  reagents" text2=""/>
+		<string id="33816845" text1="ReagentList writing failed  %1  reagents" text2=""/>
+		<string id="33816840" text1="Reagent  %1  Name is too long (max 32 Characters)" text2=""/>
+		<string id="33817864" text1="unknow RMS cleaning model" text2=""/>
+		<string id="33817863" text1="unknown RMS processing model" text2=""/>
+		<string id="33818115" text1="User Program name can not contain  leica  word." text2=""/>
+		<string id="50331649" text1="Export failed. No enough space on SD card." text2=""/>
+		<string id="50331672" text1="Export failed. No enough space on USB storage." text2=""/>
+		<string id="16842767" text1="Error deleting file %1." text2=""/>
+		<string id="16842762" text1="Error reading config file %1." text2=""/>
+		<string id="16842772" text1="Time offset is too large  %1  seconds. Allowed:  %2  seconds." text2=""/>
+		<string id="16846858" text1="Setting date / time to  %1 ." text2=""/>
+		<string id="33619971" text1="Primaris started (serial number is %1 and type is %2)" text2=""/>
+		<string id="33947653" text1="Import failed. Format of import file is wrong" text2=""/>
+		<string id="50331760" text1="Import failed. SW versions are not matching to Import the files" text2=""/>
+		<string id="50331763" text1="No USB devices found in the system to export files" text2=""/>
+		<string id="50331762" text1="No USB devices found in the system to import files" text2=""/>
+		<string id="33947665" text1="ImportExport thread already running" text2=""/>
+		<string id="33947664" text1="Import failed" text2=""/>
+		<string id="33947657" text1="Import failed. Container initialization failed" text2=""/>
+		<string id="33947661" text1="Files for language import are not available" text2=""/>
+		<string id="33947652" text1="Import failed. There are no files to Import the data" text2=""/>
+		<string id="33947655" text1="Import failed. Required files are not available to Import" text2=""/>
+		<string id="33947659" text1="Import failed. Rollback failed" text2=""/>
+		<string id="33947662" text1="Import successful. Please generate new bathlayout" text2=""/>
+		<string id="33947663" text1="Import successful. Language files are updated" text2=""/>
+		<string id="33947656" text1="Import failed. SW versions are not matching to Import the files" text2=""/>
+		<string id="50331759" text1="Import failed. Archive file is tampered" text2=""/>
+		<string id="50331761" text1="Type of import is not valid" text2=""/>
+		<string id="33947660" text1="Import failed. Updating rollback failed" text2=""/>
+		<string id="33947658" text1="Import failed. Verification of the container failed" text2=""/>
+		<string id="33619974" text1="Password changed successfully." text2=""/>
+		<string id="33619972" text1="Login failed. Incorrect password." text2=""/>
+		<string id="33619973" text1="Unable to change the password. Passwords are not matching." text2=""/>
+		<string id="33619978" text1="GUI Connected" text2=""/>
+		<string id="33619975" text1="GUI has stopped" text2=""/>
+		<string id="50331719" text1="The Active carbon filter is overdue, please replace a new Active carbon filter!" text2=""/>
+		<string id="50331771" text1="The Active carbon filter is overdue, please replace a new Active carbon filter!" text2=""/>
+		<string id="50331718" text1="Please call the service engineer for maintenance!" text2=""/>
+		<string id="50331765" text1="Active carbon filter operationtime was reset." text2=""/>
+		<string id="50331764" text1="Machine operationtime was reset." text2=""/>
+		<string id="50331766" text1="Pause overtime 5 mintues. Please resume program as soon as possible!" text2=""/>
+		<string id="50331767" text1="Pause overtime 10 mintues. Please resume program as soon as possible!" text2=""/>
+		<string id="50331768" text1="Program can not resume as pausing overtime 15 mintues." text2=""/>
+		<string id="50331769" text1="Please wait for filling to be completed, and then try again!" text2=""/>
+		<string id="50331770" text1="Please wait for draining to be completed, and then try again!" text2=""/>
+		<string id="33619977" text1="The Following Station(s) are defect: %n. Programs using defective stations will no longer be startable." text2=""/>
+		<string id="50331683" text1="Program name %1 current step %2 current reagent %3 left time %4s" text2=""/>
+		<string id="50331651" text1="LeicaBiopsie" text2=""/>
+		<string id="50331652" text1="CleaningProgram" text2=""/>
+		<string id="50331650" text1="LeicaOvernight" text2=""/>
+		<string id="50331671" text1="Cleaning alcohol" text2=""/>
+		<string id="50331670" text1="Cleaning xylene" text2=""/>
+		<string id="50331666" text1="Ethanol 100%" text2=""/>
+		<string id="50331662" text1="Ethanol 70%" text2=""/>
+		<string id="50331663" text1="Ethanol 80%" text2=""/>
+		<string id="50331664" text1="Ethanol 90%" text2=""/>
+		<string id="50331665" text1="Ethanol 95%" text2=""/>
+		<string id="50331661" text1="Formalin" text2=""/>
+		<string id="50331660" text1="Cleaning Alcohol" text2=""/>
+		<string id="50331659" text1="Cleaning Solvent" text2=""/>
+		<string id="50331657" text1="Clearing" text2=""/>
+		<string id="50331656" text1="Dehydrating,absolute" text2=""/>
+		<string id="50331655" text1="Dehydrating,diluted" text2=""/>
+		<string id="50331653" text1="Fixation" text2=""/>
+		<string id="50331658" text1="Paraffin" text2=""/>
+		<string id="50331654" text1="Water" text2=""/>
+		<string id="50331668" text1="Paraffin" text2=""/>
+		<string id="50331669" text1="Processing Water" text2=""/>
+		<string id="50331667" text1="Xylene" text2=""/>
+		<string id="50331678" text1="ERROR" text2=""/>
+		<string id="50331720" text1="Scheduler execute command %1" text2=""/>
+		<string id="50331721" text1="Scheduler execute command %1 result %2" text2=""/>
+		<string id="50331684" text1="Finish program %1" text2=""/>
+		<string id="50331676" text1="IDLE" text2=""/>
+		<string id="50331675" text1="INIT" text2=""/>
+		<string id="50331716" text1="abort program" text2=""/>
+		<string id="50331717" text1="drain" text2=""/>
+		<string id="50331715" text1="pause program" text2=""/>
+		<string id="50331714" text1="start program" text2=""/>
+		<string id="50331705" text1="bottle check result: %1" text2=""/>
+		<string id="50331709" text1="blockage" text2=""/>
+		<string id="50331710" text1="empty" text2=""/>
+		<string id="50331711" text1="error" text2=""/>
+		<string id="50331708" text1="not full" text2=""/>
+		<string id="50331707" text1="Ok" text2=""/>
+		<string id="50331712" text1="timeout" text2=""/>
+		<string id="50331713" text1="unexpected" text2=""/>
+		<string id="50331704" text1="checking bottle %1" text2=""/>
+		<string id="50331703" text1="checking temperature and pressure" text2=""/>
+		<string id="50331706" text1="selftest finished" text2=""/>
+		<string id="50331702" text1="start selftest" text2=""/>
+		<string id="50331681" text1="Current program step state: %1" text2=""/>
+		<string id="50331699" text1="aborted" text2=""/>
+		<string id="50331700" text1="aborting" text2=""/>
+		<string id="50331693" text1="draining" text2=""/>
+		<string id="50331696" text1="Error" text2=""/>
+		<string id="50331690" text1="filling" text2=""/>
+		<string id="50331695" text1="finished" text2=""/>
+		<string id="50331686" text1="heating level sensor 1" text2=""/>
+		<string id="50331687" text1="heating level sensor 2" text2=""/>
+		<string id="50331689" text1="moving to tube to draing" text2=""/>
+		<string id="50331688" text1="moving to tube to fill" text2=""/>
+		<string id="50331697" text1="pause" text2=""/>
+		<string id="50331698" text1="pause during drain" text2=""/>
+		<string id="50331694" text1="ready to drain" text2=""/>
+		<string id="50331691" text1="sealing" text2=""/>
+		<string id="50331692" text1="soaking" text2=""/>
+		<string id="50331685" text1="step initializing" text2=""/>
+		<string id="50331701" text1="unknown" text2=""/>
+		<string id="50331677" text1="RUN" text2=""/>
+		<string id="50331674" text1="Scheduler main controller state: %1" text2=""/>
+		<string id="50331680" text1="Scheduler receive action command from GUI: %1" text2=""/>
+		<string id="50331682" text1="Start program %1" text2=""/>
+		<string id="50331679" text1="unexpected state" text2=""/>
+
+        <string id="19333713" text1="Device was successfully registered" text2=""/>
+        <string id="19333714" text1="Received command for setting a tag" text2=""/>
+        <string id="19333715" text1="Conversion of severity was OK" text2=""/>
+        <string id="19333716" text1="Start of RemoteSession" text2=""/>
+        <string id="19333717" text1="End of RemoteSession" text2=""/>
+        <string id="19333718" text1="Start of download" text2=""/>
+        <string id="19333719" text1="End of download" text2=""/>
+        <string id="19333889" text1="Failed to read device settings" text2=""/>
+        <string id="19333890" text1="Failed to read user settings" text2=""/>
+        <string id="19333891" text1="Failed to read RemoteCare settings" text2=""/>
+        <string id="19333892" text1="Error during AgentEmbedded initialization" text2=""/>
+        <string id="19333893" text1="Error modelnumber in the configuration is empty" text2=""/>
+        <string id="19333894" text1="Error on registering device on Remote Enterprise server" text2=""/>
+        <string id="19333895" text1="Error on setting the server configuration" text2=""/>
+        <string id="19333896" text1="Error on SSL setup" text2=""/>
+        <string id="19333897" text1="Error on setting remote session" text2=""/>
+        <string id="19333898" text1="Error on setting the proxy server" text2=""/>
+        <string id="19333899" text1="Analog data item conversion failed" text2=""/>
+        <string id="19333900" text1="Digital dataitem conversion failed" text2=""/>
+        <string id="19333901" text1="Dataitem was not found" text2=""/>
+        <string id="19333902" text1="Not able to post the item" text2=""/>
+        <string id="19333903" text1="Not able to set persistent HTTP connection" text2=""/>
+
+        <string id="19333121" text1="Error on Master connection" text2=""/>
+        <string id="19333377" text1="Connected to Master successfully" text2=""/>
+        <string id="19333633" text1="Configuration could not be read" text2=""/>
+        <string id="19333634" text1="Web access error" text2=""/>
+        <string id="19333635" text1="Settings could not be read" text2=""/>
+        <string id="19333636" text1="Settings for AgentEmbedded could not be set" text2=""/>
+        <string id="19333637" text1="Posting dataitems failed" text2=""/>
+        <string id="19333638" text1="Bad allocation error" text2=""/>
+        <string id="19333639" text1="RemoteCareAgent was not proper initialized" text2=""/>
+        <string id="19333640" text1="Remote Enterprise server is not available" text2=""/>
+        <string id="19333641" text1="Upload of the file failed" text2=""/>
+        <string id="19333642" text1="Setting the tag failed" text2=""/>
+        <string id="19333643" text1="Reporting event failed" text2=""/>
+        <string id="19333720" text1="RCA is connected to web server" text2=""/>
+   		<string id="67174401" text1="Slave boards initialized successfully." text2="" />
+   		<string id="67174402" text1="Error happend during Slaves initializing %1." text2="" />
+   		<string id="67174403" text1="Main Relay opened successfully." text2="" />
+   		<string id="67174404" text1="Fail to open the Main Relay %1." text2="" />
+   		<string id="67174416" text1="User shutdown instrument." text2="" />
+   		<string id="67174417" text1="Do recovery action %1." text2="" />
+   		<string id="67174418" text1="User start the program %1 with the finished time %2." text2="" />
+   		<string id="67174419" text1="User continue the program %1." text2="" />
+   		<string id="67174420" text1="User pause the program %1." text2="" />
+   		<string id="67174421" text1="User abort the program %1." text2="" />
+   		<string id="67174422" text1="User drain the last reagent of the program %1." text2="" />
+   		<string id="67174423" text1="User change the paraffin melting point from %1 to %2." text2="" />
+   		<string id="67174656" text1="Start the Selftest." text2="" />
+   		<string id="67174657" text1="Delay 3 second." text2="" />
+   		<string id="67174658" text1="Delay 5 second." text2="" />
+   		<string id="67174659" text1="Set ASB3 voltage switch to auto." text2="" />
+   		<string id="67174660" text1="Set the ASB3 voltage switch to auto successfully." text2="" />
+   		<string id="67174661" text1="Set the ASB5 voltage switch to auto." text2="" />
+   		<string id="67174662" text1="Set the ASB5 voltage switch to auto successfully." text2="" />
+   		<string id="67174663" text1="Start heating rotary valve." text2="" />
+   		<string id="67174664" text1="Start heating retort bottom." text2="" />
+   		<string id="67174665" text1="Start heating rotary valve successfully." text2="" />
+   		<string id="67174666" text1="Start heating retort bottom successfully." text2="" />
+   		<string id="67174667" text1="Stop heating rotary valve." text2="" />
+   		<string id="67174668" text1="Stop heating retort bottom." text2="" />
+   		<string id="67174669" text1="Stop heating rotary valve successfully." text2="" />
+   		<string id="67174670" text1="Stop heating retort bottom successfully." text2="" />
+   		<string id="67174671" text1="Get the ASB5 SwithcType:%1,ASB3 SwitchType:%2." text2="" />
+   		<string id="67174672" text1="Retry the AC voltage switch test." text2="" />
+   		<string id="67174673" text1="Unknown the ASB5 voltage." text2="" />
+   		<string id="67174674" text1="ASB5 voltage type is same the ASB3, and pass." text2="" />
+   		<string id="67174675" text1="Set the ASB3 voltage with ASB5 voltage." text2="" />
+   		<string id="67174676" text1="Set the ASB3 voltage with ASB5 voltage successfully." text2="" />
+   		<string id="67174677" text1="Start heating liquid tube." text2="" />
+   		<string id="67174678" text1="Start heating liquid tube successfully." text2="" />
+   		<string id="67174679" text1="Stop heating liquid tube." text2="" />
+   		<string id="67174680" text1="Stop heating liquid tube successfully." text2="" />
+   		<string id="67174681" text1="Start heating air tube." text2="" />
+   		<string id="67174682" text1="Start heating air tube successfully." text2="" />
+   		<string id="67174683" text1="Stop heating air tube." text2="" />
+   		<string id="67174684" text1="Stop heating air tube successfully." text2="" />
+   		<string id="67174685" text1="Start heating level sensor." text2="" />
+   		<string id="67174686" text1="Start heating level sensor successfully." text2="" />
+   		<string id="67174687" text1="Stop heating level sensor." text2="" />
+   		<string id="67174688" text1="Stop heating level sensor successfully." text2="" />
+   		<string id="67174689" text1="Start pump." text2="" />
+   		<string id="67174690" text1="Start pump successfully." text2="" />
+   		<string id="67174691" text1="Stop pump." text2="" />
+   		<string id="67174692" text1="Stop pump successfully." text2="" />
+   		<string id="67174693" text1="Start valve1." text2="" />
+   		<string id="67174694" text1="Start valve1 successfully." text2="" />
+   		<string id="67174695" text1="Stop valve1." text2="" />
+   		<string id="67174696" text1="Stop valve1 successfully." text2="" />
+   		<string id="67174697" text1="Start valve2." text2="" />
+   		<string id="67174698" text1="Start valve2 successfully." text2="" />
+   		<string id="67174699" text1="Stop valve2." text2="" />
+   		<string id="67174700" text1="Stop valve2 successfully." text2="" />
+   		<string id="67174701" text1="Start exhaust fan." text2="" />
+   		<string id="67174702" text1="Start exhaust fan successfully." text2="" />
+   		<string id="67174703" text1="Stop exhaust fan." text2="" />
+   		<string id="67174704" text1="Stop exhaust fan successfully." text2="" />
+   		<string id="67174705" text1="Start heating retort side." text2="" />
+   		<string id="67174706" text1="Start heating retort side successfully." text2="" />
+   		<string id="67174707" text1="Stop heating retort side." text2="" />
+   		<string id="67174708" text1="Stop heating retort side successfully." text2="" />
+   		<string id="67174709" text1="Start heating oven top." text2="" />
+   		<string id="67174710" text1="Start heating oven top successfully." text2="" />
+   		<string id="67174711" text1="Stop heating oven top." text2="" />
+   		<string id="67174712" text1="Stop heating oven top successfully." text2="" />
+   		<string id="67174713" text1="Start heating oven bottom." text2="" />
+   		<string id="67174714" text1="Start heating oven bottom successfully." text2="" />
+   		<string id="67174715" text1="Stop heating oven bottom." text2="" />
+   		<string id="67174732" text1="Stop heating oven bottom successfully." text2="" />
+   		<string id="67174912" text1="Start the pretest." text2="" />
+   		<string id="67174913" text1="Check the level sensor temperature." text2="" />
+   		<string id="67174914" text1="Check the level sensor temperature passed." text2="" />
+   		<string id="67174915" text1="Move RV to initialize position." text2="" />
+   		<string id="67174916" text1="Move RV to initialize position successfully." text2="" />
+   		<string id="67174917" text1="Test pressure calibration." text2="" />
+   		<string id="67174918" text1="Calibrate pressure of release pressure." text2="" />
+   		<string id="67174919" text1="Calibrate pressure of release pressure successfully." text2="" />
+   		<string id="67174920" text1="Wait 20 second." text2="" />
+   		<string id="67174921" text1="Calibrate pressure the current pressure is :%1." text2="" />
+   		<string id="67174922" text1="Retry Pressure Calibration the pressure value is too large." text2="" />
+   		<string id="67174923" text1="Calibrate pressure successfully." text2="" />
+   		<string id="67174924" text1="Offset the pressure calibration." text2="" />
+   		<string id="67174925" text1="Sealing test." text2="" />
+   		<string id="67174926" text1="Sealing test successfully." text2="" />
+   		<string id="67174927" text1="Bottle test." text2="" />
+   		<string id="67174928" text1="Bottle test successfully." text2="" />
+   		<string id="67174929" text1="PreTest success." text2="" />
+   		<string id="67174992" text1="Initialize the heatingStrategy failed." text2="" />
+   		<string id="67174993" text1="Start heating retort side in pretest,the target temperature:%1." text2="" />
+   		<string id="67174994" text1="Start heating retort bottom in pretest,the target temperature:%1." text2="" />
+   		<string id="67174995" text1="Start heating level sensor heating in scenario:%1,the target temperature:%2." text2="" />
+   		<string id="67174996" text1="Start retort(%1) heating in scenario:%2,the target temperature:%3." text2="" />
+   		<string id="67174997" text1="Start wax bath(%1) heating in scenario:%2,the target temperature:%3." text2="" />
+   		<string id="67174998" text1="Start rotary valve heating in scenario:%1,the target temperature:%2." text2="" />
+   		<string id="67174999" text1="Start LA system(%1) heating in scenario:%2,the target temperature:%3." text2="" />
+   		<string id="67175168" text1="Detect an unfinished program %1 at step %2." text2="" />
+   		<string id="67175169" text1="Reheating for scenario 200 and 260 step." text2="" />
+   		<string id="67175170" text1="Reheating for reagent step." text2="" />
+   		<string id="67175171" text1="Reheating for paraffin step." text2="" />
+   		<string id="67175172" text1="Power failure back to scenario 281." text2="" />
+   		<string id="67175173" text1="Power failure back to scenario 291." text2="" />
+   		<string id="67175174" text1="Power failure back to RC_restart." text2="" />
+   		<string id="67175184" text1="Scheduler enters the idle state." text2="" />
+   		<string id="67175185" text1="Scheduler enters the error state." text2="" />
+   		<string id="67175200" text1="start the program %1" text2="" />
+   		<string id="67175201" text1="Set the rotary valve position to %1." text2="" />
+   		<string id="67175202" text1="Still need to heat oven for %1 for melting paraffin." text2="" />
+   		<string id="67175203" text1="Aborting program." text2="" />
+   		<string id="67175204" text1="Aborted program." text2="" />
+   		<string id="67175205" text1="Pause program." text2="" />
+   		<string id="67175206" text1="Release presure." text2="" />
+   		<string id="67175207" text1="Draining." text2="" />
+   		<string id="67175208" text1="Waiting for filling paraffin." text2="" />
+   		<string id="67175209" text1="Heating the level sensor for filling" text2="" />
+   		<string id="67175210" text1="Start filling" text2="" />
+   		<string id="67175211" text1="Moveing the rotary valve to the tube position of station %1." text2="" />
+   		<string id="67175212" text1="Moveing the rotary valve to the sealing position of station %1." text2="" />
+   		<string id="67175213" text1="Start processing." text2="" />
+   		<string id="67175214" text1="Set pressure to %1." text2="" />
+   		<string id="67175215" text1="Finished Step %1." text2="" />
+   		<string id="67175216" text1="Start Step %1(Station %2, %3, %4, %5 %6)." text2="" />
+   		<string id="67175217" text1="Finished Program %1." text2="" />
+   		<string id="67175218" text1="Start the dry processing." text2="" />
+   		<string id="67175219" text1="Finished the dry processing." text2="" />
+        <string id="67175424" text1="prechecking" text2=""/>
+        <string id="67175425" text1="drying process" text2=""/>
+        <string id="67175936" text1="Retort: Please check whether there is any dirt or residue on the level sensor and clean if necessary. If nothing is found, please check O-ring of level sensor or exchange level sensor sub-module." text2=""/>
+        <string id="67175937" text1="Bottle check: Pressure cannot build up. Potential reasons include: 1. sealing issure such as retort lid; 2. RV malpositioned on tube position instead of sealing position;" text2=""/>
+        <string id="67175938" text1="Bottle check: Station no. %1  detected as empty. Other potential reasons are a leakage or missing bottle. Please check the station, check if the retort lid is locked correctly and recover the error! " text2=""/>
+        <string id="67175939" text1="Bottle check: Station no. %1  detected as  Insufficient. Other potential reason is  leakage.  Please check the station, check if the retort lid is locked correctly and recover the error! " text2=""/>
+        <string id="67175940" text1="Air System: Pressure did not reach target value during pre-test. The pressure reached max. %1 kPa. " text2=""/>
+        <string id="67175941" text1="Station no. %1 is filled with an insufficent amount of reagent. Please check if the reagent station or wax-bath is filled to the correct level." text2=""/>
+        <string id="67175942" text1="Station no. %1 is filled with an insufficent amount of reagent. Please check if the reagent station or wax-bath is filled to the correct level. Station no. %1 is filling with an insufficent amount of reagent (retry)." text2=""/>
+        <string id="67175943" text1="Draining of retort to station %1 failed during processing! The max pressure is %2Kpa. Draining of retort to station %1 failed during retry! The max pressure is %2Kpa. " text2=""/>
+        <string id="67175944" text1="Filling of retort from station failed during processing! Filling time exceeds 4 minutes. Tube to this station is likely to be restricted or blocked, (potentially by paraffin). Check bottle connector for any blockage and check tube inside bottle for kinks. If no fault found there, please use the station cleaning program. This will flush the tube to this station using the cleaning xylene bottle first, followed by the cleaning alcohol bottle." text2=""/>
+        <string id="67175945" text1="Filling time of station exceeds 4 minutes during processing. Tube to this station is likely to be restricted or blocked, (potentially by paraffin). Check bottle connector for any blockage and check tube inside bottle for kinks. If no fault found there, please use the station cleaning program. This will flush the tube to this station using the cleaning xylene bottle first, followed by the cleaning alcohol bottle." text2=""/>
+        <string id="67175946" text1="The user opened the paraffin oven cover during a paraffin step. This could potentially have caused the paraffin to solidify. If the paraffin bath was removed, this could have caused a filling or draining error." text2=""/>
+        <string id="67175947" text1="Retort: Overflow occurred during reagent filling. This happened in a non-paraffin step. Please check the level sensor status and check if the air system (wax-trap, air tubes) is still in normal condition." text2=""/>
+        <string id="67175948" text1="Please close retort lid and confirm by clicking the retry button. Please check the lidlock for mechanical blockages or any residue. Also check the lidlock sensor for proper function and adjustment." text2=""/>
+        <string id="67175949" text1="Bottle check: Station no. %1  detected as restricted or blocked during pretest/bottle check." text2=""/>
+        <string id="67175950" text1="Retort heating: Temperature Sensor 1 out of range. This occured during pre- test." text2=""/>
+        <string id="67175951" text1="Retort heating: Temperature Sensor 1 out of range. This occured during self test at process start or during cleaning steps. " text2=""/>
+        <string id="67175952" text1="Retort heating: Temperature Sensor 1 out of range. This occured during processing." text2=""/>
+        <string id="67175951" text1="Retort heating: Temperature Sensor 1 out of range. This occured during self test at process start or during cleaning steps." text2=""/>
+        <string id="67175953" text1="Retort heating: Temperature Sensor 1 provides no signal. This occured during pre- test." text2=""/>
+        <string id="67175954" text1="Retort heating: Temperature Sensor 1 provides no signal. This occured during self test at process start or during cleaning steps." text2=""/>
+        <string id="67175955" text1="Retort heating: Temperature Sensor 2 out of range. This occured during pre- test." text2=""/>
+        <string id="67175956" text1="Retort heating: Temperature Sensor 2 out of range. This occured during self test at process start or during cleaning steps." text2=""/>
+        <string id="67175957" text1="Retort heating: Temperature Sensor 2 out of range. This occured during processing." text2=""/>
+        <string id="67175958" text1="Retort heating: Temperature Sensor 2 provides no signal. This occured during pre- test." text2=""/>
+        <string id="67175959" text1="Retort heating: Temperature Sensor 2 provides no signal. This occured during self test at process start or during cleaning steps." text2=""/>
+        <string id="67175960" text1="Retort heating: Temperature Sensor 3 out of range. This occured during pre- test." text2=""/>
+        <string id="67175961" text1="Retort heating: Temperature Sensor 3 out of range. This occured during self test at process start or during cleaning steps." text2=""/>
+        <string id="67175962" text1="Retort heating: Temperature Sensor 3 out of range. This occured during processing." text2=""/>
+        <string id="67175963" text1="Retort heating: Temperature Sensor 3 provides no signal. This occured during pre- test." text2=""/>
+        <string id="67175964" text1="Retort heating: Temperature Sensor 3 provides no signal. This occured during self test at process start or during cleaning steps." text2=""/>
+        <string id="67175965" text1="Retort heating: Self calibration of Temperature Sensor 1 and 2 failed. This occured during pre- test." text2=""/>
+        <string id="67175966" text1="Retort heating: Self calibration of Temperature Sensor 1 and 2 failed. This occured during self test at process start or during cleaning steps." text2=""/>
+        <string id="67175967" text1="Retort heating: Self calibration of Temperature Sensor 1 and 2 failed. This occured during processing." text2=""/>
+        <string id="67175968" text1="Paraffin oven heating: Top sensor is out of range." text2=""/>
+        <string id="67175969" text1="Paraffin oven heating:  Bottom sensor 1 is out of range." text2=""/>
+        <string id="67175970" text1="Paraffin oven heating: Bottom sensor 2 is out of range." text2=""/>
+        <string id="67175971" text1="RotaryValve: Cannot get the original position! " text2=""/>
+        <string id="67175972" text1="RotaryValve: Moving from tube position failed either during pre-test or during fixation, water, dehydration, clearing, paraffin step. " text2=""/>
+        <string id="67175973" text1="RotaryValve: Moving from tube position failed before or after protocol." text2=""/>
+        <string id="67175974" text1="RotaryValve: Temperature of Rotary valve sensor 1 is out of range during pre-test." text2=""/>
+        <string id="67175975" text1="RotaryValve: Temperature of Rotary valve sensor 1 is out of range before or after protocol." text2=""/>
+        <string id="67175976" text1="RotaryValve: Temperature of Rotary valve sensor 2 is out of range during pre-test." text2=""/>
+        <string id="67175977" text1="RotaryValve: Temperature of Rotary valve sensor 2 out of range." text2=""/>
+        <string id="67175978" text1="RotaryValve: Heating current of Rotary valve is out of range during pre-test." text2=""/>
+        <string id="67175979" text1="RotaryValve: Heating current of Rotary valve is out of range before or after protocol." text2=""/>
+        <string id="67175980" text1="RotaryValve: Value of Rotary Valve temperature sensor2 is less than 30 degree C. Please check the heating function of Rotary Valve." text2=""/>
+        <string id="67175981" text1="RotaryValve: The Rotary valve lost its current position, during moving. This occured during cleaning steps." text2=""/>
+        <string id="67175982" text1="The Rotary valve lost current position, during moving." text2=""/>
+        <string id="67175983" text1="Pressure Sensor: Incorrect zero-value during pre-test. Please check zero-value at ambient pressure. If it is abnormal (>1.5Kpa), please retry with open retort lid. If still abnormal, exchange the pressure sensor." text2=""/>
+        <string id="67175984" text1="Pressure Sensor: The pressure value during processing is out of the range [-100, +100]Kpa. Please check function of pressure sensor and exchange if necessary." text2=""/>
+        <string id="67175985" text1="Exhaust system: Exhaust fan does not work due to no or insufficient current flow.  Please check voltage on according connector. If proper voltage is present, exchange exhaust fan." text2=""/>
+        <string id="67175986" text1="Heated reagent tube: The temperature  is lower than the melting point at %1 ℃." text2=""/>
+        <string id="67175987" text1="Heated air tube: The temperature during  is lower than the melting point at %1 ℃." text2=""/>
+        <string id="67175988" text1="Heated reagent tube: The temperature  is out of range at %1℃." text2=""/>
+        <string id="67175989" text1="Heated air tube: The temperature is lower than the melting point at %1 ℃." text2=""/>
+        <string id="67175990" text1="Retort or Oven heating: Function of heating pad is incorrect. Please check the heating wire and measure resistance of the heating pad. If OK, then ASB5 should be checked!" text2=""/>
+        <string id="67175991" text1="Retort or Waxbath heating: Function of heating pad is incorrect. Please check the heating wire and measure resistance of the heating pad. If OK, then ASB5 should be checked!" text2=""/>
+        <string id="67175992" text1="Paraffin oven heating: Top sensor cannot reach the target temperature before start of paraffin process step. Please check the heating function of paraffin oven." text2=""/>
+        <string id="67175993" text1="Paraffin oven heating: Bottom Sensor 1 cannot reach the target temperature before start of paraffin process step. Please check the heating function of paraffin oven." text2=""/>
+        <string id="67175994" text1="Paraffin oven heating: Bottom Sensor 2 cannot reach the target temperature before start of paraffin process step. Please check the heating function of paraffin oven." text2=""/>
+        <string id="67175995" text1="Paraffin oven heating: Top sensor cannot reach the target temperature (melting point) before start of paraffin process step. Please check the heating function of paraffin oven." text2=""/>
+        <string id="67175996" text1="Paraffin oven heating: Bottom sensor 1 cannot reach the target temperature (melting point) before start of paraffin process step. Please check the heating function of paraffin oven." text2=""/>
+        <string id="67175997" text1="Paraffin oven heating: Bottom sensor 2 cannot reach the target temperature (melting point) before start of paraffin process step. Please check the heating function of paraffin oven." text2=""/>
+        <string id="67175998" text1="RotaryValve: Moving from tube position %1 to %2, lower limiter is %3, internal steps is %4." text2=""/>
+        <string id="67175999" text1="RotaryValve: Moving from tube position %1 to %2 failed before or after processing tissue. Lower limiter is %3, internal steps is %4." text2=""/>
+        <string id="67176000" text1="RotaryValve: Temperature Sensor 2 of Rotary Valve cannot reach the target temperature before start of paraffin process step. Please check the heating function of Rotary Valve." text2=""/>
+        <string id="67176001" text1="RotaryValve: The Rotary valve lost its current position, during moving from position %1 to position %2. This occured during pre-test or processing." text2=""/>
+        <string id="67176002" text1="RotaryValve: The Rotary valve lost  its current position, during moving from position %1 to position %2. This occured during cleaning steps." text2=""/>
+        <string id="67176003" text1="Draining of retort to station 1% failed during processing or cleaning! Draining time exceeds 4 minutes." text2=""/>
+        <string id="67176004" text1="Heated reagent tube: The tube cannot heat to target temperature in 15min. Please perform self-test and confirm the tube status." text2=""/>
+        <string id="67176005" text1="Voltage monitoring: DC 5V error." text2=""/>
+        <string id="67176006" text1="Voltage monitoring: DC 24V error." text2=""/>
+        <string id="67176007" text1="Air System: Releasing of pressure has failed during processing. Residual pressure is existent inside retort and/or air module. " text2=""/>
+        <string id="67176008" text1="Retort heating: Retort heating can not get to target temperature in 15 minutes. " text2=""/>
+        <string id="67176009" text1="Paraffin Oven: The user opened the paraffin oven cover during processing. This could potentially have caused the paraffin to solidify." text2=""/>
+        <string id="67176010" text1="Paraffin Oven: The user opened the paraffin oven cover before or after processing and potentially refilled paraffin." text2=""/>
+        <string id="67176011" text1="Air System: Pressure did not reach target value. The pressure reached max. %1 kPa. " text2=""/>
+        <string id="67176012" text1="Air System: Vacuum did not reach target value. The vacuum reached max. %1 kPa. " text2=""/>
+        <string id="67176013" text1="Remote / Local Alarm: Please check the connection of the external remote alarm system." text2=""/>
+        <string id="67176014" text1="Remote / Local Alarm: Please check the connection of the external local alarm system." text2=""/>
+        <string id="67176015" text1="Air System: Pressure did not reach target value during processing. The pressure reached max. %1 kPa." text2=""/>
+        <string id="67176016" text1="Air System: Vacuum did not reach target value during processing. The vacuum reached max. %1 kPa. " text2=""/>
+        <string id="67176017" text1="Filling of retort from station no. 1% failed during processing! Filling time exceeds 2 minutes." text2=""/>
+        <string id="67176018" text1="Draining of retort to station 1% failed during processing or cleaning! Draining time exceeds 2 minutes. " text2=""/>
+
+        <string id="67176192" text1="Error ID %1!  Draining time more than 2 minutes." text2=""/>
+        <string id="67176193" text1="Error ID %1!  Filling time more than 2 minutes." text2=""/>
+        <string id="67176194" text1="Error ID %1!  Sealing failed in dry scenario." text2=""/>
+        <string id="67176195" text1="Error ID %1!  Sealing failed in processing scenario." text2=""/>
+        <string id="67176196" text1="Error ID %1!  Wax bath oven cover open." text2=""/>
+        <string id="67176197" text1="Error ID %1! AC Voltage is not stable." text2=""/>
+        <string id="67176198" text1="Bottle check failed! Please clean the sealing ring as well as the upper part of the retort as described in the user manual. Close the retort by confirming Retry button." text2=""/>
+        <string id="67176199" text1="Bottle %1 seems to be insufficent filled. Please check bottle according to user manual. After that press &quot;Retry&quot; button." text2=""/>
+        <string id="67176200" text1="Draining of Retort has failed! Please clean the sealing ring as well as the upper part of the retort as described in the user manual. Close the retort by confirming Retry button." text2=""/>
+        <string id="67176201" text1="Error ID %1! Please call service!" text2=""/>
+        <string id="67176202" text1="Error ID %1! Exhaust system failed! Please inform service!" text2=""/>
+        <string id="67176203" text1="Error ID %1! Please call service!" text2=""/>
+        <string id="67176204" text1="Error ID %1! Please remove and protect the specimen. Please call service!" text2=""/>
+        <string id="67176205" text1="Error ID %1! Please restart the instrument as first option,if the problem occur again, Please call service!" text2=""/>
+        <string id="67176206" text1="Level sensor failed, please open retort lid and clean level sensor as recommend in the user manual, then close retort lid and press &quot;retry&quot; button." text2=""/>
+        <string id="67176207" text1="Local alarm system not connected! Please connect the device with local alarm system" text2=""/>
+        <string id="67176208" text1="Please close paraffin oven cover!" text2=""/>
+        <string id="67176209" text1="Please close the retort lid and confirm &quot;Retry&quot; button." text2=""/>
+        <string id="67176210" text1="Pressure test failed! Please clean the sealing ring as well as the upper part of the retort as described in the user manual. Close the retort by confirming Retry button." text2=""/>
+        <string id="67176211" text1="Remote alarm system not connected! Please connect the device with remote alarm system." text2=""/>
+        <string id="67176212" text1="The station no %1 is filled insufficent! Please check filling level, correct them and then press &quot;Retry&quot; button." text2=""/>
+        <string id="67176213" text1="Vacuum test failed! Please clean the sealing ring as well as the upper part of the retort as described in the user manual. Close the retort by confirming Retry button." text2=""/>
+        <string id="67176214" text1="Protocol was interrupted by power failure. Please remove the specimen and abort the protocol. Before start another protocol, please run cleaning protocol." text2=""/>
+        <string id="67176215" text1="Please remove and protect the specimen. Please call service! Tissue is in %1 reagents protect more than %2 minutes." text2=""/>
+	<string id="67176216" text1="Tell user 300 seconds waiting time out, instrument are auto re-heating and filling safety reagents" text2=""/>
+	<string id="67176217" text1="Power failure failed! Please call service!" text2=""/>
+	<string id="67176218" text1="SW encountered fatal error and will exit" text2=""/>
+	</language>
+</strings>
