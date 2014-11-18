@@ -14,3 +14,7 @@ DEPENDPATH += ../../
 
 
 UseLibs(ExternalProcessController Threads DataLogging Global NetworkComponents StateMachines EventHandler ExportController)
+
+QT += network
+QT += xml
+QT += xmlpatterns

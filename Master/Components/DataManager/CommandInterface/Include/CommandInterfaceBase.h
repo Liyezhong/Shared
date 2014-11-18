@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <DataManager/Include/DataManagerBase.h>
+#include "DataManager/Helper/Include/Helper.h"
 #include <Threads/Include/MasterThreadController.h>
 #include "Threads/Include/CommandChannel.h"
 #include "Global/Include/UITranslator.h"
