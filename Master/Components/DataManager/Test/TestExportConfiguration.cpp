@@ -556,8 +556,13 @@ void TestExportConfiguration::utTestCmdDataExport()
     p_CmdDataExport->NAME = "MsgClasses::CmdDataExport";
 
     QCOMPARE(p_CmdDataExport->GetName(), QString(tr("MsgClasses::CmdDataExport")));
+    delete p_CmdDataExport;
 
-
+    QByteArray ByteArray;
+    ByteArray.append("Service_1");
+    // create export command
+    p_CmdDataExport = new MsgClasses::CmdDataExport(20000, ByteArray);
+    p_CmdDataExport->GetCommandData();
     delete p_CmdDataExport;
 }
 /****************************************************************************/
@@ -567,8 +572,13 @@ void TestExportConfiguration::utTestCmdDataImport()
     p_CmdDataImport->NAME = "MsgClasses::CmdDataImport";
 
     QCOMPARE(p_CmdDataImport->GetName(), QString(tr("MsgClasses::CmdDataImport")));
+    delete p_CmdDataImport;
 
-
+    QByteArray ByteArray;
+    ByteArray.append("Service_1");
+    // create export command
+    p_CmdDataImport = new MsgClasses::CmdDataImport(20000, ByteArray);
+    p_CmdDataImport->GetCommandData();
     delete p_CmdDataImport;
 }
 /****************************************************************************/
@@ -578,8 +588,13 @@ void TestExportConfiguration::utTestCmdDataImportFiles()
     p_CmdDataImportFiles->NAME = "MsgClasses::CmdDataImportFiles";
 
     QCOMPARE(p_CmdDataImportFiles->GetName(), QString(tr("MsgClasses::CmdDataImportFiles")));
+    delete p_CmdDataImportFiles;
 
-
+    QStringList stringList;
+    stringList << "hello" << "world";
+    // create export command
+    p_CmdDataImportFiles = new MsgClasses::CmdDataImportFiles(20000, stringList);
+    p_CmdDataImportFiles->GetCommandData();
     delete p_CmdDataImportFiles;
 }
 
