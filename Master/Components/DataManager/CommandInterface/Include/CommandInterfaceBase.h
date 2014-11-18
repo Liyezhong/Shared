@@ -92,7 +92,7 @@ protected:
             Global::EventObject::Instance().RaiseEvent(EventCode);
         }
         else {
-            DataManager::Helper::ErrorIDToString(ErrorList, ErrorString);
+            Helper::ErrorIDToString(ErrorList, ErrorString);
             if (ErrorString.isEmpty()) {
                 ErrorString = Global::UITranslator::TranslatorInstance().
                         Translate(Global::TranslatableString(EventCode,
