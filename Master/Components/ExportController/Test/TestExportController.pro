@@ -3,6 +3,11 @@
 TARGET = utTestExportController
 SOURCES += TestExportController.cpp
 
+
+QT += xml
+QT += xmlpatterns
+QT += network
+
 INCLUDEPATH += ../../
 
 DEPENDPATH += ../../
