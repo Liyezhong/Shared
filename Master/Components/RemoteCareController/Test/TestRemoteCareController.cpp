@@ -96,10 +96,20 @@ void TestRemoteCareController::utTestRemoteCareController() {
 
     RemoteCareController *Controller = new RemoteCareController(5, "Axeda Client", NetworkBase::NSE_TYPE_AXEDA);
 
+
     try {
+        Controller->OnPowerFail(Global::POWER_FAIL_REVERT);
+        Controller->OnCmdTimeout(5, "Hi");
+        qDebug() << "-----------------OnStopReceived()";
+        Global::AckOKNOK Ack;
+        Controller->OnCommandAckReceived(5, Ack);
+    }
+    catch (...) {
+        // catch the exception here
+    }
 
+    try {
         Controller->CreateAndInitializeObjects();
-
         Global::tRefType Ref = 1;
         NetCommands::CmdRemoteCareState Cmd(15000, false, "RemoteCare");
         Controller->SendCmdToExternalProcess(Ref, Cmd);
@@ -109,18 +119,45 @@ void TestRemoteCareController::utTestRemoteCareController() {
     }
 
     try {
-        Global::AckOKNOK Ack;
+        qDebug() << "------------Controller->OnGoReceived()";
         Controller->OnGoReceived();
+    }
+    catch (...) {
+        // catch the exception here
+    }
+
+    try {
+        qDebug() << "------------Controller->OnReadyToWork()";
         Controller->OnReadyToWork();
-        Controller->OnCmdTimeout(5, "Hi");
-        Controller->OnCommandAckReceived(5, Ack);
+    }
+    catch (...) {
+        // catch the exception here
+    }
+
+    try {
+        qDebug() << "------------Controller->OnStopReceived()";
         Controller->OnStopReceived();
-        Controller->OnPowerFail(Global::POWER_FAIL_REVERT);
+    }
+    catch (...) {
+        // catch the exception here
+    }
+
+    try {
+        qDebug() << "------------Controller->OnStopWorking()";
+        Controller->OnStopWorking();
+    }
+    catch (...) {
+        // catch the exception here
+    }
+
+    try {
+        qDebug() << "------------Controller->CleanupAndDestroyObjects()";
         Controller->CleanupAndDestroyObjects();
     }
     catch (...) {
         // catch the exception here
     }
+
 
     delete Controller;
 }

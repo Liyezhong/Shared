@@ -13,3 +13,4 @@ DEPENDPATH += ../../
 
 UseLibs(DataLogging DataManager EventHandler ExternalProcessController Global NetworkComponents StateMachines RemoteCareController RemoteCareManager NetCommands Threads GPIOManager HeartBeatManager)
 
+LIBS += -ldl
