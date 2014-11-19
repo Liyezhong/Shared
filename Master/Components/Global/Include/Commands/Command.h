@@ -41,6 +41,7 @@ namespace Global {
  */
 /****************************************************************************/
 class Command {
+    friend class TestCommands;
 private:
     int     m_Timeout;  ///< Command timeout [ms]. NOTIMEOUT means that no acknowledge is required for this command!
     /****************************************************************************/

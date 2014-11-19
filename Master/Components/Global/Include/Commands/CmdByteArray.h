@@ -39,6 +39,7 @@ namespace Global {
 /****************************************************************************/
 
 class CmdByteArray : public Command {
+    friend class TestCommands;
 friend QDataStream & operator << (QDataStream &, const CmdByteArray &);
 friend QDataStream & operator >> (QDataStream &, CmdByteArray &);
 public:

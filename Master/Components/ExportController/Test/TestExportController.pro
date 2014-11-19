@@ -1,5 +1,7 @@
 !include("ExportController.pri"):error("ExportController.pri not found")
-
+QT +=   xml \
+        network \
+        xmlpatterns
 TARGET = utTestExportController
 SOURCES += TestExportController.cpp
 

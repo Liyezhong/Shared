@@ -29,6 +29,7 @@ namespace Global {
  */
 /****************************************************************************/
 class CmdEventUpdate : public Global::Command {
+    friend class TestCommands;
     friend QDataStream & operator << (QDataStream &, const CmdEventUpdate &);
     friend QDataStream & operator >> (QDataStream &, CmdEventUpdate &);
 public:

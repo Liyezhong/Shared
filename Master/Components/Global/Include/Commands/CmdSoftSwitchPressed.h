@@ -35,6 +35,7 @@ namespace Global {
  */
 /****************************************************************************/
 class CmdSoftSwitchPressed : public Global::Command {
+    friend class TestCommands;
 private:
     static int  m_CmdTimeout;   ///< The allowed timeout for this command.
     /****************************************************************************/

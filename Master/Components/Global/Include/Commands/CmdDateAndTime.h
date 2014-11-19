@@ -39,6 +39,7 @@ namespace Global {
 /****************************************************************************/
 
 class CmdDateAndTime : public Command {
+    friend class TestCommands;
 friend QDataStream & operator << (QDataStream &, const CmdDateAndTime &);
 friend QDataStream & operator >> (QDataStream &, CmdDateAndTime &);
 public:

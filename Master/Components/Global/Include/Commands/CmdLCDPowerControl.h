@@ -33,6 +33,7 @@ namespace Global {
  */
 /****************************************************************************/
 class CmdLCDPowerControl : public Command {
+    friend class TestCommands;
 private:
      static int  m_CmdTimeout;   ///< The allowed timeout for this command
     /****************************************************************************/

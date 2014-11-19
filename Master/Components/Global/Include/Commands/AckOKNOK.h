@@ -35,6 +35,7 @@ namespace Global {
  */
 /****************************************************************************/
 class AckOKNOK : public Global::Acknowledge {
+    friend class TestCommands;
 friend QDataStream & operator << (QDataStream &, const AckOKNOK &);
 friend QDataStream & operator >> (QDataStream &, AckOKNOK &);
 private:

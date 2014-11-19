@@ -39,6 +39,7 @@ namespace Global {
 /****************************************************************************/
 class PendingCmdDescriptor : public QObject {
     Q_OBJECT
+    friend class TestCommands;
 private:
     tRefType    m_Ref;      ///< Command reference.
     QString     m_Name;     ///< Name of command.

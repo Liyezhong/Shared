@@ -14,7 +14,8 @@ SUBDIRS = TestAbstractFactory.pro \
           TestSystemPaths.pro \
           TestTranslatableString.pro \
           TestTranslator.pro \
-          TestUtils.pro
+          TestUtils.pro \
+          TestCommands.pro
 
 # Tests for IndexT class
 #

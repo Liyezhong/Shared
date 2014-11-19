@@ -36,6 +36,7 @@ namespace Global {
  */
 /****************************************************************************/
 class CmdDataChanged : public Global::Command {
+    friend class TestCommands;
 private:
     /****************************************************************************/
     CmdDataChanged();       ///< Not implemented.
