@@ -31,6 +31,7 @@
 #include <unistd.h> //for fsync
 namespace Global {
 
+const QString QT_QWS_FONTDIR_STRING = "QT_QWS_FONTDIR";
 
 /****************************************************************************/
 QLocale::Language StringToLanguage(const QString &LanguageName) {
@@ -468,6 +469,30 @@ bool Workaroundchecking(const QString& Type)
     }
     file.close();
     return false;
+}
+
+/****************************************************************************/
+void CreateSymbolicLinkToFonts()
+{
+    QDir FontsDirectory(Global::SystemPaths::Instance().GetFontsPath());
+    if (Global::SystemPaths::Instance().GetFontsPath().length() > 0 && FontsDirectory.exists()) {
+        QStringList EnvironmentVarList = QProcess::systemEnvironment();
+        /// QT_QWS_FONTDIR is set in target system not on the desktop.
+        /// QT_QWS_FONTDIR variable stores the font folder location.
+        /// so create sysmbolic links in the system fonts folder.
+        foreach (QString EnvVariable, EnvironmentVarList) {
+            if (EnvVariable.contains(QT_QWS_FONTDIR_STRING)) {
+                QString SystemFontPath = EnvVariable.replace(QT_QWS_FONTDIR_STRING + "=", "");
+                /// create symbolic links which are there in Fonts directory.
+                foreach (QString FileName, FontsDirectory.entryList(QStringList() << "*.*")) {
+                    /// creates link for the file name and if link already available then this function returns false
+                    (void)QFile::link(FontsDirectory.absolutePath() + QDir::separator() + FileName, SystemFontPath + QDir::separator() + FileName);
+                }
+                /// Exit from the loop
+                break;
+            }
+        }
+    }
 }
 
 } // end namespace Global

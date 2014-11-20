@@ -143,6 +143,7 @@ MasterThreadController::~MasterThreadController() {
 /****************************************************************************/
 void MasterThreadController::CreateAndInitializeObjects() {
     CHECKPTR(mp_DataManagerBase);
+    Global::CreateSymbolicLinkToFonts();
     //Update serial number read from Device configuration xml
     //Serial number will be present in Log files.
     DataManager::CDataContainerCollectionBase const *p_DataContainer = mp_DataManagerBase->GetDataContainer();

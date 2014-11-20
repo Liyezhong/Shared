@@ -639,6 +639,13 @@ void SetThreadPriority(const ThreadPrio_t ThreadPriority);
 * \param RebootFileContent content
 */
 void UpdateRebootFile(const QMap<QString, QString> RebootFileContent);
+/****************************************************************************/
+/**
+ * \brief  Creates the symbolic link to font files to system font folder
+ *
+ */
+/****************************************************************************/
+void CreateSymbolicLinkToFonts();
 } // end namespace Global
 
 #endif // GLOBAL_UTILS_H

@@ -61,6 +61,8 @@ private:
     QString                 m_RemoteCarePath;       //!< RemoteCare path(remote care input/output files are placed here)
     QString                 m_ScriptsPath;          //!< Path for shell scripts
     QString                 m_TranslationsServicePath; //!< Service Translations path
+    QString                 m_FontsPath;               //!< Path for Fonts
+
     /****************************************************************************/
     /****************************************************************************/
     /**
@@ -162,6 +164,31 @@ public:
     inline QString GetLogfilesPath() const {
         QReadLocker RL(&m_SyncObject);
         return m_LogfilesPath;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Get font files path.
+     *
+     * \return  Font files path.
+     */
+    /****************************************************************************/
+    inline QString GetFontsPath() const {
+        QReadLocker RL(&m_SyncObject);
+        return m_FontsPath;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set fonts path.
+     *
+     * Usually "Fonts".
+     * <b>The application path is prepended automatically!</b>
+     *
+     * \iparam   FontPath    The path.
+     */
+    /****************************************************************************/
+    inline void SetFontsPath(const QString &FontPath) {
+        QWriteLocker WL(&m_SyncObject);
+        m_FontsPath = QDir::cleanPath(ComputePath() + "/" + FontPath);
     }
     /****************************************************************************/
     /**
