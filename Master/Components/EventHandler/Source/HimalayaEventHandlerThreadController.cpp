@@ -35,7 +35,7 @@ namespace EventHandler {
 
 HimalayaEventHandlerThreadController::HimalayaEventHandlerThreadController(quint32 ThreadID, quint32 RebootCount, QStringList FileList)
     :EventHandlerThreadController(ThreadID,RebootCount,QStringList())
-    ,m_EventManager(FileList, Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator() + "EventScenarioErrorMap.xml")
+    ,m_EventManager(FileList)
     ,m_GuiAvailable(false),m_TestMode(false)
 {
     m_ActiveEvents.clear();
@@ -67,11 +67,11 @@ void HimalayaEventHandlerThreadController::CleanupAndDestroyObjects()
 void HimalayaEventHandlerThreadController::ConnectToEventObject()
 {
        Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
-       CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const quint64,
+       CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const quint32,
                                                      const bool, const bool,
                                                      const Global::tTranslatableStringList &,
                                                      const Global::tTranslatableStringList &),
-                         this, ProcessEvent(const quint32, const quint64,
+                         this, ProcessEvent(const quint32, const quint32,
                                          const bool, const bool,
                                          const Global::tTranslatableStringList &,
                                          const Global::tTranslatableStringList &));
@@ -81,11 +81,11 @@ void HimalayaEventHandlerThreadController::ConnectToEventObject()
 
 }
 
-void HimalayaEventHandlerThreadController::HandleAlarm(quint32 EventID, quint32 Scenario, const quint32 EventKey, const bool Active)
+void HimalayaEventHandlerThreadController::HandleAlarm(quint32 EventID, const quint32 EventKey, const bool Active)
 {
     const XMLEvent* pEvent = NULL;
     if(!m_ActiveEvents.contains(EventKey))
-        pEvent = m_EventManager.GetEvent(EventID, Scenario);
+        pEvent = m_EventManager.GetEvent(EventID);
     else
         pEvent = m_ActiveEvents[EventKey].Event;
 
@@ -101,13 +101,12 @@ void HimalayaEventHandlerThreadController::HandleAlarm(quint32 EventID, quint32 
     SendALMCommand(EventKey, EventID, pEvent, Active);
 }
 
-void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
+void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, const quint32 Event,
                                                         const bool Active, const bool ActionResult,
                                                         const Global::tTranslatableStringList &EventStringParList,
                                                         const Global::tTranslatableStringList &EventRDStringParList)
 {
-    quint32 EventID = EventIDScenario >> 32;
-    quint32 Scenario = EventIDScenario & 0xffffffff;
+    quint32 EventID = Event;
 
     if (!Active) {
         m_ActiveEvents.remove(EventKey);
@@ -124,7 +123,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
 
     const XMLEvent* pEvent = NULL;
     if(!m_ActiveEvents.contains(EventKey)) { // first coming
-        pEvent = m_EventManager.GetEvent(EventID, Scenario);
+        pEvent = m_EventManager.GetEvent(EventID);
         if(pEvent) {
             pNextStep = pEvent->GetStep(0);
             if(pNextStep) { // insert to active event list
@@ -132,7 +131,6 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventInfo.time = QDateTime::currentMSecsSinceEpoch();
                 EventInfo.EventKey = EventKey;
                 EventInfo.EventID = EventID;
-                EventInfo.Scenario = Scenario;
                 EventInfo.ActionResult = ActionResult;
                 EventInfo.CurrentStep = 0;
                 EventInfo.Event = pEvent;
@@ -152,7 +150,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
             EventReportData.EventType = Global::EVTTYPE_DEBUG;
             EventReportData.ID = (((quint64)EventID) << 32) + EventKey;
             EventReportData.EventKey = EventKey;
-            EventReportData.MsgString = QString("DBG: Unknow EventID and Scenario: %1, %2").arg(EventID).arg(Scenario);
+            EventReportData.MsgString = QString("DBG: Unknow Error: %1").arg(EventID);
             EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
             EventReportData.BtnType = Global::OK;
             EventReportData.StatusBarIcon = false;
@@ -197,7 +195,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
             LogEntry(m_ActiveEvents[EventKey]);
             if(pNextStep->GetButtonType() != Global::NOT_SPECIFIED){
                 if (m_ActiveEvents[EventKey].AlarmActFlag == false) {
-                    HandleAlarm(EventID, Scenario, EventKey, Active);
+                    HandleAlarm(EventID, EventKey, Active);
                     m_ActiveEvents[EventKey].AlarmActFlag = true;
                 }
                 if(!pNextStep->GetTimeOut().isEmpty())
@@ -233,9 +231,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventID,
                   const bool EventStatus, const quint32 EventKeyRef, const Global::AlternateEventStringUsage AltStringUsuage)
 {
     Q_UNUSED(AltStringUsuage)
-    quint64 EventIDScenario = EventID;
-    EventIDScenario = EventIDScenario << 32;
-    ProcessEvent(EventKeyRef,EventIDScenario,EventStatus,true,EventStringList,Global::tTranslatableStringList());
+    ProcessEvent(EventKeyRef,EventID,EventStatus,true,EventStringList,Global::tTranslatableStringList());
 }
 
 void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, const NetCommands::CmdAcknEventReport &ack)
@@ -442,8 +438,8 @@ void HimalayaEventHandlerThreadController::SendDebugMSG(quint32 EventKey, const 
         EventReportData.ID = (((quint64)pEvent->GetErrorId()) << 32) | (quint64)EventKey;
         EventReportData.EventKey = EventKey;
 
-        EventReportData.MsgString = QString("DBG  Event: %1  Scenario: %2  Next Action: %3").arg(m_ActiveEvents[EventKey].EventID)
-                .arg(m_ActiveEvents[EventKey].Scenario).arg(pStep->GetAction());
+        EventReportData.MsgString = QString("DBG  Error: %1  Next Action: %2").arg(m_ActiveEvents[EventKey].EventID)
+                .arg(pStep->GetAction());
         EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.Timeout = "";
         EventReportData.BtnEnableConditions = "";
@@ -530,7 +526,6 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
     m_EventEntry.SetStatusIcon(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetStatusBar());
 
 
-    m_EventEntry.SetScenario(EventInfo.Scenario);
     if(Service){
         m_EventEntry.SetStringID(EventInfo.Event->GetServiceString());
         m_EventEntry.SetString(EventInfo.EventRDStringParList);
@@ -547,7 +542,6 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
         /*lint -e539 */
         m_EventEntry.SetStringID(STR_SCHEDULER_EVENT_SCENARIO_ACTION_RESULT);
         m_EventEntry.SetString(Global::tTranslatableStringList() <<QString("%1").arg(EventInfo.EventID)
-                                             << QString("%1").arg(EventInfo.Scenario)
                                              << EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetAction()
                                              << Result);
 

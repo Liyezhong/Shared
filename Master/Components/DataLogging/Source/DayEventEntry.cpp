@@ -49,7 +49,6 @@ DayEventEntry::DayEventEntry()
       m_AltEventStringUsage(Global::NOT_APPLICABLE),
       m_RetryAttempts(0),
       m_AckReqStatus(false),
-      m_Scenario(0),
       m_StringID(0){
     m_AckType = NetCommands::NOT_SPECIFIED;
     m_String.clear();
@@ -83,7 +82,6 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslat
       m_AltEventStringUsage(Global::NOT_APPLICABLE),
       m_RetryAttempts(0),
       m_AckReqStatus(false),
-      m_Scenario(0),
       m_StringID(0){
     m_AckType = NetCommands::NOT_SPECIFIED;
 }
@@ -113,7 +111,6 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, quint32 EventKey, bool 
     m_AltEventStringUsage(Global::NOT_APPLICABLE),
     m_RetryAttempts(0),
     m_AckReqStatus(false),
-    m_Scenario(0),
     m_StringID(0){
     m_AckType = ClickButton;
 }
@@ -143,7 +140,6 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_AckType = rOther.m_AckType;
     m_AltEventStringUsage = rOther.m_AltEventStringUsage;
     m_StringID = rOther.m_StringID;
-    m_Scenario = rOther.m_Scenario;
     m_AckReqStatus = rOther.m_AckReqStatus;
     m_ActionString = rOther.m_ActionString;
     m_AlarmStatus = rOther.m_AlarmStatus;

@@ -544,7 +544,7 @@ public slots:
      *      status.
      *
      *  \iparam    EventKey
-     *  \iparam    EventIDScenario
+     *  \iparam    Event
      *  \iparam    Active
      *  \iparam    ActionResult
      *  \iparam    EventStringParList
@@ -552,7 +552,7 @@ public slots:
      *
      *
      ****************************************************************************/
-    virtual void ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
+    virtual void ProcessEvent(const quint32 EventKey, const quint32 Event,
                               const bool Active, const bool ActionResult,
                               const Global::tTranslatableStringList &EventStringParList,
                               const Global::tTranslatableStringList &EventRDStringParList);

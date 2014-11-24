@@ -282,7 +282,7 @@ public:
      *
      *
      ****************************************************************************/
-    virtual void RaiseEvent(const quint32 EventKey, const quint32 EventID, const quint32 Scenario,
+    virtual void RaiseEvent(const quint32 EventKey, const quint32 EventID,
                               const bool ActionResult, const bool Active = true,
                               const Global::tTranslatableStringList &EventStringParList = Global::tTranslatableStringList(),
                               const Global::tTranslatableStringList &EventRDStringParList = Global::tTranslatableStringList())
@@ -291,9 +291,7 @@ public:
         if(EventKey <= 0){
             key = GetEventKey();
         }
-        quint64 EventIDScenario = EventID;
-        EventIDScenario = (EventIDScenario<<32) | Scenario;
-        emit ForwardEvent(key, EventIDScenario, Active, ActionResult,EventStringParList,EventRDStringParList);
+        emit ForwardEvent(key, EventID, Active, ActionResult,EventStringParList,EventRDStringParList);
     }
 
     /****************************************************************************/
@@ -374,14 +372,14 @@ signals:
      * \brief This signal is used to connect EventObject to Event Handler thread
      *        controller
      * \param  EventKey Event Key
-     * \param  EventIDScenario scenario id
+     * \param  Event id
      * \param  Active active flag
      * \param  ActionResult action result
      * \param  EventStringParList param list
      * \param  EventRDStringParList RD param list
      */
     /****************************************************************************/
-    void ForwardEvent(const quint32 EventKey, const quint64 EventIDScenario,
+    void ForwardEvent(const quint32 EventKey, const quint32 Event,
                       const bool Active, const bool ActionResult,
                       const Global::tTranslatableStringList &EventStringParList,
                       const Global::tTranslatableStringList &EventRDStringParList);

@@ -74,7 +74,6 @@ private:
     int m_RetryAttempts;                                    ///< times to retry to repair.
     bool m_AckReqStatus;                                    ///< do we need Ack for Event: if have event source, yes,
 
-    quint32 m_Scenario;                                     ///< scenario for event
     QString m_ActionString;                                 ///< Action
     quint32 m_StringID;                                     ///< Message or log string ID
 
@@ -640,27 +639,6 @@ public:
     /****************************************************************************/
     inline void SetStringID(qint32 StringID){
         m_StringID= StringID;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get Scenario .
-     *
-     * \return  Scenario.
-     */
-    /****************************************************************************/
-    quint32 GetScenario () const{
-        return m_Scenario;
-    }
-    /****************************************************************************/
-    /**
-     * \brief Set Scenario
-     *
-     * \iparam Scenario   Scenario.
-     */
-    /****************************************************************************/
-    inline void SetScenario(qint32 Scenario){
-        m_Scenario= Scenario;
     }
     /****************************************************************************/
     /**

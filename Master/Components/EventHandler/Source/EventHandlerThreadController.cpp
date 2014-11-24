@@ -814,14 +814,14 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
 }
 
 
-void EventHandlerThreadController::ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
+void EventHandlerThreadController::ProcessEvent(const quint32 EventKey, const quint32 Event,
                           const bool Active, const bool ActionResult,
                           const Global::tTranslatableStringList &EventStringParList,
                           const Global::tTranslatableStringList &EventRDStringParList)
 {
     //should be overload
     Q_UNUSED(EventKey)
-    Q_UNUSED(EventIDScenario)
+    Q_UNUSED(Event)
     Q_UNUSED(Active)
     Q_UNUSED(ActionResult)
     Q_UNUSED(EventStringParList)

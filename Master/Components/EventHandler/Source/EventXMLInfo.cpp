@@ -27,12 +27,10 @@ using namespace Global;
 namespace EventHandler {
 
 /****************************************************************************/
-EventXMLInfo::EventXMLInfo(const QStringList& eventXMLFileList, const QString& ESEXMLFile)
+EventXMLInfo::EventXMLInfo(const QStringList& eventXMLFileList)
     : m_eventXMLFileList(eventXMLFileList),
-      m_ESEXMLFile(ESEXMLFile),
       m_pXMLReader(NULL),
-      m_ParsingStatus(false),
-      m_pESEXMLInfo(NULL)
+      m_ParsingStatus(false)
 {
 }
 
@@ -82,13 +80,6 @@ bool EventXMLInfo::InitXMLInfo()
 
             }
         }
-    }
-
-    //For Event-Scenaro-Error map list, we store it into m_pXMLEventList
-    m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo(m_ESEXMLFile));
-    if (m_pESEXMLInfo->InitXMLInfo() == false)
-    {
-        return false;
     }
 
     m_ParsingStatus = true;
@@ -524,7 +515,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
     return true;
 }
 
-const XMLEvent* EventXMLInfo::GetEvent(quint32 eventId, quint32 scenarioId) const
+const XMLEvent* EventXMLInfo::GetEvent(quint32 eventId) const
 {
     // First check if XML parsing succeeds or not
     if (m_ParsingStatus  == false)
@@ -532,17 +523,7 @@ const XMLEvent* EventXMLInfo::GetEvent(quint32 eventId, quint32 scenarioId) cons
         return NULL;
     }
 
-    //In this case, strErrid is the same as ErrorID in EventConfigure.xml
-    quint32 errorId = m_pESEXMLInfo->GetErrorCode(eventId, scenarioId);
-
-    if(scenarioId == 0){
-        errorId = eventId;
-    }
-    if (0 == errorId)
-    {
-        return NULL;
-    }
-    QHash< quint32, QSharedPointer<XMLEvent> >::const_iterator iter = m_pXMLEventList.find(errorId);
+    QHash< quint32, QSharedPointer<XMLEvent> >::const_iterator iter = m_pXMLEventList.find(eventId);
     if (iter == m_pXMLEventList.end())
     {
         return NULL;

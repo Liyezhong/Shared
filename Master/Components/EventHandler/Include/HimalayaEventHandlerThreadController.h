@@ -45,7 +45,6 @@ struct EventRuntimeInfo_t
 {
     quint32 EventKey;                               //!< event key
     quint32 EventID;                                //!< event ID
-    quint32 Scenario;                               //!< scenario
     quint64 time;                                   //!< event happen time
     const XMLEvent* Event;                          //!< event info
     quint32 CurrentStep;                            //!< current step info
@@ -132,12 +131,11 @@ public:
     /*!
      *  \brief  handle alarm action
      *  \iparam EventID:  event id
-     *  \iparam Scenario: error scenario
      *  \iparam EventKey: event key
      *  \iparam Active:   alarm action
      */
     /****************************************************************************/
-    void HandleAlarm(quint32 EventID, quint32 Scenario, const quint32 EventKey, const bool Active);
+    void HandleAlarm(quint32 EventID, const quint32 EventKey, const bool Active);
 
 public slots:
 
@@ -149,7 +147,7 @@ public slots:
      *      status.
      *
      *  \iparam    EventKey
-     *  \iparam    EventIDScenario
+     *  \iparam    Event
      *  \iparam    Active
      *  \iparam    ActionResult
      *  \iparam    EventStringParList
@@ -157,7 +155,7 @@ public slots:
      *
      *
      ****************************************************************************/
-    virtual void ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
+    virtual void ProcessEvent(const quint32 EventKey, const quint32 Event,
                               const bool Active, const bool ActionResult,
                               const Global::tTranslatableStringList &EventStringParList,
                               const Global::tTranslatableStringList &EventRDStringParList);

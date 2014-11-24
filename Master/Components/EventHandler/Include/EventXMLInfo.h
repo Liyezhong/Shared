@@ -26,7 +26,6 @@
 #include <Global/Include/Utils.h>
 #include <QStringList>
 #include <QXmlStreamReader>
-#include <EventHandler/Include/EventScenarioErrorXMLInfo.h>
 #include <QSharedPointer>
 
 namespace EventHandler{
@@ -419,10 +418,9 @@ public:
     /**
      * \brief explicit EventXMLInfo class constructor
      * \param[in]   eventXMLFileList    XML file list containing all events
-     ** \param[in]  ESEXMLFile          XML file containing event-scenario-error map list
      */
     /****************************************************************************/
-    explicit  EventXMLInfo(const QStringList& eventXMLFileList, const QString& ESEXMLFile="");
+    explicit  EventXMLInfo(const QStringList& eventXMLFileList);
 
     /****************************************************************************/
     /**
@@ -450,14 +448,13 @@ public:
      * \return		pointer to the XML Event object
      */
     /****************************************************************************/
-    const XMLEvent* GetEvent( quint32 eventId, quint32 scenarioId=0) const;
+    const XMLEvent* GetEvent( quint32 eventId) const;
 private:
     QStringList                                		m_eventXMLFileList;	///< XML file list containing all events
     QString                                         m_ESEXMLFile;       ///< XML file containing event-scenario-error map list
     QSharedPointer<QXmlStreamReader>        		m_pXMLReader;		///< QT XML parser
     bool											m_ParsingStatus;	///< XML Parsing status
     QHash< quint32, QSharedPointer<XMLEvent> >		m_pXMLEventList;	///< XML Event list
-    QSharedPointer<EventScenarioErrXMLInfo>       	m_pESEXMLInfo;		///< Event-Scenario-Error parser
 
     /****************************************************************************/
     /**
