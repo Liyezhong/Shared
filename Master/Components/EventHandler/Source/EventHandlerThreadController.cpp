@@ -70,7 +70,8 @@ EventHandlerThreadController::EventHandlerThreadController(quint32 ThreadID, qui
     m_RebootCount(RebootCount),
     mp_AlarmHandler(NULL)
 {
-    mp_AlarmHandler = new Global::AlarmHandler(this, TIMEOUT_FOR_ALARM);
+    //mp_AlarmHandler = new Global::AlarmHandler(this, TIMEOUT_FOR_ALARM);
+    mp_AlarmHandler = &Global::AlarmHandler::Instance();
     // Register LoggingSource Templates with moc
     qRegisterMetaType<Global::LoggingSource>("Global::LoggingSource");
     qRegisterMetaType<Global::AlternateEventStringUsage>("Global::AlternateEventStringUsage");

@@ -31,7 +31,8 @@
 #include <Global/Include/SystemPaths.h>
 
 namespace Global {
-const quint32 DEFAULT_ALARM_TIMEOUT = 10000; //!< 10 seconds
+//const quint32 DEFAULT_ALARM_TIMEOUT = 10000; //!< 10 seconds
+const quint32 DEFAULT_ALARM_TIMEOUT = 5000; //!< 5 seconds for device alarm timeout
 /****************************************************************************/
 /**
  * \brief This class manages Alarms generated in response to request from
@@ -83,6 +84,17 @@ public:
     /****************************************************************************/
     void setTimeout(quint16 timeout);
 
+    /****************************************************************************/
+    /**
+     * \brief  Get reference to instance.
+     *
+     * \return Reference to instance.
+     */
+    /****************************************************************************/
+    static AlarmHandler &Instance() {
+        static AlarmHandler m_Instance;         ///< The instance.
+        return m_Instance;
+    }
 
 private:
     QHash<quint64, Global::AlarmType> m_errorList;      ///< list of alarms for errors
