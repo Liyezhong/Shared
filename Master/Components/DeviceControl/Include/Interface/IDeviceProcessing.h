@@ -393,6 +393,13 @@ public:
     RVPosition_t RVReqActRVPosition();
     /****************************************************************************/
     /*!
+     *  \brief  get the lower limit
+     *  \return quint32
+     */
+    /****************************************************************************/
+    quint32 GetCurrentLowerLimit();
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function RVStartTemperatureControlWithPID
      *
      *  \param NominalTemperature = qreal type parameter

@@ -1624,6 +1624,18 @@ RVPosition_t IDeviceProcessing::RVReqActRVPosition()
     }
 }
 
+quint32 IDeviceProcessing::GetCurrentLowerLimit()
+{
+    if(m_pRotaryValve)
+    {
+        return m_pRotaryValve->GetCurrentLowerLimit();
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 ReturnCode_t IDeviceProcessing::RVSetTemperatureSwitchState(qint8 HeaterVoltage, qint8 AutoType)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)

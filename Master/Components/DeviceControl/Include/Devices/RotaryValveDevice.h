@@ -148,6 +148,13 @@ public:
     RVPosition_t ReqActRVPosition();
     /****************************************************************************/
     /*!
+     *  \brief  get the lower limit
+     *  \return quint32
+     */
+    /****************************************************************************/
+    quint32 GetCurrentLowerLimit();
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function ReqAdjacentPosition
      *
      *  \param position = RVPosition_t type parameter
@@ -623,6 +630,7 @@ private:
 
     // Variables from process settings
     qint32 m_CurrentLimitSwitchCode;                //!< Current limit switchs' code
+    quint32 m_CurrentLowerLimit;                    //!< Current lower limit
     RVPosition_t m_RVCurrentPosition;               //!< Current rotary valve postion
     RVPosition_t m_RVPrevPosition;                  //!< Privious rotary valve postion
     qint32 m_CurrentPosition;                       //!< Current position (stored by asynchronous call)

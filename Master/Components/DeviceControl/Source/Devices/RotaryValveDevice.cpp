@@ -24,7 +24,7 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
 /****************************************************************************/
 CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString& Type, const DeviceModuleList_t &ModuleList,
                                        quint32 InstanceID) : CBaseDevice(pDeviceProcessing, Type, ModuleList, InstanceID),
-        m_pTempCtrl(0), m_pMotorRV(0), m_RVCurrentPosition(RV_UNDEF), m_RVPrevPosition(RV_UNDEF)
+        m_pTempCtrl(0), m_pMotorRV(0), m_CurrentLowerLimit(0), m_RVCurrentPosition(RV_UNDEF), m_RVPrevPosition(RV_UNDEF)
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "rotary valve device created";
@@ -1433,6 +1433,11 @@ RVPosition_t CRotaryValveDevice::ReqActRVPosition()
     return m_RVCurrentPosition;
 }
 
+quint32 CRotaryValveDevice::GetCurrentLowerLimit()
+{
+    return m_CurrentLowerLimit;
+}
+
 RVPosition_t CRotaryValveDevice::ReqAdjacentPosition(RVPosition_t position)
 {
     RVPosition_t result = RV_UNDEF;
@@ -1663,6 +1668,7 @@ quint32 CRotaryValveDevice::GetLowerLimit(quint32 CurrentEDPosition, DeviceContr
     {
         LowerLimit += 50;
     }
+    m_CurrentLowerLimit = LowerLimit;
     return LowerLimit;
 }
 
