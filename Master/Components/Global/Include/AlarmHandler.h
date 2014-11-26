@@ -43,7 +43,7 @@ class AlarmHandler : public QObject
 {
     Q_OBJECT
 
-public:
+private:
     /****************************************************************************/
     /**
      * \brief constructor
@@ -56,6 +56,7 @@ public:
     AlarmHandler(QObject *p_Parent = NULL, quint16 TimeOut = DEFAULT_ALARM_TIMEOUT);
     ~AlarmHandler();
 
+public:
     /****************************************************************************/
     /**
      * \brief Includes or removes an alarm into the queue of raised alarms
