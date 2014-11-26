@@ -274,7 +274,6 @@ public:
      *
      *  \iparam    EventKey
      *  \iparam    EventID
-     *  \iparam    Scenario
      *  \iparam    Active
      *  \iparam    ActionResult
      *  \iparam    EventStringParList

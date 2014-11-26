@@ -31,7 +31,7 @@
 #include <unistd.h> //for fsync
 namespace Global {
 
-const QString QT_QWS_FONTDIR_STRING = "QT_QWS_FONTDIR";
+const QString QT_QWS_FONTDIR_STRING = "QT_QWS_FONTDIR";   //!< command option
 
 /****************************************************************************/
 QLocale::Language StringToLanguage(const QString &LanguageName) {

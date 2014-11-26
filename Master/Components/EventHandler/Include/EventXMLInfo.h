@@ -444,7 +444,6 @@ public:
     /**
      * \brief get XMLEvent object based on Event Id and Scenario ID.
      * \param[in] eventId		Event Id
-     * \param[in] scenarioId	Scenario Id
      * \return		pointer to the XML Event object
      */
     /****************************************************************************/
