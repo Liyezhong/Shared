@@ -96,7 +96,7 @@ void TestEventXMLInfo::initTestCase()
 {
     QStringList list;
     list.append("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventConfig.xml");
-    m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo(list, "../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventScenarioErrorMap.xml"));
+    m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo(list));
     QVERIFY(m_pEventXMLInfo->InitXMLInfo() == true);
 }
 

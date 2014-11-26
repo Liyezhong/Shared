@@ -128,11 +128,10 @@ void TestHimalayaEventHandlerThreadController::TestOnAcknowledge() {
     NetCommands::CmdAcknEventReport ack;
     EventRuntimeInfo_t ActiveEvent;
     ActiveEvent.EventID = 500030001;
-    ActiveEvent.Scenario = 200;
     ActiveEvent.CurrentStep = 2;
     ActiveEvent.EventKey = 2;
     ActiveEvent.Event = NULL;
-    ActiveEvent.Event = mp_HimalayaEventHandlerThreadController->m_EventManager.GetEvent(500030001,200);
+    ActiveEvent.Event = mp_HimalayaEventHandlerThreadController->m_EventManager.GetEvent(520060003);
     QVERIFY(ActiveEvent.Event != NULL);
     mp_HimalayaEventHandlerThreadController->m_ActiveEvents.insert(2,ActiveEvent);
     mp_HimalayaEventHandlerThreadController->m_EventKeyRefMap.insert(2,2);
@@ -147,7 +146,7 @@ void TestHimalayaEventHandlerThreadController::TestOnAcknowledge() {
 
 void TestHimalayaEventHandlerThreadController::TestProcessEvents(){
 
-    Global::EventObject::Instance().RaiseEvent(0,500030001,200,true);
+    Global::EventObject::Instance().RaiseEvent(0,520060003,true,true);
     QCOMPARE(mp_HimalayaEventHandlerThreadController->m_ActiveEvents.size(),1);
 }
 
