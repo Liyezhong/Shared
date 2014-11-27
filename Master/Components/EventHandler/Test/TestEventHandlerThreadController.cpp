@@ -171,6 +171,10 @@ void TestEventHandlerThreadController::TestProcessEvents(){
 
     }
 
+    mp_alarmHandler = &Global::AlarmHandler::Instance();
+    mp_alarmHandler->setTimeout(1000);
+    mp_alarmHandler->setAlarm(0, Global::ALARM_NONE, false);
+    mp_alarmHandler->reset();
 
     //verify if the signals have been called correctly
 
@@ -284,10 +288,10 @@ void TestEventHandlerThreadController::cleanupTestCase() {
         mp_EventHandlerThreadController = NULL;
     }
 
-    if(mp_alarmHandler) {
-        delete mp_alarmHandler;
-        mp_alarmHandler = NULL;
-    }
+//    if(mp_alarmHandler) {
+//        delete mp_alarmHandler;
+//        mp_alarmHandler = NULL;
+//    }
 
     if(mp_DataLoggingThreadController) {
         delete mp_DataLoggingThreadController;

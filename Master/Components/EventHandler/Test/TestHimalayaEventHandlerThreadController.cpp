@@ -61,7 +61,6 @@ class TestHimalayaEventHandlerThreadController : public QObject {
 
 public:
     TestHimalayaEventHandlerThreadController()
-        : mp_alarmHandler(NULL)
     {
     }
 
@@ -70,7 +69,6 @@ private:
     EventHandler::HimalayaEventHandlerThreadController * mp_HimalayaEventHandlerThreadController; ///< Pointer to EventHandlerThreadController
     DataLogging::DataLoggingThreadController * mp_DataLoggingThreadController; ///< Pointer to DataLoggingThreadController
     QString                                     m_EventLoggerBaseFileName; ///< EventLoggerBase FileName
-    Global::AlarmHandler * mp_alarmHandler; ///< Pointer to AlarmHandler
     Threads::CommandChannel    *  mp_CommandChannelEventThread;        ///< Command channel for EventHandler.
     QSignalSpy * mp_SpyCommandChannelTx;
 
@@ -187,8 +185,6 @@ void TestHimalayaEventHandlerThreadController::cleanupTestCase()
 		delete mp_HimalayaEventHandlerThreadController;
 	}
 
-	if (mp_alarmHandler)
-		delete mp_alarmHandler;
 	if (mp_DataLoggingThreadController)
 		delete mp_DataLoggingThreadController;
 }
