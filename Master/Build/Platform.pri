@@ -60,6 +60,9 @@ OBJECTS_DIR = obj_$${CONFIG_SUFFIX}
 MOC_DIR = moc_$${CONFIG_SUFFIX}
 DESTDIR = lib_$${CONFIG_SUFFIX}
 
+QMAKE_DISTCLEAN += -r lib_$${CONFIG_SUFFIX}
+QMAKE_CLEAN += -r lib_$${CONFIG_SUFFIX}
+
 ######################
 ###################################
 ### stuff for adding libraries ####
