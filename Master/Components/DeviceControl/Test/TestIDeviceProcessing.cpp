@@ -120,6 +120,7 @@ void TestIDeviceProcessing::caseGetSerialNumber()
 
 void TestIDeviceProcessing::caseALSetPressureCtrl()
 {
+    QCOREAPPLICATION_EXEC(20000);
     QCOMPARE(p_IDeviceProcessing->ALSetPressureCtrlON(), DCL_ERR_FCT_CALL_SUCCESS);
     QCOREAPPLICATION_EXEC(1000);
     QCOMPARE(p_IDeviceProcessing->ALSetPressureCtrlOFF(), DCL_ERR_FCT_CALL_SUCCESS);
