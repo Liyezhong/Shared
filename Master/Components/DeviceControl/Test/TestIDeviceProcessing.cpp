@@ -27,7 +27,7 @@ public:
     {
         Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings");
         p_IDeviceProcessing = new IDeviceProcessing;
-
+        m_ConfigFinished = false;
         CONNECTSIGNALSLOT(p_IDeviceProcessing, ReportInitializationFinished(quint32, ReturnCode_t),
                           this, DevProcInitialisationAckn(quint32, ReturnCode_t));
         CONNECTSIGNALSLOT(p_IDeviceProcessing, ReportConfigurationFinished(quint32, ReturnCode_t),
@@ -53,6 +53,7 @@ public slots:
 
     void DevProcConfigurationAckn(quint32 /*a*/, ReturnCode_t /*b*/)
     {
+        m_ConfigFinished = true;
         qDebug() << "ReportConfigurationFinished";
     }
 
@@ -87,6 +88,8 @@ private slots:
 
 public:
     IDeviceProcessing *p_IDeviceProcessing;
+private:
+    bool m_ConfigFinished;
 };
 
 void TestIDeviceProcessing::initTestCase()
@@ -97,10 +100,20 @@ void TestIDeviceProcessing::initTestCase()
     //! Restart device control layer configuration
     QVERIFY(p_IDeviceProcessing->RestartConfigurationService() == DCL_ERR_FCT_CALL_SUCCESS);
     QCOREAPPLICATION_EXEC(10000);
+    while (1)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        if (m_ConfigFinished)
+        {
+            break;
+        }
+    }
+
 }
 
 void TestIDeviceProcessing::caseDiagnosticService()
 {
+
     //! Start device control layer diagnstic service
     QVERIFY(p_IDeviceProcessing->StartDiagnosticService() ==  DCL_ERR_FCT_CALL_SUCCESS);
     //! Finisch device control layer diagnostic service
@@ -120,7 +133,6 @@ void TestIDeviceProcessing::caseGetSerialNumber()
 
 void TestIDeviceProcessing::caseALSetPressureCtrl()
 {
-    QCOREAPPLICATION_EXEC(20000);
     QCOMPARE(p_IDeviceProcessing->ALSetPressureCtrlON(), DCL_ERR_FCT_CALL_SUCCESS);
     QCOREAPPLICATION_EXEC(1000);
     QCOMPARE(p_IDeviceProcessing->ALSetPressureCtrlOFF(), DCL_ERR_FCT_CALL_SUCCESS);
