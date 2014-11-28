@@ -1295,6 +1295,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                 else
                 {
                     stop = true;
+                    StopCompressor();
                     return DCL_ERR_FCT_CALL_SUCCESS;
                 }
             }
@@ -1333,6 +1334,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
             {
                 FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay finished!";
                 LogDebug(QString("INFO: Delay finished"));
+                StopCompressor();
                 return DCL_ERR_FCT_CALL_SUCCESS;
             }
             //check pressure here
