@@ -262,6 +262,11 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                     ResetAlarm();
                 }
                 switch(clicked) {
+                    case NetCommands::RETRY_BUTTON:
+                        NextStepID = pCurrentStep->GetNextStepOnClickRetry();
+                        ResetRmtLocAlarm(EventKey, pEvent);
+                        ResetAlarm();
+                        break;
                     case NetCommands::OK_BUTTON:
                         NextStepID = pCurrentStep->GetNextStepOnClickOK();
                         ResetRmtLocAlarm(EventKey, pEvent);

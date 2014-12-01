@@ -47,7 +47,7 @@ public:
     /****************************************************************************/
     explicit EventStep(quint32 stepId, const QString& strType)
         : m_Id(stepId),m_Type(strType),m_NextStepOnFail(0),m_NextStepOnSuccess(0),m_StringId(0),m_NextStepOnTimeOut(0),
-          m_NextStepOnClickOk(0),m_NextStepOnClickYES(0),m_NextStepOnClickNO(0),m_StatusBar(false)
+          m_NextStepOnClickOk(0),m_NextStepOnClickRetry(0),m_NextStepOnClickYES(0),m_NextStepOnClickNO(0),m_StatusBar(false)
 	{ }
 
     /****************************************************************************/
@@ -160,6 +160,15 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief Get NextStepOnClickRetry attribute
+     *
+     * \return GetNextStepOnClickRetry Type
+     */
+    /****************************************************************************/
+    quint32 GetNextStepOnClickRetry() const {   return m_NextStepOnClickRetry;  }
+
+    /****************************************************************************/
+    /**
      * \brief Get NextStepOnClickYES attribute
      * 
      * \return NextStepOnClickYES Type	
@@ -200,7 +209,8 @@ private:
     Global::GuiButtonType		m_ButtonType;			///< Button Type
     QString                     m_ButtonEnableConditon;	///< Condition on button enabled
     quint32                     m_NextStepOnTimeOut;	///< Next step on time out
-    quint32                     m_NextStepOnClickOk;	///< Next step on clicking OK 
+    quint32                     m_NextStepOnClickOk;	///< Next step on clicking OK
+    quint32                     m_NextStepOnClickRetry; ///< Next step on clingcing RETRY
     quint32                     m_NextStepOnClickYES;	///< Next step on clicking YES 
     quint32                     m_NextStepOnClickNO;	///< Next step on clicking NO 
     bool                        m_StatusBar;			///< Status Bar

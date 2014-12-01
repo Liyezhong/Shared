@@ -424,6 +424,10 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 {
                     ButtonType = INVISIBLE;
                 }
+                else if (strRet.trimmed().compare("RETRY", Qt::CaseInsensitive) == 0)
+                {
+                    ButtonType = RETRY;
+                }
             }
 
             QString ButtonEnableCondition = "";
@@ -476,6 +480,17 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
+            quint32 nextStepOnClickRetry = 0;
+            if (m_pXMLReader->attributes().hasAttribute("NextStepOnClickRetry"))
+            {
+                bool ok = false;
+                nextStepOnClickRetry = m_pXMLReader->attributes().value("NextStepOnClickRetry").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
+            }
+
             bool StatusBar = true;
             if (m_pXMLReader->attributes().hasAttribute("StatusBar"))
             {
@@ -505,6 +520,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             pEventStep->m_ButtonEnableConditon = ButtonEnableCondition;
             pEventStep->m_NextStepOnTimeOut = NextStepOnTimeOut;
             pEventStep->m_NextStepOnClickOk = nextStepOnClickOk;
+            pEventStep->m_NextStepOnClickRetry = nextStepOnClickRetry;
             pEventStep->m_NextStepOnClickYES = nextStepOnClickYES;
             pEventStep->m_NextStepOnClickNO = nextStepOnClickNO;
             pEventStep->m_StatusBar = StatusBar;

@@ -113,6 +113,10 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
             mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
             mp_MessageDlg->HideButtons();
         }
+        else if (ButtonCount == 1 && MsgDataStruct.BtnType == Global::RETRY){
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Retry", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideButtons();
+        }
         else if (ButtonCount == 2) {
             SetMessageBoxType(MsgDataStruct);
         }
@@ -331,6 +335,9 @@ void CMsgBoxManager::ButtonRightClicked()
     }
     else if(m_CurrentMsgData.BtnType == Global::OK){
         emit EventReportAck(NetCommands::OK_BUTTON, CmdRef, m_CurrentMsgData.ID);
+    }
+    else if(m_CurrentMsgData.BtnType == Global::RETRY){
+        emit EventReportAck(NetCommands::RETRY_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
     RemoveDataFromContainers(m_CurrentMsgData.EventType, m_CurrentMsgData.ID);
     m_CurrentMsgBoxEventID  = 0;

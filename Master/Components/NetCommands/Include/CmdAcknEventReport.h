@@ -32,6 +32,7 @@ namespace NetCommands {
 enum ClickedButton_t {
     OK_BUTTON,
     YES_BUTTON,
+    RETRY_BUTTON,
     CONTINUE_BUTTON,
     NOT_SPECIFIED,
     CANCEL_BUTTON,

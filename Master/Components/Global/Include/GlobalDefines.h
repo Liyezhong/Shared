@@ -377,6 +377,7 @@ enum GuiButtonType {
     NOT_SPECIFIED,   //!< Msg Box with buttons not specified
     OK,              //!< Msg Box with Ok
     YES_NO,          //!< Msg Box with Yes and No
+    RETRY,           //!< Msg Box with retry
     CONTINUE_STOP,   //!< Msg Box with Continue and Stop
     OK_CANCEL,       //!< Msg Box with Ok and Cancel
     WITHOUT_BUTTONS,  //!< Msg box without buttons
