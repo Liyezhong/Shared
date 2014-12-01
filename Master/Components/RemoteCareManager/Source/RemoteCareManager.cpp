@@ -225,16 +225,18 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
     {
         case RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS:
             //broadcast this msg so that gui receives this.
-            if (m_IsConnectedToWeb) {
-                emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
-                m_IsConnectedToWeb = false;
-            }
+            if (!m_IsConnectedToWeb)
+                return;
+            emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+            m_IsConnectedToWeb = false;
+
             break;
         case RCAgentNamespace::EVENT_REMOTECARE_INFO_CONNECTED_ENTERPRISE_SERVER:
-            if (!m_IsConnectedToWeb) {
-                emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
-                m_IsConnectedToWeb = true;
-            }
+            if (m_IsConnectedToWeb)
+                return;
+            emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
+            m_IsConnectedToWeb = true;
+
             break;
     }	
 
