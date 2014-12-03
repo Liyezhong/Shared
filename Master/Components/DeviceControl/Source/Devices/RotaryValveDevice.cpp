@@ -701,7 +701,7 @@ quint32 CRotaryValveDevice::GetRecentCurrent()
 quint8 CRotaryValveDevice::GetRecentHeaterSwitchType()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    quint32 RetValue = UNDEFINED_1_BYTE;
+    quint8 RetValue = UNDEFINED_1_BYTE;
     if((Now - m_LastGetTCCurrentTime) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_TCHardwareStatus.HeaterSwitchType;
