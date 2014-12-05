@@ -2424,20 +2424,17 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            if(previousPressure-(m_pAirLiquid->GetRecentPressure()) > ThresholdPressure)
+            {
+                LOG()<<"Sealing test: Failed.";
+                (void)m_pAirLiquid->ReleasePressure();
+                return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
+            }
         }
-        qreal currentPressure = m_pAirLiquid->GetRecentPressure();
-        if((previousPressure-currentPressure) > ThresholdPressure)
-        {
-            retCode = DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
-            LOG()<<"Sealing test: Failed.";
-        }
-        else
-        {
-            retCode = DCL_ERR_FCT_CALL_SUCCESS;
-            LOG()<<"Sealing test: Succeed.";
-        }
+
+        LOG()<<"Sealing test: Succeed.";
         (void)m_pAirLiquid->ReleasePressure();
-        return retCode;
+        return DCL_ERR_FCT_CALL_SUCCESS;
    }
    else
    {
