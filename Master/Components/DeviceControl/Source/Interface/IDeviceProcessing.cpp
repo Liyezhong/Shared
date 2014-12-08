@@ -2267,9 +2267,6 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
     }
     if((m_pRotaryValve)&&(m_pAirLiquid))
     {
-        qreal density = 1;
-        qreal basePressure = 1.4;
-
         retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -2282,26 +2279,16 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             return retCode;
         }
 
-        if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
+        // turn off pump
+        m_pAirLiquid->StopCompressor();
+
+        // dealy one second to make sure the command has been sent to HW
+        QTime delayTime = QTime::currentTime().addMSecs(1000);
+        while (QTime::currentTime() < delayTime)
         {
-            density = 1;
-            basePressure = 1.25;
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
         }
-        else if((ReagentGrpID == "RG3")||(ReagentGrpID == "RG4")||(ReagentGrpID == "RG8"))
-        {
-            density = 0.8;
-        }
-        else if((ReagentGrpID == "RG5")||(ReagentGrpID == "RG7"))
-        {
-            density = 0.88;
-        }
-        else if((ReagentGrpID == "RG6"))
-        {
-            density = 1;
-            basePressure = 0.6;
-        }
-        Q_UNUSED(density)
-        Q_UNUSED(basePressure)
+
         // Move RV to tube position
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
@@ -2309,7 +2296,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             return retCode;
         }
         //make the stable threshold time 3 seconds
-        QTime delayTime = QTime::currentTime().addMSecs(3000);
+        delayTime = QTime::currentTime().addMSecs(3000);
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
@@ -2318,19 +2305,36 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         LOG()<<"Bottle Check pressure: " << pressure;
 
+        qreal baseLine = 0;
+        if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
+        {
+            baseLine = 1.33;
+        }
+        else if((ReagentGrpID == "RG3")||(ReagentGrpID == "RG4")||(ReagentGrpID == "RG8"))
+        {
+             baseLine = 1.05;
+        }
+        else if((ReagentGrpID == "RG5")||(ReagentGrpID == "RG7"))
+        {
+            baseLine = 1.14;
+        }
+        else if((ReagentGrpID == "RG6"))
+        {
+            baseLine = 0.53;
+        }
 
 #ifdef __arm__
-        if(pressure < (0.4 * density * basePressure))
+        if(pressure < (0.4 * baseLine))
         {
             retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_EMPTY;
             LOG()<<"Bottle Check: Empty";
         }
-        else if(pressure < (0.7 * density * basePressure))
+        else if(pressure < (0.7 * baseLine))
         {
             retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_LEAKAGE;
             LOG()<<"Bottle Check: Leakage or Not Full";
         }
-        else if(pressure < (2 * density * basePressure))
+        else if(pressure < (2 * baseLine))
         {
             retCode = DCL_ERR_FCT_CALL_SUCCESS;
             LOG()<<"Bottle Check: OK";
