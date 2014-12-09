@@ -164,7 +164,7 @@ void CServiceImportExportHandler::CreateAndInitializeObjects() {
         p_DeviceConfiguration = mp_DeviceConfigInterface->GetDeviceConfiguration();
 
         if (p_DeviceConfiguration != NULL) {
-            m_DeviceName = p_DeviceConfiguration->GetValue("DeviceName");
+            m_DeviceName = p_DeviceConfiguration->GetValue("DeviceName").remove(QRegExp("\\s"));
             m_SerialNumber = p_DeviceConfiguration->GetValue("SerialNumber");
         }
     }
