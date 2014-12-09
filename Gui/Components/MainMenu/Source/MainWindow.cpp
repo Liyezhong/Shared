@@ -298,16 +298,16 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
                 p_Label->show();
             }
             p_Label = mp_Ui->statusLabel1;
-            /*delete mp_ProcPixmap;
+            delete mp_ProcPixmap;
             mp_ProcPixmap = new QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
-            p_Label->setPixmap(*mp_ProcPixmap);*/
+            p_Label->setPixmap(*mp_ProcPixmap);
             p_Label->show();
             m_ProcessRunning = true;
-            //p_Label->pixmap.fill(Qt::transparent);
             //Inform widgets process is running.
             emit ProcessStateChanged();
             result = true;
         }
+
         break;
     case RemoteCare:
         if (!m_RemoteService) {
@@ -316,7 +316,6 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
             mp_RemotePixMap = new QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").
                                           arg(Application::CLeicaStyle::GetDeviceImagesPath()));
             p_Label->setPixmap(*mp_RemotePixMap);
-            //p_Label->pixmap.fill(Qt::transparent);
             p_Label->show();
             m_RemoteService = true;
             result = true;
@@ -360,10 +359,10 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
     switch (Status) {
     case ProcessRunning:
         if (m_ProcessRunning) {
-            //mp_Ui->statusLabel1->hide();
+            mp_Ui->statusLabel1->hide();
             if(mp_ProcPixmap) {
-                //mp_ProcPixmap->fill(Qt::transparent);
-                //mp_Ui->statusLabel1->setPixmap(*mp_ProcPixmap);
+                mp_ProcPixmap->fill(Qt::transparent);
+                mp_Ui->statusLabel1->setPixmap(*mp_ProcPixmap);
                 // check whether remote service is running, if it is then set the first label to remote care
                 if (m_RemoteService) {
                     if(mp_RemotePixMap) {
