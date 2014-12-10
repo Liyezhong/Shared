@@ -253,6 +253,17 @@ public:
     void SetLineEditContent(QString LineEditContent)
     {
         mp_LineEdit->insert(LineEditContent);
+        mp_LineEdit->setSelection(0, mp_LineEdit->text().length());
+    }    
+
+    /****************************************************************************/
+    /*!
+     *  \brief This function is used to select content of the the line edit
+     */
+    /****************************************************************************/
+    void SetLineEditSelected()
+    {
+        mp_LineEdit->setSelection(0, mp_LineEdit->text().length());
     }
 
     /****************************************************************************/
