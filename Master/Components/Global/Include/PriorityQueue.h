@@ -67,7 +67,8 @@ public:
         //Keys in Multimap are in ascending order, hence last key is the
         //one with highest priority
         int key = m_Element.keys().last();
-        return m_Element.value(key);
+        //return m_Element.value(key);
+        return m_Element.values(key).last();
     }
 
     /****************************************************************************/

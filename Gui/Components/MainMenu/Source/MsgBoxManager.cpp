@@ -80,6 +80,8 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
                              ButtonRightClicked());
         CONNECTSIGNALSLOTGUI(mp_MessageDlg, DialogLangaugeChanged(), this,
                              LanguageChanged());
+    }
+    {
         //Set Title
         switch (MsgDataStruct.EventType) {
         case Global::EVTTYPE_INFO:
@@ -267,15 +269,20 @@ void CMsgBoxManager::LanguageChanged()
 void CMsgBoxManager::AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgData)
 {
     //Store reference in Hash
+    m_EvenIDCmdRefHash.remove(CurrentMsgData.ID);
     m_EvenIDCmdRefHash.insert(CurrentMsgData.ID, Ref);
     //Add EventID to Priority Queue & EventId Hash
+    m_PriorityQueue.Remove(static_cast<int>(CurrentMsgData.EventType), CurrentMsgData.ID);
     m_PriorityQueue.Push(static_cast<int>(CurrentMsgData.EventType), CurrentMsgData.ID);
+    m_EventIDMsgDataHash.remove(CurrentMsgData.ID);
     m_EventIDMsgDataHash.insert(CurrentMsgData.ID, CurrentMsgData);
     //Msg Box will be poped up only after 1 seconds.
     //This is done so that, if GUI receives numerous events
     //at a time, then we prevent Msg Box creation overload
-    if (!m_PopupTimer.isActive()) {
-        m_PopupTimer.start(1000);
+    if(!mp_MessageDlg || !mp_MessageDlg->isVisible()){
+        if (!m_PopupTimer.isActive()) {
+            m_PopupTimer.start(1000);
+        }
     }
 }
 
@@ -364,24 +371,21 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
     if (!m_PriorityQueue.IsEmpty()) {
         //Now update Msg Data
         qint64 CurrentMsgBoxEventID = m_PriorityQueue.Top();
+        //update MsgDlg info
+        m_CurrentMsgData = m_EventIDMsgDataHash.value(CurrentMsgBoxEventID);
         //Keys in Multimap are in ascending order, hence last key is the
         //one with highest priority
-        if (CurrentMsgBoxEventID == m_CurrentMsgBoxEventID) {
-            //If current msg box event ID is equal to the last key of the multimap
-            //Return from the current method.
+//        if (CurrentMsgBoxEventID == m_CurrentMsgBoxEventID) {
+//            //If current msg box event ID is equal to the last key of the multimap
+//            //Return from the current method.
+//            return;
+//        }
+
+        if(mp_MessageDlg && mp_MessageDlg->isVisible()){
             return;
         }
 
-        //update MsgDlg info
-        m_CurrentMsgData = m_EventIDMsgDataHash.value(CurrentMsgBoxEventID);
-        if (mp_MessageDlg) {
-            delete mp_MessageDlg;
-            mp_MessageDlg = NULL;
-            CreateMesgBox(m_CurrentMsgData);
-        }
-        else {
-            CreateMesgBox(m_CurrentMsgData);
-        }
+        CreateMesgBox(m_CurrentMsgData);
         //Check for the text lenght to be displayed
         QString MessageString = m_CurrentMsgData.MsgString;
         if (MessageString.length() > MAX_MESSAGE_TEXT_LENGTH) {
