@@ -62,7 +62,7 @@ class IDeviceProcessing : public QObject
     Q_OBJECT
 
 public:
-    IDeviceProcessing();
+    IDeviceProcessing(int DevProcTimerInterval = 10);
     ~IDeviceProcessing();
 
     //! Returns the serial number from config file
@@ -1017,6 +1017,7 @@ private:
     QTimer m_TimerSaveServiceInfor; //!< timer for service info
     QList<quint32> m_deviceList;    //!< device list
     bool    m_EnableLowerPressure;  //!< enable lower pressure
+    int m_DevProcTimerInterval;              //!< timer interval for mp_DevProcTimer
 };
 
 } //namespace

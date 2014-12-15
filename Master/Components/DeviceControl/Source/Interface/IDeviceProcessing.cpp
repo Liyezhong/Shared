@@ -53,11 +53,12 @@ const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2* 24 * 60 * 60 * 1000;  //!< 48 ho
 /****************************************************************************/
 /*!
  *  \brief  Constructor of the class IDeviceProcessing
+ *  \param DevProcTimerInterval  timer interval by ms
  */
 /****************************************************************************/
-IDeviceProcessing::IDeviceProcessing() :
+IDeviceProcessing::IDeviceProcessing(int DevProcTimerInterval) :
         m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
-        m_reqTaskParameter1(0), m_reqTaskParameter2(0), m_machine(this), m_TimerSaveServiceInfor(this)
+        m_reqTaskParameter1(0), m_reqTaskParameter2(0), m_machine(this), m_TimerSaveServiceInfor(this), m_DevProcTimerInterval(DevProcTimerInterval)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
@@ -142,7 +143,7 @@ void IDeviceProcessing::ThreadStarted()
 {
     mp_DevProcTimer = new QTimer(this);
     CONNECTSIGNALSLOT(mp_DevProcTimer, timeout(), this, HandleTasks());
-    mp_DevProcTimer->start(200);
+    mp_DevProcTimer->start(m_DevProcTimerInterval);
 }
 
 /****************************************************************************/
