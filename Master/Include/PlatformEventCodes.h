@@ -142,6 +142,11 @@ const quint32 EVENT_ERROR                                   = EVENT_GROUP_PLATFO
 const quint32 EVENT_WARNING                                 = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x005;
 /// Info ->log info for testing/debugging
 const quint32 EVENT_INFO                                    = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x006;
+const quint32 EVENT_PLEASE_TURNOFF_HARDSWITCH               = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x007;  ///< Please turn off the switch on the back of machine to shutdown the machine.
+const quint32 EVENT_INSTALLATION_FINISHED                   = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x008;  ///< Installation is finished, please unplug usb disk, then reboot the machine.
+const quint32 EVENT_SWU_ROLBACKING                          = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x009;  ///< SW Update Rollback running ... Don't touch anything.
+const quint32 EVENT_SWU_RUNNING                             = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x00A;  ///< SW Update running ... Don't touch anything.
+const quint32 EVENT_CALL_FOR_SERVICE                        = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x00B;  ///< Unexpected error. Please call Service.
 
 
 #endif // namespace PLATFORMEVENTCODES_H
