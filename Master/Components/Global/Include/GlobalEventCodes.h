@@ -75,7 +75,7 @@ const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_AGITATION_SPEED_CHANGED     = EVENT_
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_LOADER_REAGENT_CHANGED      = EVENT_GROUP_PLATFORM_GLOBAL + 0x021A; //!< Loader reagent %1 changed to %2
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_WARN_SOUND_NOTE_CHANGED    = EVENT_GROUP_PLATFORM_GLOBAL + 0x021B; //!< Alaram warning sound note changed
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_ERROR_SOUND_NOTE_CHANGED   = EVENT_GROUP_PLATFORM_GLOBAL + 0x021C; //!< Alaram error sound note changed
-const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CHANGED                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x021D; //!< RMS state changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CHANGED                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x021D; //!< Processing RMS state changed to %1
 /// these are dummy events which required for translations
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_ON              = EVENT_GROUP_PLATFORM_GLOBAL + 0x021E; //!< ON
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF             = EVENT_GROUP_PLATFORM_GLOBAL + 0x021F; //!< OFF
@@ -94,6 +94,10 @@ const quint32 EVENT_DEVICE_START_INFO                                   = EVENT_
 const quint32 EVENT_MAIN_REVISION                                       = EVENT_GROUP_PLATFORM_GLOBAL + 0x0230; //!< Software revision %1 . Build date %2
 const quint32 EVENT_DEVICE_IP_ADDRESS                                   = EVENT_GROUP_PLATFORM_GLOBAL + 0x0231; //!< System configured IP address %1
 
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_CLEANING_RMS_STATE_CHANGED                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x0232; //!< Cleaning RMS state changed to %1.
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CASSETTES                = EVENT_GROUP_PLATFORM_GLOBAL + 0x0233; //!< Cassettes
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CYCLES                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x0234; //!< Cycles
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_DAYS                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x0235; //!< Days
 // AlarmHandler
 const quint32 EVENT_ALARM_SOUND_MISSING                     = EVENT_GROUP_PLATFORM_GLOBAL + 0x0300; //!< alarm sound missing
 

@@ -148,17 +148,42 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             }
 
             // raise the event if the RMS state is changed
-            if (TempSettings.GetValue("RMS_State") != Settings.GetValue("RMS_State")) {
-                QString Value = Settings.GetValue("RMS_State");
-                if (Value.compare("ON", Qt::CaseInsensitive) == 0) {
+            if (TempSettings.GetValue("RMS_PROCESSINGMODE") != Settings.GetValue("RMS_PROCESSINGMODE")) {
+                QString Value = Settings.GetValue("RMS_PROCESSINGMODE");
+                if (Value.compare("DAYS", Qt::CaseInsensitive) == 0) {
                     Value = Global::UITranslator::TranslatorInstance().Translate
-                            (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_ON);
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_DAYS);
+                }
+                else if (Value.compare("CYCLES", Qt::CaseInsensitive) == 0) {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CYCLES);
+                }
+                else if (Value.compare("CASSETTES", Qt::CaseInsensitive) == 0) {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CASSETTES);
                 }
                 else {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF);
                 }
                 Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CHANGED,
+                                                           Global::FmtArgs() << Value);
+            }
+            if (TempSettings.GetValue("RMS_CLEANINGMODE") != Settings.GetValue("RMS_CLEANINGMODE")) {
+                QString Value = Settings.GetValue("RMS_CLEANINGMODE");
+                if (Value.compare("DAYS", Qt::CaseInsensitive) == 0) {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_DAYS);
+                }
+                else if (Value.compare("CYCLES", Qt::CaseInsensitive) == 0) {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CYCLES);
+                }
+                else {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF);
+                }
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_CLEANING_RMS_STATE_CHANGED,
                                                            Global::FmtArgs() << Value);
             }
 
