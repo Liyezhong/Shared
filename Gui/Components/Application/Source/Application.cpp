@@ -68,10 +68,13 @@ bool CApplication::notify ( QObject * receiver, QEvent * e )
         }*/
         isTouch = true;
     }
-    else
+    else if (e->type() == QEvent::KeyPress)
     {
-        if (e->type() == QEvent::KeyPress)
-            isTouch = true;
+        isTouch = true;
+    }
+    else if (e->type() == QEvent::TouchBegin)
+    {
+        isTouch = true;
     }
 
     if (isTouch)
