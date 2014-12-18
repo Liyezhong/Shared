@@ -32,7 +32,7 @@ QString CmdProcessState::NAME = "NetCommands::CmdProcessState"; ///< Name of the
  * \iparam   ProcessState    Flag for the Process state.
  */
 /****************************************************************************/
-CmdProcessState::CmdProcessState(int Timeout, const bool &ProcessState) :
+CmdProcessState::CmdProcessState(int Timeout, ProcessStateType ProcessState) :
     Command(Timeout),
     m_ProcessState(ProcessState)
 {
@@ -75,9 +75,9 @@ QString CmdProcessState::GetName() const
  *  \return  ProcessState
  */
 /****************************************************************************/
-bool CmdProcessState::GetProcessState() const
+ProcessStateType CmdProcessState::GetProcessState() const
 {
-    return m_ProcessState;
+    return (ProcessStateType)m_ProcessState;
 }
 
 }//End of namespace NetCommands

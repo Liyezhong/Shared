@@ -23,6 +23,19 @@
 
 namespace NetCommands {
 /****************************************************************************/
+/**
+ * \brief Enum for
+ */
+/****************************************************************************/
+enum ProcessStateType {
+    InitState,                                                ///<  Initial state
+    PowerFailureState,                                        ///<  state for power failure scenario
+    IdleState,                                                ///<  Idle state
+    BusyState,                                                ///<  Busy state
+    ErrorState
+};
+
+/****************************************************************************/
 /*!
  *  \brief  This class implements a CmdRackRemove command.
  */
@@ -32,11 +45,11 @@ class CmdProcessState : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdProcessState &);
 public:
     static QString NAME;    ///< Command name.
-    CmdProcessState(int TimeOut,const bool &ProcessState);
+    CmdProcessState(int TimeOut, ProcessStateType ProcessState);
     CmdProcessState();
     ~CmdProcessState();
     virtual QString GetName() const;
-    bool GetProcessState() const;
+    ProcessStateType GetProcessState() const;
 
 private:
     CmdProcessState(const CmdProcessState &);                       ///< Not implemented.
@@ -48,7 +61,7 @@ private:
      */
     /****************************************************************************/
     const CmdProcessState & operator = (const CmdProcessState &);   ///< Not implemented.
-    bool m_ProcessState;   ///< Process State - True if process running, else false
+    int m_ProcessState;   ///< Process State - True if process running, else false
 };
 
 
