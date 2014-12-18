@@ -256,52 +256,12 @@ qint16 CANCommunicator::OpenCAN(const char* ifaceCAN)
     return sRetval;
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Set a communication error
- *
- *  \iparam nError = Error code
- *  \iparam nErrorAdditionalInfo = additional error info
- */
-/****************************************************************************/
-void CANCommunicator::SetCommunicationError(qint16 nError, qint16 nErrorAdditionalInfo)
+void CANCommunicator::ReportCANError()
 {
     emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, EVENT_GRP_DCL_CANINTERFACE, (quint16)DCL_ERR_CANCOMMUTOR_COMM_FAILED,
                      (quint16)DCL_ERR_CANCOMMUTOR_COMM_FAILED,Global::AdjustedTime::Instance().GetCurrentDateTime());
-    //pthread_mutex_lock( &mutexCOB );
-    if(nError != m_nErrorCode)
-    {
-        m_nErrorCode = nError;
-        m_nErrorAdditionalInfo = nErrorAdditionalInfo;
-        m_errorUntransmitted = 1;
-        FILE_LOG_L(laCAN, llERROR) << "SetCommErr.: " << m_nErrorCode;
-    }
-    //pthread_mutex_unlock( &mutexCOB );
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Returns a communication error
- *
- *  \oparam nErrorAdditionalInfo = additional error info
- *
- *  \return Error code
- */
-/****************************************************************************/
-qint16 CANCommunicator::GetCommunicationError(qint16& nErrorAdditionalInfo)
-{
-    qint16 errorToTransmit = 0;
-
-    //pthread_mutex_lock( &mutexCOB );
-    if(m_errorUntransmitted)
-    {
-        m_errorUntransmitted = 0;
-        nErrorAdditionalInfo = m_nErrorAdditionalInfo;
-        errorToTransmit = m_nErrorCode;
-    }
-    //pthread_mutex_unlock( &mutexCOB );
-    return errorToTransmit;
-}
 
 /****************************************************************************/
 /*!
@@ -380,51 +340,19 @@ ReturnCode_t CANCommunicator::RegisterCOB(unsigned int unCanID, CModule* pCallba
 /****************************************************************************/
 ReturnCode_t CANCommunicator::SendCOB(can_frame& canmsg)
 {
-
-    ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(m_pCANTransmitThread == 0)
-    {
-        return DCL_ERR_NULL_PTR_ACCESS;
+    if (!m_pCANTransmitThread) {
+        return DCL_ERR_CANBUS_NOT_READY;
     }
 
-    if(m_nErrorCode == ERR_COMM_NONE)
-    {
-        /*if(GetCommunicationStatus() & S_BOff)
-            SetCommunicationError(ERR_COMM_BUS_OFF);
-        else*/
-          //SetCommunicationError(ERR_COMM_NONE);
-        FILE_LOG_L(laCOMM, llDEBUG3)  << "wake up transmit thread for CAN-ID: " << std::hex << canmsg.can_id;
+    FILE_LOG_L(laCOMM, llDEBUG3)  << "wake up transmit thread for CAN-ID: " << std::hex << canmsg.can_id;
 
-        m_mutexCOB.lock();
-        m_SendQueue.push_back(canmsg);      // copy the message to the send queue
-        m_mutexCOB.unlock();
+    m_mutexCOB.lock();
+    m_SendQueue.push_back(canmsg);      // copy the message to the send queue
+    m_mutexCOB.unlock();
 
-        qint16 nErrorAddInfo;
-        if(GetCommunicationError(nErrorAddInfo) == ERR_COMM_NONE)
-        {
-            //wake up the transmit threads blocked by the specified condition variable.
-            m_pCANTransmitThread->m_waitCondCANTransmit.wakeOne();
-        }
-        else
-        {
-            //ReOpenCanBus();
-            FILE_LOG_L(laCAN, llERROR) << "GetCommunicationError() returns an error!";
-            retval = DCL_ERR_CANBUS_NOT_READY;
-        }
-    }
-    else
-    {
-        retval = DCL_ERR_CANBUS_ERROR; // in case of an existing error, the message will not be send
-    }
+    m_pCANTransmitThread->m_waitCondCANTransmit.wakeOne();
 
-    if (DCL_ERR_FCT_CALL_SUCCESS != retval)
-    {
-        emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, EVENT_GRP_DCL_CANINTERFACE, (quint16)retval, (quint16)retval,
-                         Global::AdjustedTime::Instance().GetCurrentDateTime());
-    }
-    return retval;
-
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/

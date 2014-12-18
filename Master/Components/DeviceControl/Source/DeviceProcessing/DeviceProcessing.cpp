@@ -1068,18 +1068,6 @@ void DeviceProcessing::HandleTasks()
             break;
     }
 
-    qint16 error;
-    qint16 errorAddInfo;
-
-    error = m_canCommunicator.GetCommunicationError(errorAddInfo);
-    if(error < 0)
-    {
-        QDateTime errorTimeStamp;
-        FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
-        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_CANBUS, DCL_ERR_CANBUS_ERROR, error, errorTimeStamp);
-    }
-
     m_canCommunicator.DispatchPendingInMessage();
 /*
     if(PerformanceCheck)

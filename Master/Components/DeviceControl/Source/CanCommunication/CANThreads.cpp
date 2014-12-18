@@ -73,7 +73,7 @@ void CANReceiveThread::run()
             }
             else if (nReadResult < 0)
             {
-                m_pCANCommunicator->SetCommunicationError(nReadResult, 0);
+                m_pCANCommunicator->ReportCANError();
             }
         }
 
@@ -137,27 +137,6 @@ void CANTransmitThread::run()
 
     forever
     {
-        while (m_pCANCommunicator->IsOutMessagePending())
-        {
-            // pop message from send queue
-            canframeToSend = m_pCANCommunicator->PopPendingOutMessage();
-
-            if(m_pClient)
-            {
-                // running in simulation mode, use the tcp client to transmit the CAN-message data
-                m_pClient->SendMessage(&canframeToSend);
-            }
-            else
-            {
-                // write it to the CAN bus socket layer
-                nWriteResult = m_pCANCommunicator->GetCANInterface()->Write(&canframeToSend);
-                if(nWriteResult < 0)
-                {
-                    m_pCANCommunicator->SetCommunicationError(nWriteResult, 0);
-                }
-            }
-        }
-
         //initially lock the mutex
         m_lockCANTransmit.lock();
         // wait on the wait condition
@@ -176,6 +155,28 @@ void CANTransmitThread::run()
             break;
         }
         m_BreakLock.unlock();
+
+
+        while (m_pCANCommunicator->IsOutMessagePending())
+        {
+            // pop message from send queue
+            canframeToSend = m_pCANCommunicator->PopPendingOutMessage();
+
+            if(m_pClient)
+            {
+                // running in simulation mode, use the tcp client to transmit the CAN-message data
+                m_pClient->SendMessage(&canframeToSend);
+            }
+            else
+            {
+                // write it to the CAN bus socket layer
+                nWriteResult = m_pCANCommunicator->GetCANInterface()->Write(&canframeToSend);
+                if(nWriteResult < 0)
+                {
+                    m_pCANCommunicator->ReportCANError();
+                }
+            }
+        }
     }
 }
 

@@ -107,7 +107,16 @@ public:
     /****************************************************************************/
     ReturnCode_t StopComm();
 
-    void SetCommunicationError(qint16 nError, qint16 nErrorAdditionalInfo);
+    /****************************************************************************/
+    /*!
+     *  \brief  Report CAN error
+     *
+     *  \iparam void
+     *
+     *  \return void
+     */
+    /****************************************************************************/
+    void ReportCANError();
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetCommunicationError
