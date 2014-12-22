@@ -57,46 +57,15 @@ CApplication::CApplication(int &Argc, char* p_Argv[], Application::DeviceType_t 
 bool CApplication::notify ( QObject * receiver, QEvent * e )
 {
     bool isTouch = false;
-    if (e->type() == QEvent::MouseMove)
+    if (e->type() == QEvent::MouseMove ||
+            e->type() == QEvent::MouseButtonRelease ||
+            e->type() == QEvent::MouseButtonPress)
     {
-        /*QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(e);
-        if (mouseEvent)
-        {
-            QPoint p = mouseEvent->globalPos();
-            if (p != m_MousePos)
-               isTouch = true;
-            m_MousePos = mouseEvent->globalPos();
-        }*/
         isTouch = true;
     }
     else if (e->type() == QEvent::KeyPress)
     {
         isTouch = true;
-        isTouch = true;
-        QString filename = Global::SystemPaths::Instance().GetSettingsPath() + "/TouchBegin.xml";
-        QFile file(filename);
-        if (!file.exists())
-        {
-            file.open(QIODevice::ReadWrite);
-            QString str("AAA");
-            file.write(str.toAscii());
-            file.flush();
-            file.close();
-        }
-    }
-    else if (e->type() == QEvent::TouchBegin)
-    {
-        isTouch = true;
-        QString filename = Global::SystemPaths::Instance().GetSettingsPath() + "/TouchBegin.xml";
-        QFile file(filename);
-        if (!file.exists())
-        {
-            file.open(QIODevice::ReadWrite);
-            QString str("AAA");
-            file.write(str.toAscii());
-            file.flush();
-            file.close();
-        }
     }
 
     if (isTouch)

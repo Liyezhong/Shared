@@ -39,7 +39,7 @@ class CApplication : public QApplication
 public:
     CApplication(int &Argc, char* p_Argv[], DeviceType_t DeviceType);
 protected:
-    bool notify(QObject * receiver, QEvent * event );
+    virtual bool notify(QObject * receiver, QEvent * event );
 
 signals:
     void InteractStart();
