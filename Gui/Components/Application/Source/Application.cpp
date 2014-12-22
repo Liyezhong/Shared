@@ -23,6 +23,7 @@
 #include <QFont>
 #include <QTextStream>
  #include <QMouseEvent>
+#include <Global/Include/SystemPaths.h>
 
 namespace Application {
 
@@ -71,10 +72,31 @@ bool CApplication::notify ( QObject * receiver, QEvent * e )
     else if (e->type() == QEvent::KeyPress)
     {
         isTouch = true;
+        isTouch = true;
+        QString filename = Global::SystemPaths::Instance().GetSettingsPath() + "/TouchBegin.xml";
+        QFile file(filename);
+        if (!file.exists())
+        {
+            file.open(QIODevice::ReadWrite);
+            QString str("AAA");
+            file.write(str.toAscii());
+            file.flush();
+            file.close();
+        }
     }
     else if (e->type() == QEvent::TouchBegin)
     {
         isTouch = true;
+        QString filename = Global::SystemPaths::Instance().GetSettingsPath() + "/TouchBegin.xml";
+        QFile file(filename);
+        if (!file.exists())
+        {
+            file.open(QIODevice::ReadWrite);
+            QString str("AAA");
+            file.write(str.toAscii());
+            file.flush();
+            file.close();
+        }
     }
 
     if (isTouch)
