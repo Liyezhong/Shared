@@ -57,8 +57,8 @@ CApplication::CApplication(int &Argc, char* p_Argv[], Application::DeviceType_t 
 bool CApplication::notify ( QObject * receiver, QEvent * e )
 {
     bool isTouch = false;
-    //if (e->type() == QEvent::MouseMove)
-    //{
+    if (e->type() == QEvent::MouseMove)
+    {
         /*QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(e);
         if (mouseEvent)
         {
@@ -67,10 +67,9 @@ bool CApplication::notify ( QObject * receiver, QEvent * e )
                isTouch = true;
             m_MousePos = mouseEvent->globalPos();
         }*/
-      //  isTouch = true;
-    //}
-    //else
-    if (e->type() == QEvent::KeyPress)
+        isTouch = true;
+    }
+    else if (e->type() == QEvent::KeyPress)
     {
         isTouch = true;
         isTouch = true;
