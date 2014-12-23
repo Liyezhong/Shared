@@ -144,6 +144,12 @@ private slots:
      *  \brief  Definition/Declaration of slot UpdateReagentList
      */
     /****************************************************************************/
+    void ShowNextMsgBoxInQueue();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
 	void LanguageChanged();
     /****************************************************************************/
     /*!

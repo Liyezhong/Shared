@@ -80,8 +80,6 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
                              ButtonRightClicked());
         CONNECTSIGNALSLOTGUI(mp_MessageDlg, DialogLangaugeChanged(), this,
                              LanguageChanged());
-    }
-    {
         //Set Title
         switch (MsgDataStruct.EventType) {
         case Global::EVTTYPE_INFO:
@@ -307,7 +305,7 @@ void CMsgBoxManager::ButtonLeftClicked()
     }
     RemoveDataFromContainers(m_CurrentMsgData.EventType, m_CurrentMsgData.ID);
     m_CurrentMsgBoxEventID  = -1;
-    ShowMsgBoxIfQueueNotEmpty();
+    ShowNextMsgBoxInQueue();
 }
 
 /****************************************************************************/
@@ -348,7 +346,7 @@ void CMsgBoxManager::ButtonRightClicked()
     }
     RemoveDataFromContainers(m_CurrentMsgData.EventType, m_CurrentMsgData.ID);
     m_CurrentMsgBoxEventID  = 0;
-    ShowMsgBoxIfQueueNotEmpty();
+    ShowNextMsgBoxInQueue();
 }
 
 void CMsgBoxManager::AutoQuitMessageBox()
@@ -357,7 +355,19 @@ void CMsgBoxManager::AutoQuitMessageBox()
     emit EventReportAck(NetCommands::TIMEOUT, CmdRef, m_CurrentMsgData.ID);
     RemoveDataFromContainers(m_CurrentMsgData.EventType, m_CurrentMsgData.ID);
     m_CurrentMsgBoxEventID  = 0;
-    ShowMsgBoxIfQueueNotEmpty();
+    if(mp_MessageDlg){
+        mp_MessageDlg->hide();
+        delete mp_MessageDlg;
+        mp_MessageDlg = NULL;
+    }
+    ShowNextMsgBoxInQueue();
+}
+
+void CMsgBoxManager::ShowNextMsgBoxInQueue()
+{
+    if(! m_PopupTimer.isActive()){
+        m_PopupTimer.start(100);
+    }
 }
 
 /****************************************************************************/
@@ -381,8 +391,10 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
 //            return;
 //        }
 
-        if(mp_MessageDlg && mp_MessageDlg->isVisible()){
-            return;
+        if(mp_MessageDlg){
+            mp_MessageDlg->hide();
+            delete mp_MessageDlg;
+            mp_MessageDlg = NULL;
         }
 
         CreateMesgBox(m_CurrentMsgData);
@@ -466,7 +478,7 @@ void CMsgBoxManager::RemoveMsgBoxFromQueue(Global::EventType EventType, quint64 
     //Check if MsgBox with this Id is currently being shown
     if (ID == m_CurrentMsgData.ID && mp_MessageDlg) {
         mp_MessageDlg->hide();
-        ShowMsgBoxIfQueueNotEmpty();
+        ShowNextMsgBoxInQueue();
     }
 }
 
