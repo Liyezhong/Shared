@@ -1032,7 +1032,7 @@ void CBaseModule::HandleTaskFctConfiguration()
 
             //throw error
             errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, DCL_ERR_TIMER_TIMEOUT,
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_CONFIGURATION, DCL_ERR_TIMER_TIMEOUT,
                              nAdditonalData, errorTimeStamp);
         }
     }
