@@ -379,11 +379,13 @@ static Error_t tempModuleTask (UInt16 Instance)
             // Read and check sensors
             Error = tempFetchCheck(Data, Instance, &Fail);
             if (Error != NO_ERROR) {
+                Data->State = STATE_IDLE;
                 return (tempShutDown (Data, Error, Instance));
             }
             
             // If one of the subsystems fails, shutdown and quit
             if (Fail == TRUE) {
+                Data->State = STATE_IDLE;
                 Data->Flags &= ~(MODE_MODULE_ENABLE);
                 return ((Error_t) Data->ModuleState);
             }

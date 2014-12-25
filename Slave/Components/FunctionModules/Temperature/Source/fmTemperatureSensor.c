@@ -247,7 +247,10 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
 {
     Error_t Error;
     UInt8 i;
-    Int16 AdcValue;
+    Int32 AdcValue;
+#if 0 
+    Int16 AdcValueRead;
+#endif
     Int16 AdcValue1, AdcValue2, AdcValue3;
     Int16 *Table;
     Int16 Voltage;
@@ -258,9 +261,10 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
     }
 
 #if 0   
-    if ((Error = halAnalogRead (Handle, &AdcValue)) < 0) {
+    if ((Error = halAnalogRead (Handle, &AdcValueRead)) < 0) {
         return (Error);
     }
+    AdcValue = AdcValueRead;
 #endif
 
 #if 1    
