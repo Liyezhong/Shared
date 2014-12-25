@@ -326,6 +326,17 @@ public:
     /****************************************************************************/
     ReturnCode_t ALControlValve(quint8 ValveIndex, quint8 ValveState);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Get LA SensorHeating status
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *
+     *  \return true - on, false -off
+     */
+    /****************************************************************************/
+    bool ALGetHeatingStatus(ALTempCtrlType_t Type);
+
     //Rotary Valve device func
     /****************************************************************************/
     /*!

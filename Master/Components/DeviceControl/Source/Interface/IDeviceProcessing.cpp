@@ -1333,6 +1333,17 @@ ReturnCode_t IDeviceProcessing::ALControlValve(quint8 ValveIndex, quint8 ValveSt
     }
 }
 
+bool IDeviceProcessing::ALGetHeatingStatus(ALTempCtrlType_t Type)
+{
+    bool ret = false;
+    if (m_pAirLiquid)
+    {
+        ret = m_pAirLiquid->IsTemperatureControlOn(Type);
+    }
+
+    return ret;
+}
+
 /****************************************************************************/
 /**
  *  \brief  Device interface function.

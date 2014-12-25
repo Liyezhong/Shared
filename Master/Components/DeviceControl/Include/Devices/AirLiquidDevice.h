@@ -347,6 +347,14 @@ public:
      */
     /****************************************************************************/
     void ResetActiveCarbonFilterLifeTime();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsTemperatureControlOn
+     */
+    /****************************************************************************/
+    bool IsTemperatureControlOn(ALTempCtrlType_t Type);
+
 private slots:
     /****************************************************************************/
     /*!
@@ -461,12 +469,7 @@ private slots:
      */
     /****************************************************************************/
     bool IsOutsideRange(ALTempCtrlType_t Type, quint8 Index);
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of slot IsTemperatureControlOn
-     */
-    /****************************************************************************/
-    bool IsTemperatureControlOn(ALTempCtrlType_t Type);
+
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot IsTemperatureControlOf
