@@ -181,23 +181,13 @@ static Error_t InitTestBoardInfoBlock (void) {
     strcpy (InfoBlock.BoardName, "ASB15");
     strcpy (InfoBlock.SerialNum, "SN:0307.12345.AB/9-4");
 
-#ifdef ASB15_VER_A
+
     InfoBlock.VersionMajor    = 0;
     InfoBlock.VersionMinor    = 1;
 
-    InfoBlock.ProductionYear  = 14;
-    InfoBlock.ProductionMonth = 5;
-    InfoBlock.ProductionDay   = 8;
-#endif
-
-#ifdef ASB15_VER_B
-    InfoBlock.VersionMajor    = 0;
-    InfoBlock.VersionMinor    = 5;
-
-    InfoBlock.ProductionYear  = 14;
-    InfoBlock.ProductionMonth = 5;
-    InfoBlock.ProductionDay   = 9;
-#endif
+    InfoBlock.ProductionYear  = 10;
+    InfoBlock.ProductionMonth = 7;
+    InfoBlock.ProductionDay   = 25;
 
     InfoBlock.EndTestYear     = 10;
     InfoBlock.EndTestMonth    = 7;

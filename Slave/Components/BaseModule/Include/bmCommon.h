@@ -32,9 +32,9 @@
 #define INFOBLOCK_SIGNATURE      0x91827364 //!< Signature of info block
 
 /* basemodule's software version informations */
-#define SOFTWARE_VERSION         0x0009     //!< Software version number
-#define SOFTWARE_CREATION_YEAR   2013       //!< Software creation date (year)
-#define SOFTWARE_CREATION_MONTH  10         //!< Software creation date (month)
+#define SOFTWARE_VERSION         0x000A     //!< Software version number
+#define SOFTWARE_CREATION_YEAR   2014       //!< Software creation date (year)
+#define SOFTWARE_CREATION_MONTH  12         //!< Software creation date (month)
 #define SOFTWARE_CREATION_DAY    25         //!< Software creation date (day)
 
 /* basemodule global identifiers */
