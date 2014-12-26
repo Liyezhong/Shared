@@ -343,7 +343,7 @@
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>ASB15_VER_B</Define>
+              <Define>ASB_VER_B, ASB15_VER_B</Define>
               <Undefine></Undefine>
               <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\FunctionModules\Pressure\Include;..\..\..\FunctionModules\DigitalOutput\Include;..\..\..\FunctionModules\DigitalInput\Include;..\..\..\FunctionModules\AnalogOutput\Include</IncludePath>
             </VariousControls>
@@ -1580,7 +1580,7 @@
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>DEBUG, ASB15_VER_B</Define>
+              <Define>DEBUG, ASB_VER_B, ASB15_VER_B</Define>
               <Undefine></Undefine>
               <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\FunctionModules\Pressure\Include;..\..\..\FunctionModules\DigitalOutput\Include;..\..\..\FunctionModules\DigitalInput\Include;..\..\..\FunctionModules\AnalogOutput\Include</IncludePath>
             </VariousControls>
