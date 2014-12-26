@@ -92,7 +92,7 @@ typedef enum {
 typedef struct {
     bmModuleState_t ModuleState; //!< Module state
     Handle_t *HandlePress;       //!< Handle to access analog input ports(HAL) for pressure sensor
-	Handle_t *HandleValve;       //!< Handle to valve control ports
+    Handle_t *HandleValve;       //!< Handle to valve control ports
     UInt16 Channel;              //!< Logical CAN channel
     UInt16 Flags;                //!< Mode control flag bits
     PressTaskState_t State;      //!< The module task state
@@ -103,7 +103,7 @@ typedef struct {
     UInt16 TolerancePress;       //!< Pressure tolerance (in Pa steps)
 
     Int32* ServicePress;         //!< Pressure of a certain sensor in 0.001 KPa steps     
-	UInt8* ServiceValve;         //!< Valve status
+    UInt8* ServiceValve;         //!< Valve status
     
     UInt32* SensorErrTimestamp;  //!< Time stamp for trigeering sensor error reporting
 
@@ -116,7 +116,7 @@ typedef struct {
     UInt8 NumberSensors;         //!< Number of independent pressure sensors
     UInt8 NumberPumps;           //!< Number of pumping elements
     UInt8 NumberPid;             //!< Number of cascaded PID controllers
-	UInt8 NumberValves;          //!< Number of air valves
+    UInt8 NumberValves;          //!< Number of air valves
     
     PressSensorType_t SensorType; //!< Type of pressure sensor used by this module
     PressTimeParams_t TimeParams; //!< Input and output parameters of the lifecycle counters
@@ -151,6 +151,16 @@ static UInt32 PressSamplingTime = 1000;
 static PressPumpParams_t *pressPumpParams;
 /*! Public parameters for the fan element control functionality */
 static PressFanParams_t *pressFanParams;
+
+/*! Flag for indicating change of pressure setting */
+static Bool PressChanged = FALSE;
+/*! Flag for indicating if pump check skipped after pressure changed */
+static Bool PumpCheckSkipped = FALSE;
+
+/*! Flag for indicating change of fan status */
+static Bool FanChanged = FALSE;
+/*! Flag for indicating if fan check skipped after status changed */
+static Bool FanCheckSkipped = FALSE;
 
 //****************************************************************************/
 // Private Function Prototypes
@@ -345,11 +355,21 @@ static Error_t pressModuleTask (UInt16 Instance)
                 for (i = 0; i < InstanceCount; i++) {
                     DataTable[i].State = STATE_SAMPLE;
                 }
+
+                if ( PumpCheckSkipped && PressChanged ) {
+                    PressChanged = FALSE;
+                    PumpCheckSkipped = FALSE;
+                }
+
+                if ( FanCheckSkipped && FanChanged ) {
+                    FanChanged = FALSE;
+                    FanCheckSkipped = FALSE;
+                }
             }
         }
         
         
-		if (Data->State == STATE_SAMPLE) {
+        if (Data->State == STATE_SAMPLE) {
         
             //dbgPrint("Pump current:%d\n", pressPumpCurrent());
             
@@ -358,7 +378,7 @@ static Error_t pressModuleTask (UInt16 Instance)
             }
             
             // check current and sensors
-		    Error = pressFetchCheck(Data, Instance, &Fail);
+            Error = pressFetchCheck(Data, Instance, &Fail);
             if (Error != NO_ERROR) {
                 return (pressShutDown (Data, Error, Instance));
             }
@@ -367,13 +387,13 @@ static Error_t pressModuleTask (UInt16 Instance)
                 Data->Flags &= ~(MODE_MODULE_ENABLE);
                 return ((Error_t) Data->ModuleState);
             }            
-		}
+        }
         
         Error = pressFanProgress ();
         if (Error != NO_ERROR) {
             dbgPrint("Fan progress error.\n");
         }
-	}
+    }
 
 
     // Is pumping active?
@@ -393,13 +413,13 @@ static Error_t pressModuleTask (UInt16 Instance)
         if (Data->State == STATE_SAMPLE) {
 
             Data->State = STATE_CONTROL;
-			
+            
             // Check if the pressure is within the required range
             Error = pressNotifRange(Data);
             if (Error != NO_ERROR) {
                 return (pressShutDown (Data, Error, Instance));
             }
-    				 
+                     
             // Regulate pressure
             Error = pressRegulation(Data, Instance);
             if (Error != NO_ERROR) {
@@ -415,9 +435,9 @@ static Error_t pressModuleTask (UInt16 Instance)
 #ifdef ASB15_VER_A            
                 UInt32 OperatingTime = 0;
                 // Check later. ActuatingValue already >= 0 ?
-				if (Data->ActuatingValue > 0) {
-				    OperatingTime = (Data->ActuatingValue * PressSamplingTime) / (MAX_INT16);
-			    }
+                if (Data->ActuatingValue > 0) {
+                    OperatingTime = (Data->ActuatingValue * PressSamplingTime) / (MAX_INT16);
+                }
                 
                 Data->State = STATE_IDLE;
                 
@@ -452,9 +472,9 @@ static Error_t pressModuleTask (UInt16 Instance)
                 
                     //TODO:
                     //Find a more accurate coefficient to convert PID output to opt. time
-    				if (Data->ActuatingValue > 0) {
-    				    OperatingTime = (Data->ActuatingValue * PressSamplingTime) / (MAX_INT16);
-    			    }
+                    if (Data->ActuatingValue > 0) {
+                        OperatingTime = (Data->ActuatingValue * PressSamplingTime) / (MAX_INT16);
+                    }
                     
                     //dbgPrint("Opt[Be]: %d\n", OperatingTime);
                     
@@ -635,7 +655,15 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
     
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
         if ( Instance == pressFindRoot () ) {
-            Error = pressPumpCheck();
+            //Error = pressPumpCheck();
+            if ( PressChanged ) {
+                Error = pressPumpCheck (FALSE);
+                PumpCheckSkipped = TRUE;
+            }
+            else {
+                Error = pressPumpCheck (TRUE);
+            }
+
             if (Error < 0) {
                 return Error;
             }
@@ -649,7 +677,16 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
     }
  
     // Measure and check fan current
-    Error = pressFanCheck();
+
+    //Error = pressFanCheck();
+    if ( FanChanged ) {
+        Error = pressFanCheck (FALSE);
+        FanCheckSkipped = TRUE;
+    }
+    else {
+        Error = pressFanCheck (TRUE);
+    }
+
     if (Error < 0) {
         return Error;
     }
@@ -662,7 +699,7 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
     // Measure and check the pressure
     for (i = 0; i < Data->NumberSensors; i++) {
         if ((Error = pressSensorRead (Data->HandlePress[i], Data->SensorType, Data->AtmPress, &Data->ServicePress[i])) < 0) {
-		    //dbgPrint("%d:E ",i);
+            //dbgPrint("%d:E ",i);
             
             if ( Data->SensorErrTimestamp[i] == 0 ) {
                 Data->SensorErrTimestamp[i] = bmGetTime();
@@ -675,16 +712,16 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
             }
             
         }
-		else {
+        else {
             
             if ( Data->SensorErrTimestamp[i] != 0 ) {
                 if (bmTimeExpired(Data->SensorErrTimestamp[i]) >= SENSOR_ERROR_DURATION) {
                     Data->SensorErrTimestamp[i] = 0;
                 }
             }
-		}
+        }
     }
-	//dbgPrint("\n");
+    //dbgPrint("\n");
 
     return (NO_ERROR);
 }
@@ -762,8 +799,8 @@ static Error_t pressRegulation (InstanceData_t *Data, UInt16 Instance)
     Error_t Error;
     Int32 DevPress = 0;
     CanMessage_t Message;
-	Int32 PidOutput = 0;
-	UInt8 Direction = ((PressPumpMode == MODE_PRESSURE)?0:1);
+    Int32 PidOutput = 0;
+    UInt8 Direction = ((PressPumpMode == MODE_PRESSURE)?0:1);
 #ifdef ASB15_VER_B    
     Int32 ActuatingValuePWM = 0;
 #endif
@@ -782,10 +819,10 @@ static Error_t pressRegulation (InstanceData_t *Data, UInt16 Instance)
 
     // Cascaded PID controller
     for (i = First + 1; i < Data->NumberPid; i++) {
-	    PidOutput = pressPidGetOutput (&Data->PidParams[i-1]);
-		if (PidOutput < 0) {
-		    PidOutput = 0;
-		}
+        PidOutput = pressPidGetOutput (&Data->PidParams[i-1]);
+        if (PidOutput < 0) {
+            PidOutput = 0;
+        }
         if (pressPidCalculate (&Data->PidParams[i], pressPidGetOutput (&Data->PidParams[i-1]), Data->ServicePress[i], Direction) == FALSE) {
             return (E_PRESS_PID_NOT_CONFIGURED);
         }
@@ -903,7 +940,7 @@ static Error_t pressSetPressure (UInt16 Channel, CanMessage_t* Message)
     Data->TolerancePress = bmGetMessageItem(Message, 3, 1)*1000;
     //PressSamplingTime = bmGetMessageItem(Message, 3, 2) * 10;
 #ifdef ASB15_VER_A
-	PressSamplingTime = bmGetMessageItem(Message, 4, 2) * 2;
+    PressSamplingTime = bmGetMessageItem(Message, 4, 2) * 2;
 #endif
 #ifdef ASB15_VER_B    
     PressSamplingTime = bmGetMessageItem(Message, 4, 2);
@@ -934,19 +971,19 @@ static Error_t pressSetPressure (UInt16 Channel, CanMessage_t* Message)
         PressPhase = PHASE_PUMP;
     }
     
-	if((Data->Flags & MODE_PRESS_MODE) != 0) {
+    if((Data->Flags & MODE_PRESS_MODE) != 0) {
         PressPumpMode = MODE_VACUUM;
-	}
-	else {
-	    PressPumpMode = MODE_PRESSURE;
-	}
+    }
+    else {
+        PressPumpMode = MODE_PRESSURE;
+    }
     
-	if((Data->Flags & MODE_PRESS_ACTUATE) != 0) {
+    if((Data->Flags & MODE_PRESS_ACTUATE) != 0) {
         PressPumpActuateMode = ACTUATE_PWM;
-	}
-	else {
-	    PressPumpActuateMode = ACTUATE_ONOFF;
-	}    
+    }
+    else {
+        PressPumpActuateMode = ACTUATE_ONOFF;
+    }    
     
     // Start auto-tuning
     if ((Data->Flags & MODE_AUTO_TUNE) != 0) {
@@ -964,6 +1001,9 @@ static Error_t pressSetPressure (UInt16 Channel, CanMessage_t* Message)
         }
         pressPumpReset();
         Data->State = STATE_IDLE;
+
+        PressChanged = TRUE;
+        PumpCheckSkipped = FALSE;
     }
     
 #ifdef ASB15_VER_B    
@@ -1081,18 +1121,18 @@ static Error_t pressSetPidParameters (UInt16 Channel, CanMessage_t* Message)
         }
         Data->PidParams[Number].Ready = TRUE;
         Data->PidParams[Number].MaxPress = bmGetMessageItem(Message, 1, 1) * 1000;
-		Data->PidParams[Number].MinPress = (Int32)((Int8)bmGetMessageItem(Message, 2, 1) * 1000);
+        Data->PidParams[Number].MinPress = (Int32)((Int8)bmGetMessageItem(Message, 2, 1) * 1000);
         Data->PidParams[Number].Kc = bmGetMessageItem(Message, 3, 2);  // Caution: Error
         Data->PidParams[Number].Ti = bmGetMessageItem(Message, 5, 2);
         Data->PidParams[Number].Td = bmGetMessageItem(Message, 7, 1);
 
 #if 1
-		dbgPrint("PID: %d %d %d %d %d\n", 
-		Data->PidParams[Number].MaxPress,
-		Data->PidParams[Number].MinPress,
-		Data->PidParams[Number].Kc,
-		Data->PidParams[Number].Ti,
-		Data->PidParams[Number].Td);
+        dbgPrint("PID: %d %d %d %d %d\n", 
+        Data->PidParams[Number].MaxPress,
+        Data->PidParams[Number].MinPress,
+        Data->PidParams[Number].Kc,
+        Data->PidParams[Number].Ti,
+        Data->PidParams[Number].Td);
 #endif
 
         pressPidReset(&Data->PidParams[Number]);
@@ -1217,24 +1257,24 @@ static Error_t pressSetPumpTime (UInt16 Channel, CanMessage_t* Message)
 static Error_t pressSetValve (UInt16 Channel, CanMessage_t* Message)
 {
     UInt8 Number;
-	UInt8 ValveStatus;
+    UInt8 ValveStatus;
 
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 2) {
 
         Number = bmGetMessageItem(Message, 0, 1);
-        if (Number >= Data->NumberValves) {		    
+        if (Number >= Data->NumberValves) {            
             return (E_PARAMETER_OUT_OF_RANGE);
         }
 
-		ValveStatus = bmGetMessageItem(Message, 1, 1);
-		if (ValveStatus > 1) {
-		    return (E_PARAMETER_OUT_OF_RANGE);
-		}
+        ValveStatus = bmGetMessageItem(Message, 1, 1);
+        if (ValveStatus > 1) {
+            return (E_PARAMETER_OUT_OF_RANGE);
+        }
 
-		return halPortWrite(Data->HandleValve[Number], ValveStatus);
-		        
+        return halPortWrite(Data->HandleValve[Number], ValveStatus);
+                
     }
     return (E_MISSING_PARAMETERS);
 }
@@ -1260,20 +1300,25 @@ static Error_t pressSetValve (UInt16 Channel, CanMessage_t* Message)
 
 static Error_t pressSetFan (UInt16 Channel, CanMessage_t* Message)
 {
-	UInt8 FanStatus;
+    UInt8 FanStatus;
     UInt16 Instance;
 
     Instance = bmGetInstance(Channel);
     
     if (Message->Length == 1) {
 
-		FanStatus = bmGetMessageItem(Message, 0, 1);
-		if (FanStatus > 1) {
-		    return (E_PARAMETER_OUT_OF_RANGE);
-		}
+        FanStatus = bmGetMessageItem(Message, 0, 1);
+        if (FanStatus > 1) {
+            return (E_PARAMETER_OUT_OF_RANGE);
+        }
 
-		return pressFanControl(FanStatus, Instance);
-		        
+        if (FanStatus == 1) {
+            FanChanged = TRUE;
+            FanCheckSkipped = FALSE;
+        }
+
+        return pressFanControl(FanStatus, Instance);
+                
     }
     return (E_MISSING_PARAMETERS);
 }
@@ -1553,7 +1598,6 @@ static Error_t pressReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 I
 
 #if 1
     UInt32 Options;
-//    UInt8 Type;    
        
     Options = bmGetBoardOptions (ModuleID, Instance, 0);
     if (Options == 0) {
@@ -1565,23 +1609,7 @@ static Error_t pressReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 I
     Data->NumberPid = (Options >> 8) & 0xf;
     Data->NumberValves = (Options >> 12) & 0xf;
     
-//
-//    Type = (Options >> 16) & 0xf;
-//    switch (Type) {
-//        case 0:
-//            Data->SensorType = TYPEK;
-//            break;
-//        default:
-//            return (E_PRESS_SENSOR_NOT_SUPPORTED);
-//    }
-#endif
 
-
-#if 0
-    Data->NumberSensors = 1;
-    Data->NumberPumps = 1;
-    Data->NumberPid = 1;
-	Data->NumberValves = 2;
 #endif
 
     
@@ -1728,7 +1756,7 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
         { MSG_PRESS_REQ_PUMP_TIME,       pressGetPumpTime },
         { MSG_PRESS_REQ_SERVICE_SENSOR,  pressGetServiceSensor },
         { MSG_PRESS_REQ_HARDWARE,        pressGetHardware },
-		{ MSG_PRESS_SET_VALVE,           pressSetValve },
+        { MSG_PRESS_SET_VALVE,           pressSetValve },
         { MSG_PRESS_SET_CALIBRATION,     pressSetCalibration },
         { MSG_PRESS_SET_FAN,             pressSetFan },
 #ifdef ASB15_VER_B        
@@ -1745,8 +1773,8 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     UInt16 i;
     UInt16 j;
 #if 0    
-	UInt16 Channel;
-	InstanceData_t* Data;
+    UInt16 Channel;
+    InstanceData_t* Data;
 #endif
 
     // allocate module instances data storage
@@ -1774,7 +1802,7 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
         return (Status);
     }
     
-	//tempPumpInit (TempPumpParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances)
+    //tempPumpInit (TempPumpParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances)
     // Initialize pump control handling
 #ifdef ASB15_VER_A    
     Status = pressPumpInit (&pressPumpParams, HAL_PRESS_CURRENT, HAL_PRESS_MAINVOLTAGE, HAL_PRESS_CTRLPUMPING, Instances);
@@ -1848,20 +1876,20 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
 #if 0
 
     Channel = 1;
-	Data = &DataTable[bmGetInstance(Channel)];
+    Data = &DataTable[bmGetInstance(Channel)];
 
-	///////////////////////////////////////////////////////////
-	// Set PID parameters
-	Data = &DataTable[bmGetInstance(Channel)];
+    ///////////////////////////////////////////////////////////
+    // Set PID parameters
+    Data = &DataTable[bmGetInstance(Channel)];
     Data->PidParams[0].Ready = TRUE;
     Data->PidParams[0].MaxPress = 100*1000;
-	Data->PidParams[0].MinPress = -100*1000;
+    Data->PidParams[0].MinPress = -100*1000;
 //    Data->PidParams[0].Kc = 50;
 //    Data->PidParams[0].Ti = 2*60*100;
 //    Data->PidParams[0].Td = 0;
     Data->PidParams[0].Kc = 30;
     Data->PidParams[0].Ti = 50000;
-	//Data->PidParams[0].Ti = 0;
+    //Data->PidParams[0].Ti = 0;
     Data->PidParams[0].Td = 0;
     pressPidReset(&Data->PidParams[0]);
     
@@ -1870,7 +1898,7 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     //}
 
     //////////////////////////////////////////////////////////
-	// Current watchdog
+    // Current watchdog
     pressPumpParams->CurrentGain = 1241;
     pressPumpParams->DesiredCurrent = 600;
     pressPumpParams->DesiredCurThreshold = 500;
@@ -1879,10 +1907,10 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     pressFanParams->DesiredCurrent = 600;
     pressFanParams->DesiredCurThreshold = 500;
     
-	//////////////////////////////////////////////////////////
-	// Set Pressure
-	 
-	Data->Flags = 1;
+    //////////////////////////////////////////////////////////
+    // Set Pressure
+     
+    Data->Flags = 1;
     Data->DesiredPress = (-30)*1000;
     Data->TolerancePress = 3*1000;
     PressSamplingTime = 200;
@@ -1903,7 +1931,7 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
       
 
     //PressPumpMode = MODE_PRESSURE;
-	PressPumpMode = MODE_VACUUM;
+    PressPumpMode = MODE_VACUUM;
     
     PressPumpActuateMode = ACTUATE_PWM;
 
@@ -1915,8 +1943,8 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     
     Status = pressFanControl(TRUE, bmGetInstance(Channel));
 
-	//halPortWrite(Data->HandleValve[1], 1);  //Vacuum
-	halPortWrite(Data->HandleValve[0], 1);    //Pressure
+    //halPortWrite(Data->HandleValve[1], 1);  //Vacuum
+    halPortWrite(Data->HandleValve[0], 1);    //Pressure
 
 #endif
 

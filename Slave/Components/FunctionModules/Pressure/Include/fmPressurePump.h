@@ -72,7 +72,7 @@ Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Devi
 
 void pressPumpReset (void);
 Error_t pressPumpProgress (Bool PumpControl);
-Error_t pressPumpCheck (void);
+Error_t pressPumpCheck (Bool CurrentCheck);
 Bool pressPumpFailed (void);
 #ifdef ASB15_VER_A
 Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance);

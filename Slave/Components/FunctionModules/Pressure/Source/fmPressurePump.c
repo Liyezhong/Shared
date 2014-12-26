@@ -432,11 +432,13 @@ Error_t pressPumpProgress (Bool PumpControl)
  *      This method checks if the current is in the range specified by the
  *      master computer. If not, the module issues an error message.
  *
+ *  \iparam  CurrentCheck = Boolean flag for enabling/disabling current check
+ *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
  
-Error_t pressPumpCheck (void)
+Error_t pressPumpCheck (Bool CurrentCheck)
 {
     UInt16 Current;
     UInt16 ActiveCount = PressPumpData.MaxActive;
@@ -444,6 +446,10 @@ Error_t pressPumpCheck (void)
     
     PressPumpData.Failed = FALSE;
     PressPumpData.MaxActive = 0;
+
+    if ( !CurrentCheck ) {
+        return (NO_ERROR);
+    }
 
     // Check the current through the pumps
     // All pumping elements are off

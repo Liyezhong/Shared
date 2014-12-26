@@ -53,7 +53,7 @@ Error_t pressFanInit (PressFanParams_t **Params, Device_t CurrentChannel, Device
 
 void pressFanReset (void);
 Error_t pressFanProgress (void);
-Error_t pressFanCheck (void);
+Error_t pressFanCheck (Bool CurrentCheck);
 Bool pressFanFailed (void);
 Error_t pressFanControl (Bool FanStatus, UInt16 Instance);
 UInt16 pressFanCurrent (void);

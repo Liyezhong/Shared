@@ -306,11 +306,13 @@ Error_t pressFanProgress (void)
  *      This method checks if the current is in the range specified by the
  *      master computer. If not, the module issues an error message.
  *
+ *  \iparam  CurrentCheck = Boolean flag for enabling/disabling current check
+ *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
  
-Error_t pressFanCheck (void)
+Error_t pressFanCheck (Bool CurrentCheck)
 {
     UInt16 Current;
     UInt16 ActiveCount = PressFanData.MaxActive;
@@ -318,6 +320,10 @@ Error_t pressFanCheck (void)
     
     PressFanData.Failed = FALSE;
     PressFanData.MaxActive = 0;
+
+    if ( !CurrentCheck ) {
+        return (NO_ERROR);
+    }
 
     // Check the current through the fans
     // All fan elements are off
