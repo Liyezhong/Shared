@@ -1291,6 +1291,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     QString lsCode, lsCodeDup;
     quint8 retry = 0;
 
+    LogDebug(QString("INFO: Enter ReqMoveToRVPosition function"));
     if(RV_UNDEF == EDPosition)
     {
         lsCode = GetLimitSwitchCode();
