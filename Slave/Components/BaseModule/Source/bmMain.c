@@ -122,6 +122,12 @@ Error_t bmStartBaseModule (
     if ((Status = halInitializeLayer()) < 0) {
         return (Status);
     }
+
+#ifndef DEBUG
+    // Enable watchdog
+    halWatchdogEnable();
+#endif
+
     // determine maximum number of tasks
     for (i=0; i < ModuleCount; i++) {
         MaxTaskCount += ModuleInitTable[i].NumberOfInstances;
