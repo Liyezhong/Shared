@@ -454,9 +454,11 @@ void smMotionISR (UInt32 UserTag, UInt32 IntrFlags) {
 // Calling ISR from here recursively instead of looping over the interrupt flags
 // will minimize the step latency when 2 motors need to step at the same time.
 //--------------------------------------------------------------------------
+#ifndef HIM_I2C_IMPROVE
     if(IntrFlags) {
         smMotionISR(0,IntrFlags);
     }
+#endif
 
 //--------------------------------------------------------------------------
 // (5) do half-step position checks

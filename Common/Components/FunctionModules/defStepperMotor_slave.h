@@ -146,11 +146,11 @@ typedef struct
 #define MSG_SMOT_SET_ENABLE_ACK_DLC     0
 
 //! Request a reference movement
-#define MSG_SMOT_REQ_REF_RUN      		BUILD_CAN_ID(CMD_CLASS_FUNCTION, 9, 1)  // CAN-ID: 0x1048xxx1
+#define MSG_SMOT_REQ_REF_RUN            BUILD_CAN_ID(CMD_CLASS_FUNCTION, 9, 1)  // CAN-ID: 0x1048xxx1
 #define MSG_SMOT_REQ_REF_RUN_DLC        sizeof(Msg_RefRunData_t)
 
 //! Acknowledge the reference movement request
-#define MSG_SMOT_REQ_REF_RUN_ACK  		BUILD_CAN_ID(CMD_CLASS_FUNCTION, 9, 0)  // CAN-ID: 0x1048xxx0
+#define MSG_SMOT_REQ_REF_RUN_ACK        BUILD_CAN_ID(CMD_CLASS_FUNCTION, 9, 0)  // CAN-ID: 0x1048xxx0
 #define MSG_SMOT_REQ_REF_RUN_ACK_DLC    sizeof(Msg_RefRunReqAckData_t)
 
 //! Acknowledges that execution of a reference movement is finished
@@ -227,9 +227,9 @@ typedef struct
 
     typedef struct
     {
-        UInt8  enable      			: 1;
-        UInt8  dbg_skipRefRun   	: 1;
-        UInt8  reserved				: 6;
+        UInt8  enable               : 1;
+        UInt8  dbg_skipRefRun       : 1;
+        UInt8  reserved             : 6;
     } __attribute__((packed)) Msg_EnableData_t;
 
 
@@ -330,8 +330,8 @@ typedef struct
 /*! rotation direction (from back view) */
     typedef enum
     {
-	    SMOT_ROTDIR_CW    = 0,  //!< clockwise
-	    SMOT_ROTDIR_CCW   = 1   //!< counterclockwise
+        SMOT_ROTDIR_CW    = 0,  //!< clockwise
+        SMOT_ROTDIR_CCW   = 1   //!< counterclockwise
     } __attribute__((packed)) StepperMotorRotDir_t;
 
 
@@ -345,9 +345,9 @@ typedef struct
 /*! list of supported stepper motor drivers */
     typedef enum
     {
-		SMOT_DRIVER_DEFAULT		= 0,	///< default driver, default configuration from the HAL configuration file is used
-		SMOT_DRIVER_TMC26X		= 1		///< trinamic TMC26x driver
-	} __attribute__((packed)) StepperMotorDriverType_t;
+        SMOT_DRIVER_DEFAULT     = 0,    ///< default driver, default configuration from the HAL configuration file is used
+        SMOT_DRIVER_TMC26X      = 1     ///< trinamic TMC26x driver
+    } __attribute__((packed)) StepperMotorDriverType_t;
 
     typedef enum
     {
@@ -365,10 +365,10 @@ typedef struct
         REFRUN2 = 11,
         REFRUN3 = 12,
 
-		TMC26x_DRVCONF	= 0x20,
-		TMC26x_SGCSCONF	= 0x21,
-		TMC26x_SMARTEN	= 0x22,
-		TMC26x_CHOPCONF	= 0x23
+        TMC26x_DRVCONF  = 0x20,
+        TMC26x_SGCSCONF = 0x21,
+        TMC26x_SMARTEN  = 0x22,
+        TMC26x_CHOPCONF = 0x23
     } __attribute__((packed)) ParamSubIndex_t;
 
 
@@ -403,9 +403,9 @@ typedef struct
 
     typedef struct
     {
-        UInt8                   exist		: 1;
-        UInt8                   polarity	: 1;
-        UInt8                   reserved	: 5;
+        UInt8                   exist       : 1;
+        UInt8                   polarity    : 1;
+        UInt8                   reserved    : 5;
     } __attribute__((packed)) ConfigData_LS_Flag_t;
 
 
@@ -419,12 +419,12 @@ typedef struct
 
     typedef struct
     {
-        UInt8                       valid		: 1;
-        UInt8                       stop		: 1;
-        StepperMotorRotDir_t        stopDir		: 1;
+        UInt8                       valid       : 1;
+        UInt8                       stop        : 1;
+        StepperMotorRotDir_t        stopDir     : 1;
         UInt8                       rotDirCheck : 1;
         UInt8                       hitSkip     : 1;
-        UInt8                       reserved	: 3;
+        UInt8                       reserved    : 3;
     } __attribute__((packed)) ConfigData_LSPOS_Flag_t;
 
 
@@ -492,9 +492,9 @@ typedef struct
 
         typedef struct
         {
-            UInt8                   exist		: 1;
-            StepperMotorRotDir_t	rotDir		: 1;
-            UInt8                   reserved	: 6;
+            UInt8                   exist       : 1;
+            StepperMotorRotDir_t    rotDir      : 1;
+            UInt8                   reserved    : 6;
         } __attribute__((packed)) ConfigData_ENC_Flag_t;
 
         typedef struct
@@ -548,24 +548,24 @@ typedef struct
 //            UInt8                       enable          : 1;
 //            StepperMotorRotType_t       rotType         : 1;
         StepperMotorRotDir_t        rotDir          : 1;
-        UInt8                       reserved	    : 3;
+        UInt8                       reserved        : 3;
         UInt8                       motionProf_cnt  : 4;
     } __attribute__((packed)) ConfigData_MOT_Flag_t;
 
 
     typedef struct
     {
-        Msg_DB2_t               	resolution;
+        Msg_DB2_t                   resolution;
         UInt8                       run_CurrentScale;
         UInt8                       stop_CurrentScale;
         Msg_DB2_t                   stopCurrent_Delay;
-		StepperMotorDriverType_t	driverType;
+        StepperMotorDriverType_t    driverType;
     } __attribute__((packed)) ConfigData_MOT_P1_t;
 
 
     typedef struct
     {
-        ConfigData_MOT_Flag_t   	flag;
+        ConfigData_MOT_Flag_t       flag;
         Msg_DB4_t                   minPos;
         Msg_DB2_t                   resetPos;           //!< position value at which the actual position is reset to 0 (needed for rotatory movement). Ignored if reset value is 0.
 //            Msg_DB2_t   currentLimit;
@@ -582,7 +582,7 @@ typedef struct
     {
         UInt8                       refRun_RefPos;      //!< the limit switch position code used as reference position
         Msg_DB4_t                   refRun_PosOffset;
-        Msg_DB2_t               	refRun_Timeout;     //!< maximum duration to perform each movement in ms
+        Msg_DB2_t                   refRun_Timeout;     //!< maximum duration to perform each movement in ms
     } __attribute__((packed)) ConfigData_REFRUN_P1_t;
 
 
@@ -603,7 +603,7 @@ typedef struct
 
     typedef struct
     {
-        Msg_DB3_t	regVal;	            // register value
+        Msg_DB3_t   regVal;             // register value
     } __attribute__((packed)) ConfigData_DRV_TMC26X_t;
 
 
@@ -636,24 +636,24 @@ typedef struct
         SubIndex_t  index;
         union
         {
-            ConfigData_LS_t     	ls1;
-            ConfigData_LS_t     	ls2;
+            ConfigData_LS_t         ls1;
+            ConfigData_LS_t         ls2;
             ConfigData_LSPOS_t      pos1;
             ConfigData_LSPOS_t      pos2;
             ConfigData_LSPOS_t      pos3;
-            ConfigData_ENC_t    	enc;
-            ConfigData_MOT_P1_t 	mot1;
-            ConfigData_MOT_P2_t 	mot2;
-            ConfigData_MOT_P3_t 	mot3;
-            ConfigData_REFRUN_P1_t 	refRun1;
-            ConfigData_REFRUN_P2_t 	refRun2;
-            ConfigData_REFRUN_P3_t 	refRun3;
+            ConfigData_ENC_t        enc;
+            ConfigData_MOT_P1_t     mot1;
+            ConfigData_MOT_P2_t     mot2;
+            ConfigData_MOT_P3_t     mot3;
+            ConfigData_REFRUN_P1_t  refRun1;
+            ConfigData_REFRUN_P2_t  refRun2;
+            ConfigData_REFRUN_P3_t  refRun3;
 
-			ConfigData_DRV_TMC26X_t	drvTMC26x;
+            ConfigData_DRV_TMC26X_t drvTMC26x;
 
-            ProfileData_P1_t    	prof1;
-            ProfileData_P2_t    	prof2;
-            ProfileData_P3_t    	prof3;
+            ProfileData_P1_t        prof1;
+            ProfileData_P2_t        prof2;
+            ProfileData_P3_t        prof3;
         } __attribute__((packed)) part;
     } __attribute__((packed)) ConfigData_Param_t;
 

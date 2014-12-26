@@ -702,6 +702,10 @@ Error_t halCapComWrite (Handle_t Handle, UInt16 UnitNo, UInt32 Value) {
 
 void halCapComWrite_Simplified (UInt16 TimerNo, UInt16 UnitNo, UInt32 Value) {
 
+#ifdef HIM_I2C_IMPROVE
+    DataTable[TimerNo].TIM->SR = ~(TIM_SR_CC1IF << UnitNo);
+#endif
+
     DataTable[TimerNo].TIM->CCR[UnitNo] = Value;
 }
 

@@ -461,12 +461,14 @@ typedef struct {
         REFRUN2 = 11,
         REFRUN3 = 12,
 
-		TMC26x_DRVCONF	= 0x20,
-		TMC26x_SGCSCONF	= 0x21,
-		TMC26x_SMARTEN	= 0x22,
-		TMC26x_CHOPCONF	= 0x23
+        TMC26x_DRVCONF  = 0x20,
+        TMC26x_SGCSCONF = 0x21,
+        TMC26x_SMARTEN  = 0x22,
+        TMC26x_CHOPCONF = 0x23
     } __attribute__((packed)) ParamSubIndex_t;
 #else
+    typedef enum
+    {
         LS1     = 1,
         LS2     = 2,
         POS1    = 3,
@@ -481,10 +483,10 @@ typedef struct {
         REFRUN2 = 11,
         REFRUN3 = 12,
 
-		TMC26x_DRVCONF	= 0x20,
-		TMC26x_SGCSCONF	= 0x21,
-		TMC26x_SMARTEN	= 0x22,
-		TMC26x_CHOPCONF	= 0x23
+        TMC26x_DRVCONF  = 0x20,
+        TMC26x_SGCSCONF = 0x21,
+        TMC26x_SMARTEN  = 0x22,
+        TMC26x_CHOPCONF = 0x23
     } ParamSubIndex_enum_t;
     typedef UInt8 ParamSubIndex_t;
 #endif
@@ -548,7 +550,7 @@ typedef struct {
     StepperMotorRotDir_t        stopDir     : 1;    //!< stop at position code if movement runs in this direction
     UInt8                       rotDirCheck : 1;    //!< Enable/Disable rotation direction check
     UInt8                       hitSkip     : 1;    //!< If set to 1, the first hit of reference run is skipped
-    UInt8                       reserved	: 3;
+    UInt8                       reserved    : 3;
 }  ConfigData_LSPOS_Flag_t;
 
 
@@ -564,8 +566,8 @@ typedef struct {
 //! encoder configuration flags
 typedef struct {
     UInt8                       exist       : 1;    //!< encoder does physically exist
-    StepperMotorRotDir_t	    rotDir		: 1;
-    UInt8                       reserved	: 6;
+    StepperMotorRotDir_t        rotDir      : 1;
+    UInt8                       reserved    : 6;
 }  ConfigData_ENC_Flag_t;
 
 
@@ -664,8 +666,8 @@ typedef struct {
 typedef struct {
         SubIndex_t  index;
     union {
-        ConfigData_LS_t     	ls1;                //!< limit switch configuration data
-        ConfigData_LS_t     	ls2;                //!< limit switch configuration data
+        ConfigData_LS_t         ls1;                //!< limit switch configuration data
+        ConfigData_LS_t         ls2;                //!< limit switch configuration data
         ConfigData_LSPOS_t      pos1;               //!< position code configuration data 1
         ConfigData_LSPOS_t      pos2;               //!< position code configuration data 2
         ConfigData_LSPOS_t      pos3;               //!< position code configuration data 3

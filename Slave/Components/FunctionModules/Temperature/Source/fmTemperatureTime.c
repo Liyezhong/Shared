@@ -261,11 +261,19 @@ Error_t tempTimeUpdate (TempTimeParams_t *Params, UInt32 TimeMs)
     UInt32 Counter = 0;
     
     Params->TimeMs += TimeMs;
-    
+
+#ifndef HIM_I2C_IMPROVE    
     while (Params->TimeMs >= 1000) {
         Counter++;
         Params->TimeMs -= 1000;
     }
+#else
+    while (Params->TimeMs >= 1000*60) {
+        Counter += 60;
+        Params->TimeMs -= 1000*60;
+    }
+#endif
+
 
     if (Counter != 0) {
         for (i = 0; i < Params->NumberHeaters; i++) {

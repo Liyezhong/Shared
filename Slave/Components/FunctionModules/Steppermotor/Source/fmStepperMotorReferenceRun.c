@@ -487,7 +487,7 @@ Error_t smReferenceRunTask(UInt16 Instance) {
         if ((RetCode = smCheckRefRunSpeedRequest (Data, &Done)) >= 0) {
             if (Done) {
                 RefRun->State = SM_RRS_REVERSE_MOTION_START;
-			}
+            }
         }
         //else
         //{

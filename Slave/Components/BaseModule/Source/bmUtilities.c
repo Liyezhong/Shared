@@ -464,7 +464,7 @@ UInt32 bmCalculateCrc (void *Datablock, UInt32 Length) {
 
     UInt8 *DataPtr = (UInt8*)Datablock;
     UInt32 Crc32 = CRC32_INITIAL_VALUE;
-    UInt32 i, k;	
+    UInt32 i, k;
 
     // Perform modulo-2 division for each byte
     for (i=0; i < Length; i++) {

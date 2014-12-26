@@ -805,10 +805,10 @@ static Error_t bmConfigCurrentMonitor (UInt16 Channel, CanMessage_t *Message) {
  *  \brief   Initializes callback function entries for CAN messages 
  *
  *      Initializes callback function entries for CAN messages belonging to
- *		monitors, which are registered to the message dispatcher, for
+ *      monitors, which are registered to the message dispatcher, for
  *      power/safe supply voltage and current.   
  *      CAN message handling functions for all kinds of monitors will be 
- *		registered to message dispatcher even only one kind of monitor 
+ *      registered to message dispatcher even only one kind of monitor 
  *      is enabled.
  *
  *      This function is called once during startup.
@@ -829,7 +829,7 @@ Error_t bmInitPowerMonitor (void) {
         { MSG_SRV_REQ_SAFE_STATE,    bmSendSafeState        },
     };    
 
-	return (canRegisterMessages (0, Commands, ELEMENTS(Commands)));
+    return (canRegisterMessages (0, Commands, ELEMENTS(Commands)));
 }
 
 /*****************************************************************************/

@@ -343,7 +343,7 @@
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>ASB3_VER_B</Define>
+              <Define>ASB3_VER_B, HIM_I2C_IMPROVE</Define>
               <Undefine></Undefine>
               <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\AnalogInput\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\..\..\Common\Components\FunctionModules</IncludePath>
             </VariousControls>
@@ -1600,7 +1600,7 @@
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>DEBUG, ASB3_VER_B</Define>
+              <Define>DEBUG, ASB3_VER_B, HIM_I2C_IMPROVE</Define>
               <Undefine></Undefine>
               <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\AnalogInput\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\..\..\Common\Components\FunctionModules</IncludePath>
             </VariousControls>

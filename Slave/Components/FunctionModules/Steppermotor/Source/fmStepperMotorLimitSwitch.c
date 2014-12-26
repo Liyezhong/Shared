@@ -120,7 +120,7 @@ void smInitLimitSwitches (smLimitSwitches_t *LimitSwitches) {
  ******************************************************************************/
 Error_t smConfigureLimitSwitch(smLimitSwitches_t* LimitSwitches, UInt8 Index, ConfigData_LS_t* Param) {
 
-	smLimitSwitch_t* LimitSwitch = &LimitSwitches->Device[Index];
+    smLimitSwitch_t* LimitSwitch = &LimitSwitches->Device[Index];
     
     LimitSwitches->Config.SampleRate = Param->sampleRate;
     LimitSwitches->Config.Debounce   = Param->debounceCount;
@@ -611,20 +611,6 @@ Error_t smReadPosCode(smLimitSwitches_t *LimitSwitches, Int32 *Position, UInt16 
     UInt8           Idx;
     smLimitSwitch_t *Device;
     UInt8           NewValue = 0;
-	
-	#if 0
-    static UInt32   Cnt = 0;
-    //static UInt32   Time = 0, TimePre = 0;
-
-
-    if (++Cnt>100) {
-        //Time = bmGetTime();
-        //printf("[%d\n]", Time-TimePre);
-        //TimePre = Time;
-        bmSignalEvent(Channel, E_PERSISTENTS_INVALID, 1, 0);
-        Cnt = 0;
-    }
-    #endif
 
     for (Idx = 0; Idx < SM_NUM_OF_LIMIT_SWITCHES; Idx++) {
         Device = &LimitSwitches->Device[Idx];

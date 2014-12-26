@@ -134,7 +134,7 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     DMA2_Channel4_5_IRQHandler ; DMA2 Channel4 and DMA2 Channel5  
 __Vectors_End
 
-__Vectors_Size 	EQU 	__Vectors_End - __Vectors
+__Vectors_Size  EQU     __Vectors_End - __Vectors
 
                 AREA    |.text|, CODE, READONLY
 

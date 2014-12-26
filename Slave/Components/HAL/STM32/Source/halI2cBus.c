@@ -534,12 +534,14 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
                 }
                 I2C->SR2 = I2C->SR2;
             }
+#ifndef HIM_I2C_IMPROVE
             else {
                 if (Job->AddrLen) {
                     I2C->CR2 |= I2C_CR2_ITBUFEN;
                     Device->State = I2C_STATE_ADDRESS;
                 }
             }
+#endif
         }
     }
     //------------------------------------------------------------

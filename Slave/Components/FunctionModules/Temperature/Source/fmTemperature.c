@@ -437,9 +437,9 @@ static Error_t tempModuleTask (UInt16 Instance)
                         TempDelta = Data->ServiceTemp[0]- Data->TempArray[Data->TempArrayIndex];
                         dbgPrint("D5: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
                         if (TempDelta < (-Data->SlopeTempChange)) {
-                        dbgPrint("Level up [5].\n");
-                        tempNotifySlope(Data, 1);
-                    }
+                            dbgPrint("Level up [5].\n");
+                            tempNotifySlope(Data, 1);
+                        }
                     }
 
                 }
