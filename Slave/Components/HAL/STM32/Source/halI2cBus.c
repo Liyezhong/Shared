@@ -63,6 +63,8 @@
 #define MAX_RATE_STDMODE    88000    //!< Max baudrate in standard mode
 #define MAX_RATE_FASTMODE   400000   //!< Max baudrate in fast mode
 #define I2C_FIFO_SIZE       10       //!< Size of job queue
+#define I2C_FIFO_TIMEOUT    5        //!< job queue timeout (in ms)
+#define I2C_STOP_TIMEOUT    22       //!< stop bit transmission timeout (in ms)
 
 #define I2C_SR1_OVR         0x0800   //!< Overrun/Underrun
 #define I2C_SR1_AF          0x0400   //!< Acknowledge failure
@@ -111,6 +113,8 @@
 #define I2C_ADDR_BROADCAST  0x00     //!< Header pattern for general call
 #define I2C_MASK_ADDRESS11  0xF8     //!< Header mask for general call
 
+#define MAX_STATE_COUNT     35       //!< count limit, used to identify 'invalid' state
+
 //! DMA mode parameters for I2C data transfers
 #define I2C_DMA_MODE        DMA_DEV_WIDTH8|DMA_MEM_WIDTH8|DMA_MODE_INCREMENT
 
@@ -126,7 +130,8 @@ typedef enum {
     I2C_STATE_HEADER,       //!< Header transmission phase
     I2C_STATE_ADDRESS,      //!< Address transmission phase
     I2C_STATE_DATA,         //!< Data transmission phase
-    I2C_STATE_STOP          //!< Stop transaction phase
+    I2C_STATE_STOP,         //!< Stop transaction phase
+    I2C_STATE_FATAL         //!< In Fatal state the Bus is unuseable
 } I2cState_t;
 
 //! Layout of processor internal I2C interface registers
@@ -165,6 +170,7 @@ typedef struct {
     I2cState_t State;       //!< I2C interface state
     I2cQueue_t Queue;       //!< Queue of jobs
     I2cCallback_t *Notifier; //!< Callback pointer array
+    UInt8 StateCount;       //!< counts how often the same state is called to identify bus problems
 } I2cDevice_t;
 
 //****************************************************************************/
@@ -351,13 +357,21 @@ Error_t halI2cExchange (Handle_t Handle,
             (NewJob.Header & I2C_MASK_ADDRESS11) == I2C_ADDR_ADDRESS11) {
             return (E_BUS_INVALID_ADDRESS);
         }
+
+        if (I2C_STATE_FATAL == DataTable[Index].State) {
+            return (E_BUS_ERROR);
+        }
+
         if (halI2cPutJob (&DataTable[Index], &NewJob) == NULL) {
             return (E_DEVICE_BUSY);
         }
-        if (~DataTable[Index].I2C->CR2 & I2C_CR2_ITEVTEN) {
+
+        // trigger start interrupt if no I2C job is active
+        if (NULL == DataTable[Index].Job) {
             DataTable[Index].I2C->CR2 |= I2C_CR2_ITEVTEN | I2C_CR2_ITERREN;
             halInterruptTrigger (DataTable[Index].InterruptID);
         }
+
         return (JobCount);
     }
     return (Index);
@@ -446,6 +460,9 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
         }
         Quantas  = (Baudrate > MAX_RATE_STDMODE) ? 3 : 2;
         Division = halGetPeripheralClockRate() / (Baudrate * Quantas);
+        if (0 == Division) {
+            return (E_BUS_ILLEGAL_CLOCKRATE);
+        }
         RealRate = halGetPeripheralClockRate() / (Division * Quantas);
 
         // Return error if baudrate differs more than 5% from nominal
@@ -460,6 +477,7 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
         if (halI2cWait (Handle, 1000) < 0) {
             return (E_BUS_JOB_TIMEOUT);
         }
+
         // Reset the controller
         I2C->CR1 |= I2C_CR1_SWRST;
         I2C->CR1 &= ~I2C_CR1_SWRST;
@@ -509,6 +527,10 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
 
     I2cRegFile_t *I2C = Device->I2C;
     I2cJob_t *Job = Device->Job;
+#ifdef HIM_I2C_IMPROVE_TIMEOUT
+    I2cState_t EntryState = Device->State;
+#endif
+
 
     //------------------------------------------------------------
     if (Device->State == I2C_STATE_HEADER) {
@@ -602,12 +624,16 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
                     halDmaCancel (Device->DmaNo);
                 }
                 halI2cNotifyCaller (Job, I2C->SR1);
+#ifndef HIM_I2C_IMPROVE_TIMEOUT
                 while (I2C->CR1 & I2C_CR1_STOP);
+#endif
                 Device->State = I2C_STATE_START;
                 Device->Job = NULL;
             }
             I2C->CR2 &= ~(I2C_CR2_DMAEN | I2C_CR2_LAST);
         }
+
+
     }
     //------------------------------------------------------------
     if (Device->State == I2C_STATE_START) {
@@ -620,12 +646,59 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
             }
             Device->Job = Job;
         }
+#ifndef HIM_I2C_IMPROVE_TIMEOUT
         if (Device->Job != NULL) {
             I2C->SR1 &= ~I2C_SR1_ERRORS;
             I2C->CR1 |= I2C_CR1_ACKN | I2C_CR1_START;
             Device->State = I2C_STATE_HEADER;
         }
+#else
+        if (Device->Job != NULL) {
+            const UInt32 StartTime = halSysTickRead();
+            // wait until stop condition have finished
+            while (I2C->CR1 & I2C_CR1_STOP) {
+                if (halSysTickRead() - StartTime > I2C_STOP_TIMEOUT) {
+                    Device->State = I2C_STATE_FATAL;
+                    break;
+                }
+            }
+
+            // generate start condition
+            if (Device->State != I2C_STATE_FATAL) {
+                I2C->SR1 &= ~I2C_SR1_ERRORS;
+                I2C->CR1 |= I2C_CR1_ACKN | I2C_CR1_START;
+                Device->State = I2C_STATE_HEADER;
+            }
+
+        }
+#endif
     }
+
+#ifdef HIM_I2C_IMPROVE_TIMEOUT
+    // identify 'invalid state'
+    if (Device->State == EntryState) {
+        Device->StateCount++;
+        if (MAX_STATE_COUNT == Device->StateCount) {
+            Device->State = I2C_STATE_FATAL;
+        }
+     }
+     else {
+        Device->StateCount = 0;
+     }
+
+    //------------------------------------------------------------
+    if (Device->State == I2C_STATE_FATAL) {
+    //------------------------------------------------------------
+        // if we ever get here something fatal have happened.
+        // bus interrupts are switched off and bus stays unuseable
+
+        Device->I2C->CR2 &= ~(I2C_CR2_ITEVTEN | I2C_CR2_ITERREN);
+        halDmaCancel (Device->DmaNo);
+        halDmaCancel (Device->DmaNo+1);
+        I2C->CR2 &= ~(I2C_CR2_DMAEN | I2C_CR2_LAST);
+    }
+#endif
+
     return (NO_ERROR);
 }
 
@@ -684,12 +757,13 @@ void halI2cInterruptHandler (UInt32 Channel) {
  ****************************************************************************/
 
 void halI2cInterruptXferDone (UInt32 Channel, UInt32 IntrFlags) {
+    I2cDevice_t *Data = &DataTable[Channel];
 
     if (IntrFlags & DMA_INTR_COMPLETE) {
-        if (DataTable[Channel].Job != NULL) {
-            DataTable[Channel].Job->Count = 0;
+        if (Data->Job != NULL) {
+            Data->Job->Count = 0;
         }
-        halI2cProtocol(&DataTable[Channel]);
+        halI2cProtocol(Data);
     }
 }
 
@@ -794,7 +868,18 @@ static I2cJob_t* halI2cPutJob (I2cDevice_t *Device, I2cJob_t *NewJob) {
 
     I2cQueue_t *Queue = &Device->Queue;
 
+
+#ifndef HIM_I2C_IMPROVE_TIMEOUT
     while (Queue->Count >= Queue->Size-1) {}
+#else
+    const UInt32 StartTime = halSysTickRead();
+
+    while (Queue->Count >= Queue->Size-1) {
+        if (halSysTickRead() - StartTime >= I2C_FIFO_TIMEOUT) {
+            return (NULL);
+        }    
+    }
+#endif
 
     if (Queue->Count < Queue->Size) {
         Queue->Jobs[Queue->NextIn] = *NewJob;
@@ -979,6 +1064,8 @@ Error_t halI2cInit (void) {
                 halInterruptEnable (Data->InterruptID+0, IRQ_PRIO_DEFAULT);
                 halInterruptEnable (Data->InterruptID+1, IRQ_PRIO_DEFAULT);
                 halPeripheralClockEnable (Data->PeripheralID, ON);
+
+                Data->StateCount = 0;   // reset counter for 'invalid state' detection
 
                 Data->Flags = HAL_FLAG_INITZED;
             }
