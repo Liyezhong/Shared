@@ -54,7 +54,7 @@ const UInt32 halCrystalFrequency  = 16000000; //!< Processor crystal frequency [
 const UInt32 halRtcClockFrequency = 0;        //!< Real time crystal frequency [Hz]
 
 const UInt32 halProcessorVoltage  = 3300;     //!< Nominal processor voltage [mV]
-const UInt32 halWatchdogInterval  = 2000;     //!< Watchdog interval time [ms]
+const UInt32 halWatchdogInterval  = 25000;     //!< Watchdog interval time [ms]
 
 const UInt32 halNonVolatileSize   = 256;      //!< Non volatile memory size
 const UInt32 halNonVolatileCache  = 256;      //!< Non volatile memory cache size
