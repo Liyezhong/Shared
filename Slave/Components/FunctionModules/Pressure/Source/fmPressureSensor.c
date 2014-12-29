@@ -82,7 +82,7 @@ Error_t pressSensorRead (Handle_t Handle, PressSensorType_t Type, UInt16 Compens
 #endif
  
 #if 1    
-	// Median filtering
+    // Median filtering
     if ((Error = halAnalogRead (Handle, &AdcValue1)) < 0) {
         return (Error);
     }
@@ -93,31 +93,31 @@ Error_t pressSensorRead (Handle_t Handle, PressSensorType_t Type, UInt16 Compens
         return (Error);
     }
 
-	if (AdcValue1>AdcValue2) {
-	    SWAP(AdcValue1,AdcValue2);
-	}
-	if (AdcValue1>AdcValue3) {
-	    SWAP(AdcValue1,AdcValue3);
-	}
-	if (AdcValue2>AdcValue3) {
-	    SWAP(AdcValue2,AdcValue3);
-	}
-	
-	AdcValue = AdcValue2;
+    if (AdcValue1>AdcValue2) {
+        SWAP(AdcValue1,AdcValue2);
+    }
+    if (AdcValue1>AdcValue3) {
+        SWAP(AdcValue1,AdcValue3);
+    }
+    if (AdcValue2>AdcValue3) {
+        SWAP(AdcValue2,AdcValue3);
+    }
+    
+    AdcValue = AdcValue2;
     
     //printf("AD:%d\n", AdcValue);
 #endif
     
     // Voltage: 1-6V ==> 0.5-3V
-	//*Pressure = 103.42-40.944*(6-AdcValue*2);
+    //*Pressure = 103.42-40.944*(6-AdcValue*2);
     
     if ( AdcValue > PRESS_SENSOR_VOLTAGE_HIGH || AdcValue < PRESS_SENSOR_VOLTAGE_LOW ) {
         return (E_PRESS_SENSOR_OUT_OF_RANGE);
     }
     
-	*Pressure = 103420-41*(PRESS_SENSOR_VOLTAGE_HIGH*2-AdcValue*2) - Compensation;
+    *Pressure = 103420-41*(PRESS_SENSOR_VOLTAGE_HIGH*2-AdcValue*2) - Compensation;
 
-	return (NO_ERROR);
+    return (NO_ERROR);
 
 }
 

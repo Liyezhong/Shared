@@ -82,7 +82,7 @@ static const UInt32 TestOptionList[] = {
         
     // Function modules board options
     //MODULE_ID_TEMPERATURE, 4, 0x12012, 0x12012, 0x12012, 0x12012
-	MODULE_ID_TEMPERATURE, 3, 0x11041011, 0x01041011, 0x01041011,
+    MODULE_ID_TEMPERATURE, 3, 0x11041011, 0x01041011, 0x01041011,
     
 #ifdef ASB15_VER_A
     MODULE_ID_DIGITAL_OUT, 6, 1, 1, 1, 1, 1, 1,
@@ -118,7 +118,7 @@ static Error_t InitTestBoardInfoBlock (void);
  ****************************************************************************/
 
 static const bmModuleParameters_t ModuleInitTable[] = {
-	{ MODULE_ID_PRESSURE,    1, pressInitializeModule },
+    { MODULE_ID_PRESSURE,    1, pressInitializeModule },
     { MODULE_ID_TEMPERATURE, 3, tempInitializeModule },
 #ifdef ASB15_VER_A
     { MODULE_ID_DIGITAL_OUT, 6, doInitializeModule },

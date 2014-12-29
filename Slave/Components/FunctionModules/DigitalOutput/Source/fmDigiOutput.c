@@ -1248,8 +1248,8 @@ Error_t doInitializeModule (UInt16 ModuleID, UInt16 Instances) {
         if (Data->Memory < NO_ERROR) {
             return (Data->Memory);
         }
-		
-		dbgPrint("DO size:%d\n", DO_PARAM_TOTAL_SIZE);
+        
+        dbgPrint("DO size:%d\n", DO_PARAM_TOTAL_SIZE);
 
         Data->ModuleState = MODULE_STATE_READY;
 

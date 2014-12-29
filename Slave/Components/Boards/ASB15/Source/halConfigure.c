@@ -107,7 +107,7 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_C,  2, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN12/HeatCurrent_Measurement
     { PORT_C,  3, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN13/PumpValveCurrent_Measurement
     { PORT_C,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN14/UnderVoltageDetection
-	{ PORT_C,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN15/PressureValve
+    { PORT_C,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN15/PressureValve
 
     { PORT_C,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // HeatElementControl1
     { PORT_C,  7, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // HeatElementControl2
@@ -120,7 +120,7 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_C,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // MainRelayControl
 #endif
 
-	{ PORT_C, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LidControl
+    { PORT_C, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LidControl
 
     { PORT_D,  0, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // CAN_LBKA
     { PORT_D,  1, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID4
@@ -128,13 +128,13 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_D,  3, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID2
     { PORT_D,  4, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID1
 
-	{ PORT_D,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl
-	{ PORT_D,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ExhaustFanControl
-	{ PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl1
-	{ PORT_D, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl2
-	{ PORT_D, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl3
+    { PORT_D,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl
+    { PORT_D,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ExhaustFanControl
+    { PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl1
+    { PORT_D, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl2
+    { PORT_D, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl3
 #ifdef ASB15_VER_A
-	{ PORT_D, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // VacuumPumpControl
+    { PORT_D, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // VacuumPumpControl
 #endif
 
     { PORT_C, 13, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
@@ -251,9 +251,9 @@ const halPortDescriptor_t halPortDescriptors[] = {
     { HAL_PRESS_CTRLPUMPING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 12, 1, 0, 0 },
 #endif
 
-	{ HAL_PRESS_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  6, 1, 0, 0 },  //Fan
-	{ HAL_PRESS_CTRLVALVE_0,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },  //Pressure
-	{ HAL_PRESS_CTRLVALVE_1,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 }	//Vacuum
+    { HAL_PRESS_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  6, 1, 0, 0 },  //Fan
+    { HAL_PRESS_CTRLVALVE_0,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },  //Pressure
+    { HAL_PRESS_CTRLVALVE_1,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 }    //Vacuum
 
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
@@ -286,7 +286,7 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
       
     { HAL_TEMP_CURRENT_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 12, 6,  3000, 0 },
     
-	{ HAL_PRESS_CURRENT_0,   DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3000, 0 },
+    { HAL_PRESS_CURRENT_0,   DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3000, 0 },
     
     { HAL_PRESS_FANCURRENT_0,DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
 
@@ -294,17 +294,17 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
     { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_1,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
-	{ HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
     //{ HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
 
-	{ HAL_PRESS_SENSOR_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 15, 6,  3000, 0 },
+    { HAL_PRESS_SENSOR_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 15, 6,  3000, 0 },
 
 #ifdef ASB15_VER_B
     // TIM1_CH3N
     { HAL_PRESS_PWM_CTRL_0,  DIR_OUTPUT,BUS_TYPE_PWM,    16,  2, 0, 10000, 0, HAL_PWM_0}
 #endif
 
-	 //HAL_PRESS_CURRENT, HAL_PRESS_MAINVOLTAGE, HAL_PRESS_CTRLPUMPING, Instances);
+     //HAL_PRESS_CURRENT, HAL_PRESS_MAINVOLTAGE, HAL_PRESS_CTRLPUMPING, Instances);
 };
 const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
 
