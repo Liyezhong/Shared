@@ -123,7 +123,7 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
         MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", 0, QApplication::UnicodeUTF8));
         MsgDlg->HideButtons();
     }
-    MsgDlg->setModal(true);
+    MsgDlg->setModal(false);
 
 
     //Check for the text lenght to be displayed

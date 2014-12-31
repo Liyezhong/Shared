@@ -89,8 +89,8 @@ private slots:
     /****************************************************************************/
     void OnButtonLeftClicked()
     {
+        reject();
         emit ButtonLeftClicked(m_ID);
-	 reject();
     }
 
     /****************************************************************************/
@@ -100,8 +100,8 @@ private slots:
     /****************************************************************************/
     void OnTimeout()
     {
+        reject();
         emit MsgBoxTimeout(m_ID);
-     reject();
     }
 
     /****************************************************************************/
@@ -111,8 +111,8 @@ private slots:
     /****************************************************************************/
     void OnButtonCenterClicked()
     {
-    emit ButtonCenterClicked(m_ID);
-	accept();
+        accept();
+        emit ButtonCenterClicked(m_ID);
     }
 
     /****************************************************************************/
@@ -122,8 +122,8 @@ private slots:
     /****************************************************************************/
     void OnButtonRightClicked()
     {
-    emit ButtonRightClicked(m_ID);
         accept();
+        emit ButtonRightClicked(m_ID);
     }
 
 signals:
