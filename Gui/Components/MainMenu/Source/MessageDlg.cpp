@@ -38,8 +38,8 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CMessageDlg::CMessageDlg(QWidget *p_Parent) : CDialogFrame(p_Parent),
-    mp_Ui(new Ui::CMessageDlg)
+CMessageDlg::CMessageDlg(QWidget *p_Parent, quint64 ID) : CDialogFrame(p_Parent),
+    mp_Ui(new Ui::CMessageDlg), m_ID(ID)
 {
     mp_Ui->setupUi(GetContentFrame());
     layout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -193,6 +193,13 @@ void CMessageDlg::HideButtonsOneAndTwo()
 {
     mp_Ui->Button1->hide();
     mp_Ui->Button2->hide();
+}
+
+void CMessageDlg::StartTimer(int msec)
+{
+    CONNECTSIGNALSLOT(&m_Timer,timeout(), this, OnTimeout());
+    m_Timer.setSingleShot(true);
+    m_Timer.start(msec);
 }
 
 /****************************************************************************/
