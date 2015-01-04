@@ -239,7 +239,8 @@ protected:
             }
             else {
                 // error unknown reference
-                LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_UNKNOWN_REFERENCE, Global::FmtArgs() << QString::number(Ref) << Ack.GetName())
+                return ; //unsupported command
+                //LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_UNKNOWN_REFERENCE, Global::FmtArgs() << QString::number(Ref) << Ack.GetName())
             }
 
         }
