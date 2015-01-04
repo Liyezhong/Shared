@@ -136,7 +136,7 @@ protected:
     void SendAckAndUpdateGUI(Global::tRefType Ref, Threads::CommandChannel &AckCommandChannel, const Global::CommandShPtr_t &Command)
     {
         if (mp_MasterThreadController) {
-            //mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
+            mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
             (void)mp_MasterThreadController->SendCommand(Command, AckCommandChannel); //avoid lint 534
         }
     }
