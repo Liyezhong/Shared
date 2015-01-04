@@ -1206,13 +1206,16 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure,
         QTime extraTime = QTime::currentTime().addMSecs(DelayTime);
          LogDebug(QString("INFO: Draining Finished. start hold for %1 millisecond.").arg(DelayTime));
         while (QTime::currentTime() < extraTime)
-         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
-         {
-             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
-             LogDebug(QString("WARNING: Draining procedure has been interrupted, exit now."));
-             RetValue = DCL_ERR_UNEXPECTED_BREAK;
-             goto SORTIE;
-         }
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            if (DCL_ERR_UNEXPECTED_BREAK == retCode)
+            {
+                FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
+                LogDebug(QString("WARNING: Draining procedure has been interrupted, exit now."));
+                RetValue = DCL_ERR_UNEXPECTED_BREAK;
+                goto SORTIE;
+            }
+        }
 
     }
 
