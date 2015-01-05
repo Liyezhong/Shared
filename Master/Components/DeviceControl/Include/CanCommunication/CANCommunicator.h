@@ -15,7 +15,7 @@
  *
  *       Leica Biosystems Nussloch GmbH.
  *
- *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.112
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
@@ -110,9 +110,6 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Report CAN error
-     *
-     *  \iparam void
-     *
      *  \return void
      */
     /****************************************************************************/
