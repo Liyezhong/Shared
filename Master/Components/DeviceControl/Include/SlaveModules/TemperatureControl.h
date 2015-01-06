@@ -33,7 +33,7 @@ namespace DeviceControl
 
 class CANCommunicator;
 
-#define MAX_TEMP_MODULE_CMD_IDX 8   ///< up to 8 module commands can be handled simultaneously
+#define MAX_TEMP_MODULE_CMD_IDX 16   ///< up to 8 module commands can be handled simultaneously
 
 /****************************************************************************/
 /*!

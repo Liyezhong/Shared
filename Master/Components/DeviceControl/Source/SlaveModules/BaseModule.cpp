@@ -623,7 +623,7 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                                                 << std::hex << m_unCanIDAcknHardwareID;
 
                     //after sending the 'HardwareIDAckn'-message, activate heartbeat supervision
-                    SetHeartbeatSupervision(true);
+                    //SetHeartbeatSupervision(true);
 
                     // start the timer used to delay the configuration request some milliseconds
                     StartTimeDelay();
@@ -914,6 +914,7 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
                     m_SubStateConfig = CN_SUB_STATE_CONFIG_FCT_CONFIRMED;
+                    SetHeartbeatSupervision(true);
                 }
                 else
                 {
