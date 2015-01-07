@@ -186,7 +186,13 @@ class CTemperatureControl : public CFunctionModule
      */
     /****************************************************************************/
     ReturnCode_t SetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OnLevelSensorStateChanged
+     *
+     */
+    /****************************************************************************/
+    void OnLevelSensorStateChanged();
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function SetLifeCycle

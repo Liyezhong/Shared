@@ -1276,6 +1276,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
             m_pDevProc->OnReportLevelSensorStatus1();
             if(TimeStopFilling == 0)
             {
+                m_pTempCtrls[AL_LEVELSENSOR]->OnLevelSensorStateChanged();
                 FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Hit target level. Filling Finished.";
                 LogDebug(QString("INFO: Hit target level. Filling Finished."));
                 if(DelayTime > 0)
