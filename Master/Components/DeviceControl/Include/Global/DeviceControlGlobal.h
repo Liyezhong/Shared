@@ -84,7 +84,7 @@ namespace DeviceControl
 // digital input timeouts
 #define CAN_DINP_TIMEOUT_READ_REQ                800  //!< Timeout read request
 // digital output timeouts
-#define CAN_DOUTP_TIMEOUT_READ_REQ               800  //!< Timeout read request
+#define CAN_DOUTP_TIMEOUT_READ_REQ               2000  //!< Timeout read request
 // digital output timeouts
 #define CAN_DOUTP_TIMEOUT_SET_ACK                800  //!< Timeout read request
 // analog input timeouts
