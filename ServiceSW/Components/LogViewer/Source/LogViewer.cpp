@@ -179,7 +179,7 @@ void CLogViewer::UpdateLogFileTableEntries()
         QFileInfo fileInfo = List.at(i);
         QString FileName = fileInfo.fileName();
         if (FileName.startsWith(m_LogFileType)) {
-            if (m_LogFileType == "PRIMARIS_" && FileName.startsWith("PRIMARIS_Service"))
+            if (FileName.startsWith(m_LogFileType + "Service"))
                 continue;
             AddItem(fileInfo.fileName());
         }
