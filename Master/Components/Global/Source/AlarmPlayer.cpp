@@ -42,7 +42,7 @@ AlarmPlayer::AlarmPlayer()
 
 bool AlarmPlayer::playTestTone(bool AlarmTypeFlag, quint8 AlarmVolume, quint8 AlarmNumber)
 {
-    if ( !AlarmTypeFlag ) {
+    if ( AlarmTypeFlag ) {
         QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(AlarmNumber) + ".ogg";
         if (QFile::exists(FileName)) {
             emitAlarm(Global::ALARM_ERROR, false, FileName, AlarmVolume);
