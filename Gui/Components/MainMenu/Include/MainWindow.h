@@ -77,6 +77,8 @@ public:
     void SetUserIcon(UserRole_t UserRole);
     bool SetStatusIcons(Status_t Status);
     bool UnsetStatusIcons(Status_t Status);
+    static void SetSystemErrorStatus(bool isError);
+    static bool GetSystemErrorStatus();
     void SetTabWidgetIndex();
     void SetTabWidgetIndex(int Index);
     void SetTabEnabled(bool Status);    
@@ -198,7 +200,7 @@ private:
     QPixmap *mp_ProcPixmap;                     //!< Pixmap object for Process icon.
     QPixmap *mp_RemotePixMap;                   //!< Pixmap object for Remote Care icon.  
     QString m_SaMUserMode;                      //!< S.a.M software user mode
-
+    static bool m_IsSystemError;                //!< system is in Error state
   
     /****************************************************************************/
     /*!
