@@ -23,7 +23,6 @@
 
 #include "MainMenu/Include/DialogFrame.h"
 #include <QMessageBox>
-#include <QTimer>
 
 namespace MainMenu {
 
@@ -59,7 +58,7 @@ public:
         Critical
     } Severity_t;
 
-    explicit CMessageDlg(QWidget *p_Parent = NULL, quint64 ID = 0);
+    explicit CMessageDlg(QWidget *p_Parent = NULL);
     virtual ~CMessageDlg();
     void SetTitle(const QString &TitleLeft);
     void SetTitle(const QString &TitleLeft, const QString &TitleRight);
@@ -71,7 +70,6 @@ public:
     void HideButtons();
     void HideButtonsOneAndTwo();
     void HideAllButtons();
-    void StartTimer(int msec);
 
 public slots:
     /****************************************************************************/
@@ -89,19 +87,8 @@ private slots:
     /****************************************************************************/
     void OnButtonLeftClicked()
     {
-        reject();
-        emit ButtonLeftClicked(m_ID);
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Slot called when message box timeout
-     */
-    /****************************************************************************/
-    void OnTimeout()
-    {
-        reject();
-        emit MsgBoxTimeout(m_ID);
+        emit ButtonLeftClicked();
+     reject();
     }
 
     /****************************************************************************/
@@ -111,8 +98,8 @@ private slots:
     /****************************************************************************/
     void OnButtonCenterClicked()
     {
-        accept();
-        emit ButtonCenterClicked(m_ID);
+    emit ButtonCenterClicked();
+    accept();
     }
 
     /****************************************************************************/
@@ -122,46 +109,31 @@ private slots:
     /****************************************************************************/
     void OnButtonRightClicked()
     {
+    emit ButtonRightClicked();
         accept();
-        emit ButtonRightClicked(m_ID);
     }
 
 signals:
-
     /****************************************************************************/
     /**
      * \brief This signal is emitted when right corner button is clicked
-     * \param quint64 message id
      */
     /****************************************************************************/
-    void MsgBoxTimeout(quint64);
-
-    /****************************************************************************/
-    /**
-     * \brief This signal is emitted when right corner button is clicked
-     * \param quint64 message id
-     */
-    /****************************************************************************/
-    void ButtonRightClicked(quint64);
+    void ButtonRightClicked();
 
     /****************************************************************************/
     /**
      * \brief This signal is emitted when left corner button is clicked
-     * \param quint64 message id
      */
     /****************************************************************************/
-    void ButtonLeftClicked(quint64);
+    void ButtonLeftClicked();
 
     /****************************************************************************/
     /**
      * \brief This signal is emitted when centre button is clicked
-     * \param quint64 message id
      */
     /****************************************************************************/
-    void ButtonCenterClicked(quint64);
-private:
-    quint64 m_ID; ///< mesage box id (event id)
-    QTimer m_Timer; ///< timer for message box timeout
+    void ButtonCenterClicked();
 
 };
 
