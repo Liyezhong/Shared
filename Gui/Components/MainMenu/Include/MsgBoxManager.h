@@ -70,14 +70,15 @@ public:
     CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface);
     ~CMsgBoxManager();
     void Manage(QDataStream &DS, Global::tRefType Ref);
-    void SetMessageBoxType(MsgData MessageBoxData);
+    void SetMessageBoxType(MainMenu::CMessageDlg *MsgDlg, MsgData MessageBoxData);
     //!< Data Structure containing Data Sent from EventReport
     void EnableOKButton();
 private:
     //Data Members
     Global::PriorityQueue <quint64> m_PriorityQueue;  //!< Priority Queue consisting of EventID's
-    qint64 m_LastMsgBoxEventID;                   //!< If a Event Msg box is displayed , the EventID associated with it.
+    qint64 m_CurrentMsgBoxEventID;                   //!< If a Event Msg box is displayed , the EventID associated with it.
     MainMenu::CMessageDlg *mp_MessageDlg;             //!< The msg dialog
+    QHash<quint64,MainMenu::CMessageDlg*> m_MsgDlgEventIDHash; //!< hash of event id to message dlg.
     QWidget *mp_Parent;                               //!< Parent for Msg Dlg
     DataManager::CUserSettingsInterface *mp_SettingsInterface;  //!< UserSettings Interface
 
@@ -93,16 +94,15 @@ private:
      */
     QHash<quint64, Global::tRefType> m_EvenIDCmdRefHash; //!< Hash of EventID(Key) and CmdRef(value)
     QTimer m_PopupTimer;    //!< When this timer times out, MsgBox will be poped out if queue not empty.
-    QTimer m_AutoQuitMsgBoxTimer;
     bool m_bMsgWaiting;    //!<it has a "OK" button, but it is disabled.
     //----------------End of Members------------------------//
 
     //Methods
     Q_DISABLE_COPY(CMsgBoxManager) //!< disable copy construction and assignment operation
 
-    void CreateMesgBox(MsgData MsgDataStruct);
-    void RemoveMsgBoxFromQueue(Global::EventType EventType, quint64 ID);
-    void RemoveDataFromContainers(Global::EventType EventType, quint64 ID);
+    MainMenu::CMessageDlg *  CreateMesgBox(MsgData MsgDataStruct);
+    void RemoveMsgBoxFromQueue(quint64 ID);
+    void RemoveDataFromContainers(quint64 ID);
     void AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgData);
 
     /****************************************************************************/
@@ -118,21 +118,24 @@ private slots:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot UpdateReagentList
+     *  \param ID message box id
      */
     /****************************************************************************/
-    void ButtonLeftClicked();
+    void ButtonLeftClicked(quint64 ID);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot UpdateReagentList
+     *  \param ID message box id
      */
     /****************************************************************************/
-    void ButtonCenterClicked();
+    void ButtonCenterClicked(quint64 ID);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot UpdateReagentList
+     *  \param ID message box id
      */
     /****************************************************************************/
-    void ButtonRightClicked();
+    void ButtonRightClicked(quint64 ID);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot UpdateReagentList
@@ -144,13 +147,20 @@ private slots:
      *  \brief  Definition/Declaration of slot UpdateReagentList
      */
     /****************************************************************************/
-    void LanguageChanged();
+    void ShowNextMsgBoxInQueue();
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot UpdateReagentList
      */
     /****************************************************************************/
-    void AutoQuitMessageBox();
+    void LanguageChanged();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     *  \param ID quint64 messagebox id
+     */
+    /****************************************************************************/
+    void AutoQuitMessageBox(quint64 ID);
 
 signals:
     /****************************************************************************/
