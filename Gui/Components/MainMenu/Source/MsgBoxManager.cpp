@@ -370,7 +370,7 @@ void CMsgBoxManager::ButtonLeftClicked(quint64 ID)
             emit EventReportAck(NetCommands::STOP_BUTTON, CmdRef, ID);
         }
         else if (msg.BtnType == Global::YES_NO) {
-            emit EventReportAck(NetCommands::NOT_SPECIFIED, CmdRef, ID);
+            emit EventReportAck(NetCommands::NO_BUTTON, CmdRef, ID);
         }
         RemoveDataFromContainers(ID);
         //    m_CurrentMsgBoxEventID  = -1;
