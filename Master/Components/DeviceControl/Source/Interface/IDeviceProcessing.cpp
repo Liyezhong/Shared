@@ -2315,8 +2315,6 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         }
         qreal pressure = m_pAirLiquid->GetRecentPressure();
 
-        LOG()<<"Bottle Check pressure: " << pressure;
-
         qreal baseLine = 0;
         if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
         {
@@ -2334,6 +2332,8 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         {
             baseLine = 0.53;
         }
+
+         m_pAirLiquid->LogDebug(QString("Current pressure in bootle check is: %1, and reagentGrpID is: %2").arg(pressure).arg(ReagentGrpID));
 
 #ifdef __arm__
         if(pressure < (0.4 * baseLine))
