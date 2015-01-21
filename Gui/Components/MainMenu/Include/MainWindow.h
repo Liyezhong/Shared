@@ -81,7 +81,8 @@ public:
     static bool GetSystemErrorStatus();
     void SetTabWidgetIndex();
     void SetTabWidgetIndex(int Index);
-    void SetTabEnabled(bool Status);    
+    void SetTabEnabled(bool Status);
+    void SetTabEnabled(int Index, bool Status);
     void SetUserMode(QString Mode);
 
     /****************************************************************************/

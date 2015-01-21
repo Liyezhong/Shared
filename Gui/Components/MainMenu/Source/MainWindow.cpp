@@ -472,6 +472,11 @@ void CMainWindow::SetTabEnabled(bool Status)
 
 }
 
+void CMainWindow::SetTabEnabled(int Index, bool Status)
+{
+     mp_Ui->TabWidget->setTabEnabled(Index, Status);
+}
+
 /****************************************************************************/
 /*!
  *  \brief  Method will be called,when an event triggered on the object
