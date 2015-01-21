@@ -899,7 +899,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-            pressure = m_pAirLiquid->GetRecentPressure();
+            pressure = m_pAirLiquid->GetPressure();
             if (qAbs(pressure - targetPressure) < 5.0)
             {
                 IsGetTargetPressure = true;
@@ -910,7 +910,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         // Wait for 2 minutes to see if 20kpa has been reached. If not, report error
         if (false == IsGetTargetPressure)
         {
-            pressure = m_pAirLiquid->GetRecentPressure();
+            pressure = m_pAirLiquid->GetPressure();
             if (pressure < 20.0)
             {
                 m_pAirLiquid->ReleasePressure();
@@ -949,7 +949,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-            pressure = m_pAirLiquid->GetRecentPressure();
+            pressure = m_pAirLiquid->GetPressure();
             if (pressure < 3 * BasePressure)
             {
                 m_pAirLiquid->ReleasePressure();
@@ -2313,7 +2313,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
         }
-        qreal pressure = m_pAirLiquid->GetRecentPressure();
+        qreal pressure = m_pAirLiquid->GetPressure();
 
         qreal baseLine = 0;
         if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
@@ -2408,7 +2408,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents,100);
-            if (std::abs(targetPressure - m_pAirLiquid->GetRecentPressure()) < 5.0)
+            if (std::abs(targetPressure - m_pAirLiquid->GetPressure()) < 5.0)
             {
                 targetPressureFlag = true;
                 break;
@@ -2426,7 +2426,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
         }
 #endif
-        qreal previousPressure = m_pAirLiquid->GetRecentPressure();
+        qreal previousPressure = m_pAirLiquid->GetPressure();
 
         // Turn off pump
         m_pAirLiquid->StopCompressor();
@@ -2440,7 +2440,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-            if(previousPressure-(m_pAirLiquid->GetRecentPressure()) > ThresholdPressure)
+            if(previousPressure-(m_pAirLiquid->GetPressure()) > ThresholdPressure)
             {
                 LOG()<<"Sealing test: Failed.";
                 (void)m_pAirLiquid->ReleasePressure();

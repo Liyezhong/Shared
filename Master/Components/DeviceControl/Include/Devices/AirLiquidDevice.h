@@ -44,6 +44,7 @@ class CDigitalOutput;
 #define SUCKING_POOLING_TIME          (400)
 #define SUCKING_SETUP_WARNING_TIME    (120*1000)
 #define SUCKING_MAX_SETUP_TIME        (240*1000)
+#define SUCKING_INSUFFICIENT_SAMPLE_SIZE (8)
 #define SUCKING_OVERFLOW_SAMPLE_SIZE    (8)
 #define SUCKING_OVERFLOW_TOLERANCE      (2)
 #define SUCKING_OVERFLOW_WINDOW_SIZE    (3)
@@ -355,6 +356,13 @@ public:
     /****************************************************************************/
     bool IsTemperatureControlOn(ALTempCtrlType_t Type);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetPressure
+     */
+    /****************************************************************************/
+    qreal GetPressure(void);
+
 private slots:
     /****************************************************************************/
     /*!
@@ -391,12 +399,7 @@ private slots:
      */
     /****************************************************************************/
     ReturnCode_t SetPressure(quint8 flag, float NominalPressure);
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of slot GetPressure
-     */
-    /****************************************************************************/
-    qreal GetPressure(void);
+
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot SetTargetPressure
