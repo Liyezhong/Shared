@@ -1243,7 +1243,9 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
     int levelSensorState = 0xFF;
     bool NeedOverflowChecking = true;
     bool stop = false;
-	bool InsufficientCheckFlag = EnableInsufficientCheck;
+    bool InsufficientCheckFlag = EnableInsufficientCheck;
+    bool TimeOutInsufficient = false;
+    QList<qreal> InsufficientPressureBuf;
     bool WarnShowed = false;
     qint64 TimeNow, TimeStartPressure, TimeStopFilling;
     TimeStopFilling = 0;
@@ -1333,7 +1335,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
             {
                 PressureBuf.append(CurrentPressure);
             }
-            if(PressureBuf.length() == SUCKING_OVERFLOW_SAMPLE_SIZE)
+            if(PressureBuf.length() >= SUCKING_OVERFLOW_SAMPLE_SIZE)
             {
                 //with 4 wire pump
                 qreal Sum = 0;
@@ -1356,46 +1358,35 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                     RetValue = DCL_ERR_DEV_LA_FILLING_OVERFLOW;
                     goto SORTIE;
                 }
-            }
-            else if (PressureBuf.length() > SUCKING_OVERFLOW_SAMPLE_SIZE)
-            {
+                if (((Sum/PressureBuf.length())<SUCKING_INSUFFICIENT_PRESSURE) && (DeltaSum<SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM) && InsufficientCheckFlag && !TimeOutInsufficient)
+                {
+                    // Just mark flag here, and return it until 4 minutes timeout
+                    TimeOutInsufficient = true;
+                    for (qint32 i=0; i< PressureBuf.length(); i++)
+                    {
+                        InsufficientPressureBuf.append(PressureBuf.at(i));
+                    }
+                }
+
                 PressureBuf.pop_front();
             }
 
             if(TimeNow > (TimeStartPressure + SUCKING_MAX_SETUP_TIME))
             {
-                if (InsufficientCheckFlag)
+                //Firstly, check Insufficient
+                if (TimeOutInsufficient)
                 {
-                    // We suppose it should be larger than 8, so that should not enter
-                    if (PressureBuf.length() < SUCKING_OVERFLOW_SAMPLE_SIZE)
+                    LogDebug(QString("ERROR: Insufficient reagent in the station! Exit now"));
+                    for (qint32 i=0; i<InsufficientPressureBuf.length(); i++)
                     {
-                        continue;
+                        LogDebug(QString("INFO: Insufficient Pressure %1 is: %2").arg(i).arg(InsufficientPressureBuf.at(i)));
                     }
 
-                    qreal sum = 0.0;
-                    qreal deltaSum = 0.0;
-                    qreal lastValue = PressureBuf.at(0);
-                    for (qint32 i=0; i<PressureBuf.length(); i++)
-                    {
-                        sum +=PressureBuf.at(i);
-                        deltaSum += PressureBuf.at(i) - lastValue;
-                        lastValue = PressureBuf.at(i);
-                    }
-
-                    if (((sum/PressureBuf.length())<SUCKING_INSUFFICIENT_PRESSURE) && (deltaSum>SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM))
-                    {
-                        LogDebug(QString("ERROR: Insufficient reagent in the station! Exit now"));
-                        for (quint32 i=0; i>=PressureBuf.length(); i++)
-                        {
-                            LogDebug(QString("INFO: Insufficient Pressure %1 is: %2").arg(i).arg(PressureBuf.at(i)));
-                        }
-                        RetValue = DCL_ERR_DEV_LA_FILLING_INSUFFICIENT;
-                        goto SORTIE;
-                    }
+                    RetValue = DCL_ERR_DEV_LA_FILLING_INSUFFICIENT;
+                    goto SORTIE;
                 }
-
                 FILE_LOG_L(laDEVPROC, llERROR) << "ERROR! Do not get level sensor data in" << (SUCKING_MAX_SETUP_TIME / 1000)<<" seconds, Time out! Exit!";
-                LogDebug(QString("ERROR! Do not get level sensor data in %1 seconds, Timeout! Exit!").arg(SUCKING_SETUP_WARNING_TIME / 1000));
+                LogDebug(QString("ERROR! Do not get level sensor data in %1 seconds, Timeout! Exit!").arg(SUCKING_MAX_SETUP_TIME / 1000));
                 RetValue = DCL_ERR_DEV_LA_FILLING_TIMEOUT_4MIN;
                 goto SORTIE;
             }
