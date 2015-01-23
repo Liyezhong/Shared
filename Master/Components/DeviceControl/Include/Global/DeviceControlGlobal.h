@@ -72,79 +72,79 @@ namespace DeviceControl
 //****************************************************************************/
 
 // basis module timeouts
-#define CAN_NODE_TIMEOUT_INIT                   30000  //!< Timeout initialisation procedure
-#define CAN_NODE_TIMEOUT_CONFIG_RECEIVE         60000  //!< Timeout configuration procedure
-#define CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES     30000  //!< Timeout function module configuration procedure
-#define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE      3000  //!< Timeout heartbeat failure
+#define CAN_NODE_TIMEOUT_INIT                   3000  //!< Timeout initialisation procedure
+#define CAN_NODE_TIMEOUT_CONFIG_RECEIVE         3000  //!< Timeout configuration procedure
+#define CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES     3000  //!< Timeout function module configuration procedure
+#define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE      5000  //!< Timeout heartbeat failure
 #define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE_DBG  60*60*1000  //!< Timeout heartbeat failure (for debug build)
 #define CAN_NODE_TIMEOUT_SETINITOPDATA           500  //!< Timeout setting initial operation data
 #define CAN_NODE_TIMEOUT_DATA_REQ                500  //!< Timeout for several requests with data transfer
 #define CAN_NODE_TIMEOUT_MEMORY_OPERATION       1000  //!< Timeout for memory operation, eg. reset or format partition
 
 // digital input timeouts
-#define CAN_DINP_TIMEOUT_READ_REQ                800  //!< Timeout read request
+#define CAN_DINP_TIMEOUT_READ_REQ                400  //!< Timeout read request
 // digital output timeouts
-#define CAN_DOUTP_TIMEOUT_READ_REQ               2000  //!< Timeout read request
+#define CAN_DOUTP_TIMEOUT_READ_REQ               400  //!< Timeout read request
 // digital output timeouts
-#define CAN_DOUTP_TIMEOUT_SET_ACK                800  //!< Timeout read request
+#define CAN_DOUTP_TIMEOUT_SET_ACK                400  //!< Timeout read request
 // analog input timeouts
-#define CAN_AINP_TIMEOUT_READ_REQ                800  //!< Timeout read request
+#define CAN_AINP_TIMEOUT_READ_REQ                400  //!< Timeout read request
 // analog output timeouts
-#define CAN_AOUTP_TIMEOUT_READ_REQ               800  //!< Timeout read request
+#define CAN_AOUTP_TIMEOUT_READ_REQ               400  //!< Timeout read request
 // analog output timeouts
-#define CAN_AOUTP_TIMEOUT_SET_ACK                800  //!< Timeout read request
+#define CAN_AOUTP_TIMEOUT_SET_ACK                400  //!< Timeout read request
 // temperature set timeouts
-#define CAN_TEMPCTRL_TIMEOUT_TEMP_SET_ACK        800  //!< Timeout set request
+#define CAN_TEMPCTRL_TIMEOUT_TEMP_SET_ACK        400  //!< Timeout set request
 // temperature req timeouts
-#define CAN_TEMPCTRL_TIMEOUT_ACTTEMP_REQ         800  //!< Timeout read request
+#define CAN_TEMPCTRL_TIMEOUT_ACTTEMP_REQ         400  //!< Timeout read request
 // temperature control status set timeouts (on/off)
-#define CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ      800  //!< Timeout set request
+#define CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ      400  //!< Timeout set request
 // temperature control status req timeouts
-#define CAN_TEMPCTRL_TIMEOUT_ACTSTATUS_REQ       800  //!< Timeout read request
+#define CAN_TEMPCTRL_TIMEOUT_ACTSTATUS_REQ       400  //!< Timeout read request
 // operation mode set timeouts
-#define CAN_TEMPCTRL_TIMEOUT_OPMODE_SET_REQ      800  //!< Timeout set request
+#define CAN_TEMPCTRL_TIMEOUT_OPMODE_SET_REQ      400  //!< Timeout set request
 // operation mode req timeouts
-#define CAN_TEMPCTRL_TIMEOUT_ACTOPMODE_REQ       800  //!< Timeout read request
+#define CAN_TEMPCTRL_TIMEOUT_ACTOPMODE_REQ       400  //!< Timeout read request
 // temperature req timeouts
-#define CAN_PRESSURECTRL_TIMEOUT_TEMP_SET_ACK        800  //!< Timeout set request
+#define CAN_PRESSURECTRL_TIMEOUT_TEMP_SET_ACK        400  //!< Timeout set request
 // temperature req timeouts
-#define CAN_PRESSURECTRL_TIMEOUT_ACTTEMP_REQ         800  //!< Timeout read request
+#define CAN_PRESSURECTRL_TIMEOUT_ACTTEMP_REQ         400  //!< Timeout read request
 // temperature control status set timeouts (on/off)
-#define CAN_PRESSURECTRL_TIMEOUT_STATUS_SET_REQ      800  //!< Timeout set request
+#define CAN_PRESSURECTRL_TIMEOUT_STATUS_SET_REQ      400  //!< Timeout set request
 // temperature control status req timeouts
-#define CAN_PRESSURECTRL_TIMEOUT_ACTSTATUS_REQ       800  //!< Timeout read request
+#define CAN_PRESSURECTRL_TIMEOUT_ACTSTATUS_REQ       400  //!< Timeout read request
 // operation mode set timeouts
-#define CAN_PRESSURECTRL_TIMEOUT_OPMODE_SET_REQ      800  //!< Timeout set request
+#define CAN_PRESSURECTRL_TIMEOUT_OPMODE_SET_REQ      400  //!< Timeout set request
 // operation mode req timeouts
-#define CAN_PRESSURECTRL_TIMEOUT_ACTOPMODE_REQ       800  //!< Timeout read request
+#define CAN_PRESSURECTRL_TIMEOUT_ACTOPMODE_REQ       400  //!< Timeout read request
 
 
 // stepper motor timeouts
 #define CAN_STEPPERMOTOR_TIMEOUT_SET_STATE      1000  //!< Timeout SetState
-#define CAN_STEPPERMOTOR_TIMEOUT_REFMOVE_REQ     800  //!< Timeout reference run request
+#define CAN_STEPPERMOTOR_TIMEOUT_REFMOVE_REQ     400  //!< Timeout reference run request
 #define CAN_STEPPERMOTOR_TIMEOUT_POSMOVE_REQ  600000  //!< Timeout positioning  \todo remove
 #define CAN_STEPPERMOTOR_TIMEOUT_SPEEDMOVE_REQ  5000  //!< Timeout speed request
-#define CAN_STEPPERMOTOR_TIMEOUT_ACTPOS_REQ      800  //!< Timeout actual position request (just communication)
-#define CAN_STEPPERMOTOR_TIMEOUT_ACTSPD_REQ      800  //!< Timeout actual speed request (just communication)
-#define CAN_STEPPERMOTOR_TIMEOUT_LIFECYCLEDATA_REQ 800  //!< Timeout life cycle date request (just communication, but three messages)
+#define CAN_STEPPERMOTOR_TIMEOUT_ACTPOS_REQ      400  //!< Timeout actual position request (just communication)
+#define CAN_STEPPERMOTOR_TIMEOUT_ACTSPD_REQ      400  //!< Timeout actual speed request (just communication)
+#define CAN_STEPPERMOTOR_TIMEOUT_LIFECYCLEDATA_REQ 400  //!< Timeout life cycle date request (just communication, but three messages)
 // rfid timeouts
 #define CAN_RFID_TIMEOUT_READ_REQ               1000  //!< Timeout read request
 #define CAN_RFID_TIMEOUT_WRITE_REQ              1250  //!< Timeout write operation
 //inlinometer timeouts
 #define CAN_INCL_TIMEOUT_CALIB_ACKN             1000  //!< Timeout calibration
-#define CAN_INCL_TIMEOUT_READ_REQ                800  //!< Timeout read request
-#define CAN_INCL_TIMEOUT_LIMIT_SET_REQ           800  //!< Timeout set request
+#define CAN_INCL_TIMEOUT_READ_REQ                400  //!< Timeout read request
+#define CAN_INCL_TIMEOUT_LIMIT_SET_REQ           400  //!< Timeout set request
 //joystick timeouts
 #define CAN_JOYSTICK_TIMEOUT_CALIB_ACKN         1000  //!< Timeout calibration
-#define CAN_JOYSTICK_TIMEOUT_READ                800  //!< Timeout read request
+#define CAN_JOYSTICK_TIMEOUT_READ                400  //!< Timeout read request
 
 // UART timeouts
 #define CAN_UART_TIMEOUT_READ_REQ               1000  //!< Timeout send data ackn
 #define CAN_UART_TIMEOUT_REQ_REC_DATA           1000  //!< Timeout req received data answer
 
 //joystick timeouts
-#define DEV_LOADER_TIMEOUT_BLOCKSTATE_SET_ACK    800  //!< Timeout set loader block mode
-#define DEV_LOADER_TIMEOUT_ACTBLOCKSTATE_REQ     800  //!< Timeout req loader block mode
+#define DEV_LOADER_TIMEOUT_BLOCKSTATE_SET_ACK    400  //!< Timeout set loader block mode
+#define DEV_LOADER_TIMEOUT_ACTBLOCKSTATE_REQ     400  //!< Timeout req loader block mode
 
 
 //*****************************************************************************/
@@ -296,7 +296,6 @@ typedef enum {
     POWER_FAILED  = 2,  //!< Power is bad
     POWER_UNKNOWN = 9   //!< Power is unknown (can't be read)
 } PowerState_t;
-
 /*! Test result code, e.g. for the end test */
 typedef enum {
     TEST_OPEN   = 0,    //!< Test has not been executed yet
@@ -640,4 +639,5 @@ public:
 Q_DECLARE_METATYPE(DeviceControl::RTTempCtrlType_t)
 Q_DECLARE_METATYPE(DeviceControl::CANObjectKeyLUT::CANObjectIdentifier_t)
 Q_DECLARE_METATYPE(DeviceControl::TestResult_t)
+Q_DECLARE_METATYPE(DeviceControl::PowerState_t)
 #endif /* DEVICE_CONTROL_GLOBAL_H */

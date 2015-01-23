@@ -26,7 +26,10 @@
 #ifndef CANTHREADS_H
 #define CANTHREADS_H
 
+#include <linux/can.h>
+
 #include <QMutex>
+#include <QSemaphore>
 #include <QThread>
 #include <QWaitCondition>
 
@@ -35,7 +38,7 @@ namespace DeviceControl
 
 /* Forward declarations */
 class CANCommunicator;
-class Can2TcpClient;
+class CANInterface;
 
 /****************************************************************************/
 /*!
@@ -44,49 +47,43 @@ class Can2TcpClient;
 /****************************************************************************/
 class CANReceiveThread : public QThread
 {
-public:
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function CANReceiveThread
-     *
-     *  \param pCANCommunicator = CANCommunicator type parameter
-     *
-     *  \return from CANReceiveThread
-     */
-    /****************************************************************************/
-    CANReceiveThread(CANCommunicator* pCANCommunicator);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Set Simulation flag
-     *
-     *  \iparam TcpSimmulation = Usage of simulation flag
-     */
-    /****************************************************************************/
-    void SetTcpSimmulation(bool TcpSimmulation) { m_bTcpSimulation = TcpSimmulation; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function run
-     *
-     *  \return from run
-     */
-    /****************************************************************************/
-    void run();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function SetBreak
-     *
-     *  \return from SetBreak
-     */
-    /****************************************************************************/
-    void SetBreak();
+    Q_OBJECT
 
 private:
-    CANCommunicator* m_pCANCommunicator;    //!< Communicator object
-    QMutex m_BreakLock;     //!< Break synchronization
-    bool m_bTcpSimulation;  //!< TCP simulation state flag (use/ don't use)
-    bool m_bBreak;          //!< break condition
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CANReceiveThread)
+
+public:
+    CANReceiveThread(CANCommunicator* pCANCommunicator, CANInterface & rCANInterface);
+
+    void SetBreak();
+
+signals:
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information
+     *
+     *  \iparam EventCode = Event code
+     *  \iparam EventData = Event data
+     */
+    /****************************************************************************/
+    void ReportEvent(quint32 EventCode, quint16 EventData);
+
+private:
+    void run();
+    void LogErrorFrame(can_frame &Frame);
+
+private:
+    CANCommunicator*    m_pCANCommunicator;     //!< Communicator object
+    CANInterface &      m_rCANInterface;        //!< reference to CAN interface
+    QMutex              m_BreakLock;            //!< Break synchronization
+    bool                m_bBreak;               //!< break condition
+    can_frame           m_lastErrorFrame;       //!< last received error frame
 };
 
 
@@ -97,52 +94,45 @@ private:
 /****************************************************************************/
 class CANTransmitThread : public QThread
 {
-public:
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function CANTransmitThread
-     *
-     *  \param pCANCommunicator = CANCommunicator type parameter
-     *
-     *  \return from CANTransmitThread
-     */
-    /****************************************************************************/
-    CANTransmitThread(CANCommunicator* pCANCommunicator);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Set the Can2TcpClient instance for simulator connection
-     *
-     *  \iparam pClient = Pointer to Can2TcpClient
-     */
-    /****************************************************************************/
-    void SetTcpClient(Can2TcpClient* pClient) { m_pClient = pClient; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function run
-     *
-     *  \return from run
-     */
-    /****************************************************************************/
-    void run();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function SetBreak
-     *
-     *  \return from SetBreak
-     */
-    /****************************************************************************/
-    void SetBreak();
-
-    QWaitCondition m_waitCondCANTransmit;   //!< Condition variable for write synchronizing
+    Q_OBJECT
 
 private:
-    CANCommunicator* m_pCANCommunicator;    //!< CAN communicator object
-    QMutex m_lockCANTransmit;   //!< Write synchronization
-    QMutex m_BreakLock;         //!< Break synchronization
-    Can2TcpClient* m_pClient;   //!< CAN 2 TCP converter
-    bool m_bBreak;              //!< Break condition for exit
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CANTransmitThread)
+
+public:
+    CANTransmitThread(CANCommunicator* pCANCommunicator, CANInterface & rCANInterface);
+
+    void SetBreak();
+
+    void WakeUp();
+
+signals:
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information
+     *
+     *  \iparam EventCode = Event code
+     *  \iparam EventData = Event data
+     */
+    /****************************************************************************/
+    void ReportEvent(quint32 EventCode, quint16 EventData);
+
+private:
+    void run();
+
+    CANCommunicator*    m_pCANCommunicator;     //!< CAN communicator object
+    CANInterface &      m_rCANInterface;        //!< reference to CAN interface
+    QSemaphore          m_WakeUp;               //!< Write synchronization
+    QMutex              m_BreakLock;            //!< Break synchronization
+    bool                m_bBreak;               //!< Break condition for exit
+    int                 m_lastErrno;            //!< last result from writing to CAN bus
+
 };
 
 } //namespace

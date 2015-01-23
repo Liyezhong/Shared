@@ -24,12 +24,14 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
-#include <linux/can.h>
+#include <linux/can/error.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "DeviceControl/Include/CanCommunication/CANThreads.h"
 #include "DeviceControl/Include/CanCommunication/CANInterface.h"
 #include "DeviceControl/Include/CanCommunication/CANCommunicator.h"
-#include "DeviceControl/Include/CanCommunication/CanTcpCommunication/client.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 
 namespace DeviceControl
@@ -39,41 +41,70 @@ namespace DeviceControl
 /*!
  *  \brief  Constructor for the CANReceiveThread class
  *
- *  \iparam pCANCommunicator = CANCommunicator classed for receive queue access
+ *  \iparam pCANCommunicator = Class for receive queue access
+ *  \iparam rCANInterface = Class for can interface
  */
 /****************************************************************************/
-CANReceiveThread::CANReceiveThread(CANCommunicator* pCANCommunicator) : QThread(),
-    m_pCANCommunicator(pCANCommunicator),
-    m_bTcpSimulation(false), m_bBreak(false)
+CANReceiveThread::CANReceiveThread(CANCommunicator* pCANCommunicator, CANInterface & rCANInterface)
+    : QThread(pCANCommunicator)
+    , m_pCANCommunicator(pCANCommunicator)
+    , m_rCANInterface(rCANInterface)
+    , m_bBreak(false)
 {
+    m_lastErrorFrame.can_id = 0;
 }
 
 /****************************************************************************/
 /*!
  *  \brief  The receive thread's execution function
  *
- *      The function calls a blocking read and waits until new CAN message data were received.
- *      The new CAN message will be add to the receive queue and the blocking read will be called again.
+ *      The function calls a blocking read and waits until new CAN message
+ *      data were received. The new CAN message will be added to the receive
+ *      queue and the blocking read will be called again.
  */
 /****************************************************************************/
 void CANReceiveThread::run()
 {
-    struct can_frame frame;
     forever
     {
-        if(m_pCANCommunicator != NULL && m_pCANCommunicator->GetCANInterface() != NULL)
-        {
-            // read message from CAN bus (blocking call to socket)
-            int nReadResult = m_pCANCommunicator->GetCANInterface()->Read(&frame);
-
-            // add message to receive queue
-            if (nReadResult > 0)
-            {
-                m_pCANCommunicator->AppendToReceiveQueue(frame);
-            }
-            else if (nReadResult < 0)
-            {
+        if(m_pCANCommunicator != NULL) {
+            int ReturnValue = m_rCANInterface.Ready();
+            if (ReturnValue < 0) {
                 m_pCANCommunicator->ReportCANError();
+            }
+            else {
+                // new msg available
+                if (ReturnValue > 0) {
+                    // read message from CAN bus (blocking call to socket)
+                    struct can_frame frame;
+                    int nReadResult = m_rCANInterface.Read(&frame);
+                    if (nReadResult != sizeof(frame)) {
+                        m_pCANCommunicator->ReportCANError();
+                    }
+                    else {
+                        //m_pCANCommunicator->DispatchMessage(frame);
+                        if (0 == (frame.can_id & CAN_ERR_FLAG)) {
+                            // only support EFF
+                            if (CAN_EFF_FLAG == (frame.can_id & (CAN_EFF_FLAG | CAN_RTR_FLAG) )) {
+                                // forward message to module
+                                frame.can_id = frame.can_id & CAN_EFF_MASK;
+                                m_pCANCommunicator->DispatchMessage(frame);
+                                if (m_lastErrorFrame.can_id & CAN_ERR_MASK) {
+                                    frame.can_id = 0;               // log as resolved
+                                    m_lastErrorFrame.can_id = 0;    // reset error frame
+                                }
+                            }
+                            else {
+                                m_pCANCommunicator->ReportCANError();
+                            }
+                        }
+                        else {
+                            // error frame received
+                            FILE_LOG_L(laCAN, llWARNING) << " Error-CanID: " << std::hex << (frame.can_id & CAN_ERR_MASK);
+                            m_lastErrorFrame = frame;
+                        }
+                    }
+                }
             }
         }
 
@@ -105,46 +136,44 @@ void CANReceiveThread::SetBreak()
 /*!
  *  \brief  Constructor for the CANTransmitThread class
  *
- *  \iparam pCANCommunicator = CANCommunicator classed for transmit queue access
+ *  \iparam pCANCommunicator = Class for transmit queue access
+ *  \iparam rCANInterface = Class for can interface
+ *  \iparam pCANLog = Class for can log
  */
 /****************************************************************************/
-CANTransmitThread::CANTransmitThread(CANCommunicator* pCANCommunicator) : QThread()
+CANTransmitThread::CANTransmitThread(CANCommunicator* pCANCommunicator, CANInterface & rCANInterface)
+    : QThread(pCANCommunicator)
+    , m_pCANCommunicator(pCANCommunicator)
+    , m_rCANInterface(rCANInterface)
+    , m_WakeUp(0)
+    , m_bBreak(false)
+    , m_lastErrno(0)
 {
-    m_bBreak = false;
-    m_pCANCommunicator = pCANCommunicator;
-    m_pClient = 0;
 }
 
 /****************************************************************************/
 /**
  *  \brief  The transmit thread's execution function
  *
- *      The function checks for pending CAN messages to send.
- *      If any, the CAN message will be taken from the send queue and send via CAN bus
- *      (If the simulation is active, the massage's data will be send via tcp-client)
+ *      The function checks for pending CAN messages to be sent. If any, the
+ *      CAN message will be taken from the send queue and sent via CAN bus.
  *
- *      If no further CAN messages left for sending, the thread blocks until the
- *      wait condition wakes them up again.
+ *      If no further CAN messages are left for sending, the thread will block
+ *      until the wait condition wakes them up again.
  *
- *      The wait condition will be set by CANCommunicator::SendCOB  if a new CAN-message
- *      was put into the send queue
+ *      The wait condition will be set by CANCommunicator::SendCOB, if a new
+ *      CAN-message was put into the send queue.
  */
 /****************************************************************************/
 void CANTransmitThread::run()
 {
     struct can_frame canframeToSend;
     int nWriteResult;
-
     forever
     {
-        //initially lock the mutex
-        m_lockCANTransmit.lock();
-        // wait on the wait condition
-        if(m_waitCondCANTransmit.wait(&m_lockCANTransmit) != false)
-        {
-            FILE_LOG_L(laCOMM, llDEBUG3) << " CANTransmitThread::wait() -> true";
-        }
-        m_lockCANTransmit.unlock();
+        // wait until get waked up
+        m_WakeUp.acquire();
+        while (m_WakeUp.tryAcquire());  // clear sepmaphore
 
         // check the thread's break condition
         m_BreakLock.lock();
@@ -156,29 +185,43 @@ void CANTransmitThread::run()
         }
         m_BreakLock.unlock();
 
-
+        // transmit data from send buffer
         while (m_pCANCommunicator->IsOutMessagePending())
         {
             // pop message from send queue
             canframeToSend = m_pCANCommunicator->PopPendingOutMessage();
 
-            if(m_pClient)
-            {
-                // running in simulation mode, use the tcp client to transmit the CAN-message data
-                m_pClient->SendMessage(&canframeToSend);
+            // write it to the CAN bus socket layer
+            nWriteResult = m_rCANInterface.Write(canframeToSend);
+            if (nWriteResult != sizeof(canframeToSend)) {
+                m_pCANCommunicator->ReportCANError();
             }
-            else
-            {
-                // write it to the CAN bus socket layer
-                nWriteResult = m_pCANCommunicator->GetCANInterface()->Write(&canframeToSend);
-                if(nWriteResult < 0)
-                {
-                    m_pCANCommunicator->ReportCANError();
-                }
-            }
+//                if (m_lastErrno != errno) {
+//                    m_pCANCommunicator->ReportCANError();
+//                    m_lastErrno = errno;
+//                }
+//            }
+//            else {
+//                if (m_lastErrno != errno) {
+//                    m_pCANCommunicator->ReportCANError();
+//                    m_lastErrno = errno;
+//                }
+//            }
         }
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Wake up the transmit thread
+ */
+/****************************************************************************/
+void CANTransmitThread::WakeUp()
+{
+    m_WakeUp.release();
+}
+
+
 
 /****************************************************************************/
 /*!

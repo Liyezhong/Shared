@@ -88,7 +88,7 @@ QString DeviceProcessing::m_SerialNo = "";
  *  \iparam p_Parent = The parent object of this class.
  */
 /********************************************************************************/
-DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
+DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),m_canCommunicator(this),
     m_pTaskConfig(0), m_pTaskNormalOperation(0), m_pTaskShutdown(0), m_pTaskDestroy(0),
     m_pTaskDiagnostic(0), m_pTaskAdjustment(0), m_pTaskFirmwareUpdate(0)
 {
@@ -757,43 +757,6 @@ void DeviceProcessing::TaskFinished(DeviceProcTask* pActiveTask)
     }
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Append received data to queue
- *
- *
- *  \iparam ID = CAN msg ID
- *  \iparam data0 = The data 0
- *  \iparam data1 = The data 1
- *  \iparam data2 = The data 2
- *  \iparam data3 = The data 3
- *  \iparam data4 = The data 4
- *  \iparam data5 = The data 5
- *  \iparam data6 = The data 6
- *  \iparam data7 = The data 7
- *  \iparam dlc = The data length
- */
-/****************************************************************************/
-void DeviceProcessing::ReceiveCANMessage(quint32 ID, quint8 data0, quint8 data1, quint8 data2, quint8 data3,
-                                         quint8 data4, quint8 data5, quint8 data6, quint8 data7, quint8 dlc)
-{
-    //FILE_LOG_L(laDEVPROC, llINFO) << "  DeviceProcessing::ReceiveCANMessage: " << std::hex << ID << ", " << data0 << ", " << data1 << ", " << data2;
-    struct can_frame frame;
-
-    frame.can_id = ID;
-    frame.data[0] = data0;
-    frame.data[1] = data1;
-    frame.data[2] = data2;
-    frame.data[3] = data3;
-    frame.data[4] = data4;
-    frame.data[5] = data5;
-    frame.data[6] = data6;
-    frame.data[7] = data7;
-    frame.can_dlc = dlc;
-
-    m_canCommunicator.AppendToReceiveQueue( frame);
-}
-
 
 /****************************************************************************/
 /*!
@@ -864,42 +827,13 @@ ReturnCode_t DeviceProcessing::SetPriority()
 /****************************************************************************/
 ReturnCode_t DeviceProcessing::InitCommunication()
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-    qint16 sResult;
-    Can2TcpClient* pClient;
     //CONNECTSIGNALSLOT(&m_canCommunicator, ReportError(quint32, quint16, quint16, quint16, QDateTime),
     //                    this->GetParent(), OnError(quint32, quint16, quint16, quint16, QDateTime));
     CONNECTSIGNALSLOT(&m_canCommunicator, ReportError(quint32, quint16, quint16, quint16, QDateTime),
                         this, OnError(quint32, quint16, quint16, quint16, QDateTime));
 
-    if(m_TcpInterface == "1")
-    {
-        FILE_LOG_L(laDEVPROC, llINFO) << "  activate tcp communication";
-        m_canCommunicator.SetTcpCommunication(true);
-    }
-
     FILE_LOG_L(laDEVPROC, llINFO) << "  start CAN communication";
-    sResult = m_canCommunicator.StartComm(m_CanInterface.toStdString().c_str());
-    if(sResult < 0)
-    {
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
-    }
-    else
-    {
-        if(m_TcpInterface == "1")
-        {
-            pClient = m_canCommunicator.GetTcpClient();
-
-            if(!connect((CANReceiveThread*) pClient, SIGNAL(newCANMessage(quint32, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8)),
-                    this, SLOT(ReceiveCANMessage(quint32, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8))))
-            {
-                FILE_LOG_L(laDEVPROC, llERROR) << "  cannot connect 'newCANMessage' signal ";
-                RetVal = DCL_ERR_FCT_CALL_FAILED;
-            }
-        }
-    }
-
-    return RetVal;
+    return m_canCommunicator.StartComm(m_CanInterface.toStdString().c_str());
 }
 
 /****************************************************************************/
@@ -1067,8 +1001,6 @@ void DeviceProcessing::HandleTasks()
         default:
             break;
     }
-
-    m_canCommunicator.DispatchPendingInMessage();
 /*
     if(PerformanceCheck)
     {
@@ -1385,20 +1317,9 @@ void DeviceProcessing::HandleTaskShutDown(DeviceProcTask* pActiveTask)
     }
     else if(m_SubStateShutDown == DP_SUB_STATE_SHUTDOWN_CLOSE_COMM)
     {
-        ReturnCode_t RetVal;
-
         FILE_LOG_L(laDEVPROC, llINFO) << "  DeviceProcessing::HandleTaskShutDown DP_SUB_STATE_SHUTDOWN_CLOSE_COMM.";
-        RetVal = m_canCommunicator.StopComm();
-        if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-        {
-            m_SubStateShutDown = DP_SUB_STATE_SHUTDOWN_CLOSE_OBJECTS;
-            FILE_LOG_L(laDEVPROC, llINFO) << "  DeviceProcessing::HandleTaskShutDown DP_SUB_STATE_SHUTDOWN_CLOSE_COMM finished";
-        }
-        else
-        {
-            m_SubStateShutDown = DP_SUB_STATE_SHUTDOWN_CLOSE_OBJECTS;
-            FILE_LOG_L(laDEVPROC, llINFO) << "  DeviceProcessing::HandleTaskShutDown DP_SUB_STATE_SHUTDOWN_CLOSE_COMM failed:" << (int) RetVal;
-        }
+        m_canCommunicator.StopComm();
+        m_SubStateShutDown = DP_SUB_STATE_SHUTDOWN_CLOSE_OBJECTS;
     }
     else if(m_SubStateShutDown == DP_SUB_STATE_SHUTDOWN_CLOSE_OBJECTS)
     {

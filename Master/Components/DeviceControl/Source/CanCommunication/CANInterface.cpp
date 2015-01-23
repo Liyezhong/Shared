@@ -59,7 +59,6 @@ namespace DeviceControl
 #define ERROR_CANINTERFACE_SOCKET_OPT   -6  //!< socket error options
 #define ERROR_CANINTERFACE_WRITE        -7  //!< write error at 'can' socket
 
-
 /****************************************************************************/
 /*!
  *  \brief  Constructor for the CANInterface class
@@ -78,7 +77,11 @@ CANInterface::CANInterface() : m_sockCan(0)
  *  \return 0 if successfully opened, otherwise a negative value
  */
 /****************************************************************************/
-qint16  CANInterface::Open(const char* szOpenInterface)
+// see https://www.kernel.org/doc/Documentation/networking/can.txt
+// or
+// see example at http://www.can-cia.org/fileadmin/cia/files/icc/13/kleine-budde.pdf
+// chapter "Applications and the CAN_RAW protocol"
+qint16 CANInterface::Open(const char* szOpenInterface)
 {
     qint16 sRetval = ERROR_CANINTERFACE_UNDEF;
     struct sockaddr_can addr;
@@ -96,10 +99,10 @@ qint16  CANInterface::Open(const char* szOpenInterface)
     }
     FILE_LOG_L(laINIT, llDEBUG) << " try to open '" << szOpenInterface << "'";
 
-    m_sockCan = socket(PF_CAN, SOCK_RAW | SOCK_NONBLOCK, CAN_RAW); //lint !e641 !e655
+    // open CAN_RAW socket to allow send and receive of raw CAN frames
+    m_sockCan = socket(PF_CAN, (qint32)SOCK_RAW | (qint32)SOCK_NONBLOCK, CAN_RAW);
     if (m_sockCan < 0)
     {
-        perror("socket");
         FILE_LOG_L(laINIT, llDEBUG) << " error while opening " << szOpenInterface;
         return ERROR_CANINTERFACE_SOCKET;
     }
@@ -109,27 +112,29 @@ qint16  CANInterface::Open(const char* szOpenInterface)
 
     char* pifr_name = &ifr.ifr_name[0];
     memset(pifr_name, 0, sizeof(ifr.ifr_name));
-    //memset(&ifr.ifr_name, 0, sizeof(ifr.ifr_name));
     strncpy(ifr.ifr_name, szOpenInterface, nbytes);
 
-    strcpy(ifr.ifr_name, szOpenInterface); /// \todo constanten raus
+    // convert interface sting "can0" into interface index
+    strcpy(ifr.ifr_name, szOpenInterface);
     if (ioctl(m_sockCan, SIOCGIFINDEX, &ifr) < 0)
     {
-        perror("SIOCGIFINDEX");
         std::string strError(strerror(errno));
         FILE_LOG_L(laINIT, llDEBUG) << " Error while open can interface 0: " << strError;
         return ERROR_CANINTERFACE_SOCKET_IOCTL;
     }
-    addr.can_ifindex = ifr.ifr_ifindex;
 
+    //setup address for bind
+    addr.can_ifindex = ifr.ifr_ifindex;
+    // bind socket to the can0 interface
     if (bind(m_sockCan, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
-        perror("bind");
         FILE_LOG_L(laINIT, llDEBUG) << " Error while bind socket can interface 0: ";
         return ERROR_CANINTERFACE_SOCKET_BIND;
     }
+
     //Error handling options
-    err_mask = ( CAN_ERR_TX_TIMEOUT | CAN_ERR_LOSTARB | CAN_ERR_CRTL | CAN_ERR_PROT | CAN_ERR_TRX | CAN_ERR_ACK | CAN_ERR_BUSOFF | CAN_ERR_BUSOFF | CAN_ERR_RESTARTED );
+    err_mask = (CAN_ERR_TX_TIMEOUT | CAN_ERR_LOSTARB | CAN_ERR_CRTL | CAN_ERR_PROT | CAN_ERR_TRX |
+                CAN_ERR_ACK | CAN_ERR_BUSOFF | CAN_ERR_BUSERROR | CAN_ERR_RESTARTED );
     sRetval = setsockopt(m_sockCan, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask));
     if (sRetval < 0)
     {
@@ -160,41 +165,52 @@ void CANInterface::Close()
 /*!
  *  \brief  Writes a can message's data to to can socket
  *
- *  \iparam pCanMsg = The CAN message to send
+ *  \iparam CanMsg = The CAN message to send
  *
- *  \return negative vlaue in case of an error
+ *  \return negative value in case of an error
  */
 /****************************************************************************/
-int CANInterface::Write(const can_frame* pCanMsg)
+int CANInterface::Write(can_frame & CanMsg)
 {
-    int    nWriteResult = 0;
-    short  sIndex;
-    struct can_frame frame;
+    CanMsg.can_id |= CAN_EFF_FLAG;
+    CanMsg.can_id &= ~CAN_RTR_FLAG;
 
-    frame.can_id  = pCanMsg->can_id;
-    frame.can_id |= CAN_EFF_FLAG;
-    frame.can_id &= ~CAN_RTR_FLAG;
-
-    for(sIndex=0; sIndex<8; sIndex++)
-        frame.data[sIndex] = pCanMsg->data[sIndex];
-    frame.can_dlc = pCanMsg->can_dlc;
-
-    /* send frame */
-    /// \todo Error handling, acknowledge sending
-    // refer to socketcan mailinglist
-    if ((nWriteResult = write(m_sockCan, &frame, sizeof(frame))) != sizeof(frame))
-    {
-        perror("Colorado, write socketcan:");
-        return ERROR_CANINTERFACE_WRITE;
-    }
-
-    if(nWriteResult < 0)
-    {
-        FILE_LOG_L(laCAN, llERROR) << "can write error " << nWriteResult;
-    }
-
-    return nWriteResult;
+    return write(m_sockCan, &CanMsg, sizeof(can_frame));
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Check if can message is ready for reading from the CAN socket interface
+ *
+ *  \return negative value in case of an error,
+ *          zero if not ready.
+ *          positive value if ready
+ */
+/****************************************************************************/
+int CANInterface::Ready()
+{
+/* Will also return 1 if interface is down.
+   In this case the next read will return an error.
+
+   see linux man page for select.
+   quote: "Those listed in readfds will be watched to see if characters become
+   available for reading (more precisely, to see if a read  will  not  block;
+   in  particular,  a  file descriptor  is  also ready on end-of-file)"
+*/
+
+    //lint -esym(530, ReadFileDescriptors)
+    fd_set ReadFileDescriptors;
+    struct timeval TimeValue;
+
+    FD_ZERO(&ReadFileDescriptors);              //lint !e529
+    FD_SET(m_sockCan, &ReadFileDescriptors);    //lint !e573
+
+    TimeValue.tv_sec = 0;
+    TimeValue.tv_usec = 500000;
+
+    return select(m_sockCan + 1, &ReadFileDescriptors, NULL, NULL, &TimeValue);
+}
+
 
 /****************************************************************************/
 /*!
@@ -202,110 +218,12 @@ int CANInterface::Write(const can_frame* pCanMsg)
  *
  *  \iparam pCanMsg = The CAN message to read, will be filled
  *
- *  \return negative vlaue in case of an error
+ *  \return negative value in case of an error
  */
 /****************************************************************************/
 int CANInterface::Read(can_frame* pCanMsg)
 {
-    struct can_frame frame;
-    int bytes_read, sIndex;
-    fd_set ReadFileDescriptors;
-    struct timeval TimeValue;
-    qint32 ReturnValue;
-
-    FD_ZERO(&ReadFileDescriptors); //lint !e529
-    FD_SET(m_sockCan, &ReadFileDescriptors); //lint !e573 !e530
-
-    TimeValue.tv_sec = 0;
-    TimeValue.tv_usec = 500000;
-
-    ReturnValue = select(m_sockCan + 1, &ReadFileDescriptors, NULL, NULL, &TimeValue);
-    if (ReturnValue < 0)
-    {
-        return ERROR_CANINTERFACE_SOCKET;
-    }
-    else if (ReturnValue == 0)
-    {
-        return 0;
-    }
-
-    /* Read a message back from the CAN bus */
-    bytes_read = read(m_sockCan, &frame, sizeof(frame));
-
-    if(bytes_read == sizeof(frame))
-    {
-        //************ Norbert's information, SEP11 *******************
-        // any errors detected by the can driver should be signaled here.
-        // This doesn't work so far with the phytec driver, but phytec was kicked out, and I was ordered to spend no more time on it.
-        // when starting with LNT, refer to their CAN-drivers error masking information and adapt changes, if any.
-        // use 'ifconfig can0' at command line, or procfs to ensure error detection by the driver itself
-        // Bus-Warning, BusOff shall be detected.
-        // connect CAN H/L to CAN-GND, this will force an error.
-        // Use PeakCAN, which will report CAN-Bus errors as well
-        if (frame.can_id & CAN_ERR_FLAG)
-        {
-            FILE_LOG_L(laCAN, llWARNING) << " Error-CanID: " << std::hex << (frame.can_id & CAN_ERR_MASK);
-            if (frame.can_id & CAN_ERR_BUSOFF)
-            {
-                FILE_LOG_L(laCAN, llWARNING) << " Error: Bus-Off";
-            }
-            if (frame.can_id & CAN_ERR_CRTL)
-            {
-                FILE_LOG_L(laCAN, llWARNING) << " Error: controller problem";
-            }
-            return ERROR_CANINTERFACE_SOCKET;
-        }
-        else if (frame.can_id & CAN_EFF_FLAG)
-        {
-            //if you need a loging of each CAN-message, use this:
-            FILE_LOG_L(laCAN, llDEBUG2) << " CanID: " << std::hex << (frame.can_id & CAN_EFF_MASK) <<
-                                                 " "  << std::hex << (int)frame.data[0] <<
-                                                 " "  << std::hex << (int)frame.data[1] <<
-                                                 " "  << std::hex << (int)frame.data[2] <<
-                                                 " "  << std::hex << (int)frame.data[3] <<
-                                                 " "  << std::hex << (int)frame.data[4] <<
-                                                 " "  << std::hex << (int)frame.data[5] <<
-                                                 " "  << std::hex << (int)frame.data[6] <<
-                                                 " "  << std::hex << (int)frame.data[7];
-            pCanMsg->can_id  = frame.can_id & CAN_EFF_MASK;
-        }
-        else
-        {
-            pCanMsg->can_id  = frame.can_id & CAN_SFF_MASK;
-            FILE_LOG_L(laCAN, llERROR) << " standard CANID received: 0x" << std::hex << (frame.can_id & CAN_SFF_MASK);
-        }
-
-        /// \todo error message handling, at this time just standard messages will be forwarded
-        pCanMsg->can_id  = frame.can_id & 0x1FFFFFFF;
-        pCanMsg->can_dlc  = frame.can_dlc;
-        for(sIndex=0; sIndex<8; sIndex++)
-        {
-            if(sIndex < frame.can_dlc)
-                pCanMsg->data[sIndex]  = frame.data[sIndex];
-            else
-                pCanMsg->data[sIndex] = 0x00;
-        }
-        return bytes_read;
-    }
-    else
-    {
-        FILE_LOG_L(laCAN, llERROR) << " bytes read not match can_frame size: " << bytes_read;
-    }
-    return ERROR_CANINTERFACE_SOCKET;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Return the status of the communication socket
- *
- *  \return Status information (not implemented so far)
- */
-/****************************************************************************/
-int CANInterface::GetStatus()
-{
-    int val = 0;
-    //ioctl(m_sockCan, IOC_GET_STATUS, &val);
-    return val;
+    return read(m_sockCan, pCanMsg, sizeof(can_frame));
 }
 
 } //namespace

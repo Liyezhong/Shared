@@ -49,14 +49,22 @@ public:
     //! Close the can interface
     void Close();
     //! Write can message to device
-    int Write(const can_frame* pCanMsg);
+    int Write(can_frame &CanMsg);
+    //! check if msg is ready for reading
+    int Ready();
     //! Read can message from device
     int Read(can_frame* canmsg);
-    //! Return the device status, read via ioctl
-    int GetStatus();
 
 private:
     int m_sockCan;  //!< Communication socket
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CANInterface)
 };
 
 } //namespace

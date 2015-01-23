@@ -64,6 +64,7 @@ namespace DeviceControl
     m_MainState = DEVICE_MAIN_STATE_START;
     m_MainStateOld = DEVICE_MAIN_STATE_START;
     qRegisterMetaType<DataManager::CModule>("DataManager::CModule");
+    qRegisterMetaType<PowerState_t>("PowerState_t");
 
     // error handling
     m_lastErrorHdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
@@ -430,10 +431,13 @@ bool CBaseDevice::InsertBaseModule(CBaseModule* pBase)
     }
     if (m_BaseModuleList.empty())
     {
-        (void)connect(pBase, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
-                  this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)));
-        (void)connect(pBase, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
-                  this, SLOT(OnReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)));
+        if(!connect(pBase, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
+                  this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16))) || \
+        !connect(pBase, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
+                  this, SLOT(OnReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16))))
+        {
+            FILE_LOG_L(laDEV, llDEBUG)<<"connect errors";
+        }
     }
     m_BaseModuleList.append(pBase);
 

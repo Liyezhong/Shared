@@ -34,17 +34,17 @@
 #include <sys/socket.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
+
+#include "DeviceControl/Include/CanCommunication/CANInterface.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "Global/Include/AdjustedTime.h"
 
 namespace DeviceControl
 {
 
-class CANInterface;
 class CANReceiveThread;
 class CANTransmitThread;
 class CModule;
-class Can2TcpClient;
 
 //! Type definition of a map containing the CAN-message receiving objects
 typedef std::map <__u32, CModule*> COBConsumerMap;
@@ -64,74 +64,31 @@ typedef std::deque <can_frame> COBDeque;
 class CANCommunicator : public QObject
 {
     Q_OBJECT
+
+private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CANCommunicator)
+
 public:
-    CANCommunicator();
+    CANCommunicator(QObject *pParent);
     virtual ~CANCommunicator();
 
-    int m_nInstanceNo;  //!< Instance counter
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Set Simulation flag
-     *
-     *  \iparam UseTcp = Usage of simulation flag
-     */
-    /****************************************************************************/
-    void SetTcpCommunication(bool UseTcp) { m_bUseTcp = UseTcp; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Return the CAN to TCP converter
-     *
-     *  \return Pointer to 'CAN to TCP converter' object
-     */
-    /****************************************************************************/
-    Can2TcpClient* GetTcpClient() { return m_pClient; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function StartComm
-     *
-     *  \param ifaceCAN =  char type parameter
-     *
-     *  \return from StartComm
-     */
-    /****************************************************************************/
-    qint16 StartComm(const char* ifaceCAN);
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function StopComm
-     *
-     *  \return from StopComm
-     */
-    /****************************************************************************/
-    ReturnCode_t StopComm();
+    ReturnCode_t StartComm(const char* Interface);
+    void StopComm();
 
     /****************************************************************************/
     /*!
      *  \brief  Report CAN error
+     *  \iparam ErrorID index the specific error
      *  \return void
      */
     /****************************************************************************/
-    void ReportCANError();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function GetCommunicationError
-     *
-     *  \param nErrorAdditionalInfo = qint16 type parameter
-     *
-     *  \return from GetCommunicationError
-     */
-    /****************************************************************************/
-    qint16 GetCommunicationError(qint16& nErrorAdditionalInfo);
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function GetCommunicationStatus
-     *
-     *  \return from GetCommunicationStatus
-     */
-    /****************************************************************************/
-    int  GetCommunicationStatus();
+    void ReportCANError(quint32 ErrorID = 0);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetCANInterface
@@ -139,7 +96,7 @@ public:
      *  \return from GetCANInterface
      */
     /****************************************************************************/
-    CANInterface* GetCANInterface();
+    const DeviceControl::CANInterface &GetCANInterface();
 
     /****************************************************************************/
     /*!
@@ -162,6 +119,23 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t SendCOB(can_frame& canmsg);
+	
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IsOutMessagePending
+     *
+     *  \return from IsOutMessagePending
+     */
+    /****************************************************************************/
+    bool IsOutMessagePending();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function PopPendingOutMessage
+     *
+     *  \return from PopPendingOutMessage
+     */
+    /****************************************************************************/
+    can_frame PopPendingOutMessage();
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function DispatchMessage
@@ -173,60 +147,19 @@ public:
     /****************************************************************************/
     void DispatchMessage(can_frame& canmsg);
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function DispatchPendingInMessage
-     *
-     *  \return from DispatchPendingInMessage
-     */
-    /****************************************************************************/
-    void DispatchPendingInMessage();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function AppendToReceiveQueue
-     *
-     *  \param canmsg = can_frame type parameter
-     *
-     *  \return from AppendToReceiveQueue
-     */
-    /****************************************************************************/
-    void AppendToReceiveQueue(can_frame& canmsg);
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function IsOutMessagePending
-     *
-     *  \return from IsOutMessagePending
-     */
-    /****************************************************************************/
-    bool IsOutMessagePending();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function IsInMessagePending
-     *
-     *  \return from IsInMessagePending
-     */
-    /****************************************************************************/
-    bool IsInMessagePending();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function PopPendingOutMessage
-     *
-     *  \return from PopPendingOutMessage
-     */
-    /****************************************************************************/
-    can_frame PopPendingOutMessage();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function PopPendingInMessage
-     *
-     *  \return from PopPendingInMessage
-     */
-    /****************************************************************************/
-    can_frame PopPendingInMessage();
 signals:
     /****************************************************************************/
     /*!
-     *  \brief  Forward error information to IDeviceProcessing
+     *  \brief  Forward error information
+     *
+     *  \iparam EventCode = Event code
+     *  \iparam EventData = Event data
+     */
+    /****************************************************************************/
+    void ReportEvent(quint32 EventCode, quint16 EventData);
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information
      *
      *  \iparam instanceID = Instance identifier of this function module instance
      *  \iparam usErrorGroup = Error group
@@ -237,21 +170,19 @@ signals:
     /****************************************************************************/
     void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp);
 
+
+private slots:
+    void OnReportEvent(quint32 EventCode, quint16 EventData);
+
 private:
-    CANReceiveThread*  m_pCANReceiveThread;     ///< receive thread
-    CANTransmitThread* m_pCANTransmitThread;    ///< transmit thread
+    CANReceiveThread*  m_pCANReceiveThread;     //!< receive thread
+    CANTransmitThread* m_pCANTransmitThread;    //!< transmit thread
 
-    qint16 OpenCAN(const char* iface);
+    CANInterface m_CANInterface;    //!< CAN interface class
 
-    CANInterface* m_pCANInterface;  ///< CAN interface class
+    COBConsumerMap m_cobMap;    //!< map containing the registered CAN-message IDs of receivable messages
 
-    Can2TcpClient* m_pClient;   ///< the tcp client to connect to simulation software
-    bool m_bUseTcp;             ///< and a flag to store the usage
-
-    COBConsumerMap m_cobMap;    ///< map containing the registered CAN-message IDs of receivable messages
-
-    COBDeque m_RecvQueue;   ///< the receive queue for incoming CAN messages
-    COBDeque m_SendQueue;   ///< the send queue for outgoing CAN messages, type tCanMsgStruct
+    COBDeque m_SendQueue;   //!< the send queue for outgoing CAN messages, type tCanMsgStruct
 
     //internal error situation
     quint16 m_nErrorState;          ///< error state (new, transmitted, changed,...
@@ -261,6 +192,7 @@ private:
     quint8 m_errorUntransmitted;  ///< flag for error forwarding
 
     QMutex m_mutexCOB;  ///< Access serialisation object
+
 };
 
 } //namespace

@@ -33,18 +33,16 @@
 #include <linux/can/raw.h>
 
 #include "DeviceControl/Include/CanCommunication/CANThreads.h"
-#include "DeviceControl/Include/CanCommunication/CANInterface.h"
 #include "DeviceControl/Include/CanCommunication/CANCommunicator.h"
-#include "DeviceControl/Include/CanCommunication/CanTcpCommunication/client.h"
 #include "DeviceControl/Include/SlaveModules/Module.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 
+#include "Global/Include/Utils.h"
+//lint -sem(DeviceControl::CANCommunicator::StopComm,cleanup)
+
 namespace DeviceControl
 {
-
-//! Number of instances of the class CANCommunicator
-static int m_nInstanceCnt_s = 0;
 
 #define ERR_COMM_BUS_OFF -1   //!< error 'Bus Off'
 #define ERR_COMM_NONE     0   //!< no communication error
@@ -52,14 +50,15 @@ static int m_nInstanceCnt_s = 0;
 /****************************************************************************/
 /*!
  *  \brief  Constructor for the CANCommunicator
+ *  \iparam pParent is QObject
  */
 /****************************************************************************/
-CANCommunicator::CANCommunicator() :
-    m_pCANReceiveThread(0), m_pCANTransmitThread(0), m_pCANInterface(0), m_pClient(0), m_bUseTcp(false),
-    m_nErrorState(0), m_nErrorAdditionalInfo(0)
+CANCommunicator::CANCommunicator(QObject * pParent)
+    : QObject(pParent)
+    , m_pCANReceiveThread(0)
+    , m_pCANTransmitThread(0)
 {
     // initialize and increment instance ids
-    m_nInstanceNo = m_nInstanceCnt_s++;
     m_nErrorCode = ERR_COMM_NONE;
     m_errorUntransmitted = 0;
 }
@@ -71,15 +70,10 @@ CANCommunicator::CANCommunicator() :
 /****************************************************************************/
 CANCommunicator::~CANCommunicator()
 {
-    try
-    {
-        delete m_pClient;
+    try {
+        StopComm();
     }
-    catch (...)
-    {
-        // and exit
-        return;
-    }
+    CATCHALL_DTOR()
 }
 
 /****************************************************************************/
@@ -88,72 +82,64 @@ CANCommunicator::~CANCommunicator()
  *
  *      The function creates and starts the receive and transmit thread
  *
- *  \iparam ifaceCAN = CAN network interface
+ *  \iparam Interface = CAN network interface
  *
- *  \return 0 on success, otherwise error code
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
-qint16 CANCommunicator::StartComm(const char* ifaceCAN)
+ReturnCode_t CANCommunicator::StartComm(const char *Interface)
 {
-    qint16 sReturn = 0;
-
     FILE_LOG_L(laINIT, llDEBUG) << " enter function";
     FILE_LOG_L(laDEVPROC, llDEBUG) << " CANCommunicator::CANCommunicator Thread: " << QThread::currentThreadId();
 
-
-    if(!m_bUseTcp)
-    {
-        sReturn = OpenCAN(ifaceCAN);
-
-        if(sReturn >= 0)
-        {
-            FILE_LOG_L(laINIT, llDEBUG) << " create transmit thread";
-            m_pCANTransmitThread = new CANTransmitThread(this);
-
-            FILE_LOG_L(laINIT, llDEBUG) << " create receive thread";
-            m_pCANReceiveThread = new CANReceiveThread(this);
-
-            FILE_LOG_L(laINIT, llDEBUG) << " start receive thread";
-            m_pCANReceiveThread->start();
-
-            FILE_LOG_L(laINIT, llDEBUG) << " start transmit thread: " << m_pCANTransmitThread;
-            m_pCANTransmitThread->start();
-        }
-        else
-        {
-            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, EVENT_GRP_DCL_CANINTERFACE, (quint16)DCL_ERR_CANCOMMUTOR_START,
-                             (quint16)DCL_ERR_CANCOMMUTOR_START,Global::AdjustedTime::Instance().GetCurrentDateTime());
-        }
-    }
-    else
-    {
-        FILE_LOG_L(laINIT, llDEBUG) << "  start tcp connection, create Client... ";
-        m_pClient = new Can2TcpClient();
-
-        if (!m_pClient->Initialize()) {
-            FILE_LOG_L(laINIT, llDEBUG) << "  CANCommunicator ERROR: cannot initialize TCP-Client... ";
-            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, EVENT_GRP_DCL_CANINTERFACE,
-                             (quint16)DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT, (quint16)DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,
-                             Global::AdjustedTime::Instance().GetCurrentDateTime());
-            sReturn = -1;
-        }
-        else
-        {
-            FILE_LOG_L(laINIT, llDEBUG) << "create transmit thread";
-            m_pCANTransmitThread = new CANTransmitThread(this);
-
-            FILE_LOG_L(laINIT, llDEBUG) << "  tcp connection installed.";
-            m_pCANTransmitThread->SetTcpClient(m_pClient);
-
-            FILE_LOG_L(laINIT, llDEBUG) << "start transmit thread: " << m_pCANTransmitThread;
-            m_pCANTransmitThread->start();
-
-        }
+    if(m_CANInterface.Open(Interface) < 0) {
+        //emit ReportEvent(EVENT_DEVICECONTROL_ERROR_CANBUS_OPEN, 0);
+        return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    FILE_LOG_L(laINIT, llDEBUG) << "exit function:" << sReturn;
+    FILE_LOG_L(laINIT, llDEBUG) << " create transmit thread";
+    m_pCANTransmitThread = new CANTransmitThread(this, m_CANInterface);
+    if (!m_pCANTransmitThread) {
+        StopComm();
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
 
-    return sReturn;
+    CONNECTSIGNALSLOT(m_pCANTransmitThread, ReportEvent(quint32, quint16),
+                      this, OnReportEvent(quint32, quint16));
+
+    FILE_LOG_L(laINIT, llDEBUG) << " create receive thread";
+    m_pCANReceiveThread = new CANReceiveThread(this, m_CANInterface);
+    if (!m_pCANReceiveThread) {
+        StopComm();
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    CONNECTSIGNALSLOT(m_pCANReceiveThread, ReportEvent(quint32, quint16),
+                      this, OnReportEvent(quint32, quint16));
+
+    FILE_LOG_L(laINIT, llDEBUG) << " start receive thread";
+    m_pCANReceiveThread->start();
+
+    FILE_LOG_L(laINIT, llDEBUG) << " start transmit thread: " << m_pCANTransmitThread;
+    m_pCANTransmitThread->start();
+
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Hanlde and forward error information
+ *
+ *  \iparam EventCode = Event code
+ *  \iparam EventData = Error data
+ */
+/****************************************************************************/
+void CANCommunicator::OnReportEvent(quint32 EventCode, quint16 EventData)
+{
+//    if (EVENT_DEVICECONTROL_ERROR_CANBUS_DOWN == EventCode) {
+//        StopComm();
+//    }
+    emit ReportEvent(EventCode, EventData);
 }
 
 /****************************************************************************/
@@ -163,101 +149,53 @@ qint16 CANCommunicator::StartComm(const char* ifaceCAN)
  *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
-ReturnCode_t CANCommunicator::StopComm()
+void CANCommunicator::StopComm()
 {
-    ReturnCode_t RetCode = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(m_pCANTransmitThread == 0)
-    {
-        RetCode = DCL_ERR_NULL_PTR_ACCESS;
-        FILE_LOG_L(laINIT, llDEBUG) << " StopComm";
-        return RetCode;
-    }
-
     FILE_LOG_L(laINIT, llDEBUG) << " StopComm";
-    FILE_LOG_L(laINIT, llDEBUG) << " -- Break transmit thread";
-    m_pCANTransmitThread->SetBreak();
-    m_pCANTransmitThread->m_waitCondCANTransmit.wakeOne();
+    if(m_pCANTransmitThread) {
 
-    FILE_LOG_L(laINIT, llDEBUG) << " -- wait for transmit thread";
-    if(m_pCANTransmitThread->wait() == false)
-    {
-        FILE_LOG_L(laINIT, llDEBUG) << " -- wait finished for transmit thread";
-    }
+        FILE_LOG_L(laINIT, llDEBUG) << " -- Break transmit thread";
+        m_pCANTransmitThread->SetBreak();
+        m_pCANTransmitThread->WakeUp();
 
-    if(!m_bUseTcp)
-    {
-        if((m_pCANReceiveThread == 0)  || (m_pCANInterface == 0))
-        {
-            RetCode = DCL_ERR_NULL_PTR_ACCESS;
-            return RetCode;
+        FILE_LOG_L(laINIT, llDEBUG) << " -- wait for transmit thread";
+        if(m_pCANTransmitThread->wait() == false) {
+            FILE_LOG_L(laINIT, llDEBUG) << " -- wait finished for transmit thread";
         }
-        else
-        {
-            FILE_LOG_L(laINIT, llDEBUG) << " -- receive break set";
-            m_pCANReceiveThread->SetBreak();
 
-            FILE_LOG_L(laINIT, llDEBUG) << " -- nw wait until finished for receive thread";
-            if(m_pCANReceiveThread->wait() == false)
-            {
-                FILE_LOG_L(laINIT, llDEBUG) << " -- wait finished for receive thread";
-            }
-
-            FILE_LOG_L(laINIT, llDEBUG) << " -- close can interface";
-            m_pCANInterface->Close();
-
-            FILE_LOG_L(laINIT, llDEBUG) << " --  delete threads and interface";
-            delete m_pCANReceiveThread;
-            m_pCANReceiveThread = NULL;
-            delete m_pCANTransmitThread;
-            m_pCANTransmitThread = NULL;
-            delete m_pCANInterface;
-            m_pCANInterface = NULL;
-        }
-    }
-    else
-    {
-        FILE_LOG_L(laINIT, llDEBUG) << " --  tcp delete client";
-        delete m_pClient;
-        FILE_LOG_L(laINIT, llDEBUG) << " --  delete transmit thread ";
+        FILE_LOG_L(laINIT, llDEBUG) << " -- delete transmit thread and interface";
         delete m_pCANTransmitThread;
+        m_pCANTransmitThread = NULL;
     }
 
-    return RetCode;
-}
+    if((m_pCANReceiveThread)) {
 
-/****************************************************************************/
-/*!
- *  \brief  Open the can bus network interface
- *
- *  \iparam ifaceCAN = CAN network interface
- *
- *  \return 0 if successfully opened, otherwise negative error code
- */
-/****************************************************************************/
-qint16 CANCommunicator::OpenCAN(const char* ifaceCAN)
-{
-    qint16 sRetval = 0;
+        FILE_LOG_L(laINIT, llDEBUG) << " -- receive break set";
+        m_pCANReceiveThread->SetBreak();
 
-    m_pCANInterface = new CANInterface();
-
-    if(m_pCANInterface)
-    {
-        /// \todo open with iface
-        sRetval = m_pCANInterface->Open(ifaceCAN);
-        FILE_LOG_L(laINIT, llDEBUG) << " can open returns " <<  sRetval;
-        if (sRetval < 0)
-        {
-            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, EVENT_GRP_DCL_CANINTERFACE, (quint16)DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,
-                             (quint16)DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,Global::AdjustedTime::Instance().GetCurrentDateTime());
+        FILE_LOG_L(laINIT, llDEBUG) << " -- nw wait until finished for receive thread";
+        if(m_pCANReceiveThread->wait() == false) {
+            FILE_LOG_L(laINIT, llDEBUG) << " -- wait finished for receive thread";
         }
+
+        FILE_LOG_L(laINIT, llDEBUG) << " -- delete receive thread and interface";
+        delete m_pCANReceiveThread;
+        m_pCANReceiveThread = NULL;
     }
 
-    return sRetval;
+    FILE_LOG_L(laINIT, llDEBUG) << " -- close can interface";
+    m_CANInterface.Close();
+
+    // Purge queues of pending messages
+    m_mutexCOB.lock();
+    m_SendQueue.clear();
+    m_mutexCOB.unlock();
 }
 
-void CANCommunicator::ReportCANError()
+void CANCommunicator::ReportCANError(quint32 ErrorID)
 {
+    Q_UNUSED(ErrorID)
+    qDebug()<< "********* error happen";
     emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, EVENT_GRP_DCL_CANINTERFACE, (quint16)DCL_ERR_CANCOMMUTOR_COMM_FAILED,
                      (quint16)DCL_ERR_CANCOMMUTOR_COMM_FAILED,Global::AdjustedTime::Instance().GetCurrentDateTime());
 }
@@ -265,46 +203,14 @@ void CANCommunicator::ReportCANError()
 
 /****************************************************************************/
 /*!
- *  \brief  Returns the communication status
+ *  \brief  Returns the CAN interface object
  *
- *  \return Error code
+ *  \return CAN interface object
  */
 /****************************************************************************/
-int CANCommunicator::GetCommunicationStatus()
+const CANInterface &CANCommunicator::GetCANInterface()
 {
-    static int nOldCanStatus = 0;
-    int nCanStatus = 0;
-
-    if(m_pCANInterface)
-    {
-        nCanStatus = m_pCANInterface->GetStatus();
-        if(nOldCanStatus != nCanStatus)
-        {
-            nOldCanStatus = nCanStatus;
-        }
-    }
-
-    return nCanStatus;
-
-    /*int nError;
-    //pthread_mutex_lock( &mutexCOB );
-    nError = m_nError;
-    //pthread_mutex_unlock( &mutexCOB );
-    return m_nError;
-
-    IOC_GET_STATUS*/
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Returns address of the CAN interface class
- *
- *  \return Address if the CAN interface
- */
-/****************************************************************************/
-CANInterface* CANCommunicator::GetCANInterface()
-{
-    return m_pCANInterface;
+    return m_CANInterface;
 }
 
 /****************************************************************************/
@@ -331,9 +237,9 @@ ReturnCode_t CANCommunicator::RegisterCOB(unsigned int unCanID, CModule* pCallba
 /*!
  *  \brief  Copy a CAN message to the transmit queue
  *
- *  \iparam canmsg = the CAN message to send
+ *  \iparam canmsg = The CAN message to be sent
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if successful copied to transmit queue (but still not send!)
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if successful copied to transmit queue (but still not sent!)
  *          DCL_ERR_CANBUS_NOT_READY it the CAN bus is not ready
  *          DCL_ERR_CANBUS_ERROR if an error exists
  */
@@ -350,7 +256,7 @@ ReturnCode_t CANCommunicator::SendCOB(can_frame& canmsg)
     m_SendQueue.push_back(canmsg);      // copy the message to the send queue
     m_mutexCOB.unlock();
 
-    m_pCANTransmitThread->m_waitCondCANTransmit.wakeOne();
+    m_pCANTransmitThread->WakeUp();
 
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
@@ -362,7 +268,7 @@ ReturnCode_t CANCommunicator::SendCOB(can_frame& canmsg)
  *      The HandleCanMessage(..) function of the object which registered  the
  *      CAN message will be called
  *
- *  \iparam canmsg = the CAN message to send
+ *  \iparam canmsg = The CAN message to be sent
  */
 /****************************************************************************/
 void CANCommunicator::DispatchMessage(can_frame& canmsg)
@@ -371,7 +277,7 @@ void CANCommunicator::DispatchMessage(can_frame& canmsg)
     std::map<__u32, CModule*>::iterator iterCOBAssign;
 
     iterCOBAssign = m_cobMap.find(canmsg.can_id);
-    if( iterCOBAssign != m_cobMap.end() )
+    if(iterCOBAssign != m_cobMap.end())
     {
         pCANObjectBase = iterCOBAssign->second;
         FILE_LOG_L(laCAN, llDEBUG2) << " HandleMsg " << std::hex << canmsg.can_id << std::hex << (int)canmsg.data[0] <<
@@ -392,38 +298,7 @@ void CANCommunicator::DispatchMessage(can_frame& canmsg)
 
 /****************************************************************************/
 /*!
- *  \brief  Gets a pending CAN-message from receive queue and dispatch it to DCL
- *
- *      The function should be called cyclically to forward received CAN messages
- */
-/****************************************************************************/
-void CANCommunicator::DispatchPendingInMessage()
-{
-
-    while(IsInMessagePending())
-    {
-        can_frame canmsg = PopPendingInMessage();
-        DispatchMessage(canmsg);
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Append a CAN message to receive queue
- *
- *  \iparam canmsg = The CAN message to insert
- */
-/****************************************************************************/
-void CANCommunicator::AppendToReceiveQueue(can_frame& canmsg)
-{
-    m_mutexCOB.lock();
-    m_RecvQueue.push_back(canmsg);
-    m_mutexCOB.unlock();
-}
-
-/****************************************************************************/
-/*!
- *  \brief Checks whether a CAN-message is pending to be send.
+ *  \brief Checks whether a CAN-message is pending to be sent.
  *
  *  \return True if a CAN message is pending, otherwise false
  */
@@ -434,24 +309,6 @@ bool CANCommunicator::IsOutMessagePending()
 
     m_mutexCOB.lock();
     nSize = m_SendQueue.size();
-    m_mutexCOB.unlock();
-
-    return (nSize > 0);
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Checks whether a CAN-message was received and is pending to handled
- *
- *  \return True if a CAN message is pending, otherwise false
- */
-/****************************************************************************/
-bool CANCommunicator::IsInMessagePending()
-{
-    int nSize = 0;
-
-    m_mutexCOB.lock();
-    nSize = m_RecvQueue.size();
     m_mutexCOB.unlock();
 
     return (nSize > 0);
@@ -470,33 +327,10 @@ can_frame CANCommunicator::PopPendingOutMessage()
 
     m_mutexCOB.lock();
 
-    std::deque <can_frame> :: iterator iterSendQueue;
+    std::deque<can_frame>::iterator iterSendQueue;
     iterSendQueue = m_SendQueue.begin();
     canmsg = *iterSendQueue;
     m_SendQueue.pop_front();
-
-    m_mutexCOB.unlock();
-
-    return canmsg;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Pops a pending CAN message from receive queue.
- *
- *  \return The popped CAN message.
- */
-/****************************************************************************/
-can_frame CANCommunicator::PopPendingInMessage()
-{
-    can_frame canmsg;
-
-    m_mutexCOB.lock();
-
-    std::deque <can_frame> :: iterator iterRecvQueue;
-    iterRecvQueue = m_RecvQueue.begin();  // get the first msg in queue
-    canmsg = *iterRecvQueue;         // copy it
-    m_RecvQueue.pop_front();              // and delete it from queue
 
     m_mutexCOB.unlock();
 
