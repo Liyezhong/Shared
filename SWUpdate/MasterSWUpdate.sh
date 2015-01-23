@@ -974,7 +974,8 @@ case "$1" in
         #Start the power fail monitoring script
 #        chmod 755  $TMPBINDIR/$POWERFAILSCRIPT
 #        exec $TMPBINDIR/$POWERFAILSCRIPT & > /dev/null 2>&1
-        exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Running.png -qws & >/dev/null 2>&1
+        #exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Running.png -qws & >/dev/null 2>&1
+        exec $BINDIR/ImageTestApp 17891338 -qws & >/dev/null 2>&1
         #turn on lcd
         lcd on
         MasterSWUpdate
@@ -996,7 +997,8 @@ case "$1" in
         BASE_EVENT_ID=$2
         #turn on lcd
         lcd on
-        $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Rollback.png -qws & > /dev/null 2>&1
+        #$BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Rollback.png -qws & > /dev/null 2>&1
+        $BINDIR/ImageTestApp 17891337 -qws & > /dev/null 2>&1
         Rollback "All"
         Clean
         exit 0
