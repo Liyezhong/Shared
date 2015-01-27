@@ -423,24 +423,33 @@ inline std::string NowTime()
 /****************************************************************************/
 inline std::string NowDateTime()
 {
-    char bufDate[10];
-    char bufTime[11];
+    char bufDate[20] = {0};
+    char bufTime[20] = {0};
+    char ampm[10] = {0};
+
     time_t t;
-    tm r;
+    struct tm r;
     struct timeval tv;
 
-/*lint -save -e534 */
-//ignoring return value of time, strftime and gettimeofday
+    /*lint -save -e534 */
+    //ignoring return value of time, strftime and gettimeofday
     time(&t);
+    gettimeofday(&tv, 0);
 
     strftime(bufDate, sizeof(bufDate), "%x", localtime_r(&t, &r));
     strftime(bufTime, sizeof(bufTime), "%X", localtime_r(&t, &r));
+    strftime(ampm, sizeof(ampm), "%p", localtime_r(&t, &r));
 
-    gettimeofday(&tv, 0);
-/*lint -restore */
+    /*lint -restore */
     char result[100] = {0};
     sprintf(result, "%s-%s.%03ld", bufDate, bufTime, (long)tv.tv_usec / 1000);
-    return result;
+
+    std::string ts = result;
+    ts.erase(remove(ts.begin(), ts.end(), ampm[0]), ts.end());
+    ts.erase(remove(ts.begin(), ts.end(), ampm[1]), ts.end());
+    ts.erase(remove(ts.begin(), ts.end(), ' '), ts.end());
+    ts = ts + " " + ampm;
+    return ts;
 }
 
 #endif //__LOG_H__
