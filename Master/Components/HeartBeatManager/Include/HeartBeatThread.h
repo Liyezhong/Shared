@@ -38,7 +38,7 @@
 
 namespace HeartBeatManager {
 
-const int HEARTBEAT_CHECK_TIMEOUT = 30000;       ///< Timeout for checking controller heartbeat i.e. 30000 ms..
+const int HEARTBEAT_CHECK_TIMEOUT = 300000;       ///< Timeout for checking controller heartbeat i.e. 30000 ms..
 const int CONTROLLER_HERATBEAT_TIMEOUT = 3000;  ///< Timeout for controller heartbeat i.e.3000 ms.
 
 /****************************************************************************/
