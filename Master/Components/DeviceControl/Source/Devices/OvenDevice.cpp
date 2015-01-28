@@ -5,6 +5,7 @@
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
+#include <limits>
 #include <QtDebug>
 #include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
@@ -779,7 +780,8 @@ bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -809,7 +811,8 @@ bool COvenDevice::IsOutsideRange(OVENTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] + TOLERANCE))

@@ -6,6 +6,7 @@
 #include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <limits>
 #include <QtDebug>
 namespace DeviceControl
 {
@@ -1079,7 +1080,8 @@ bool CRotaryValveDevice::IsInsideRange(quint8 Index)
 {
     if(GetTemperature(0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature[Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperature-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperature[Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperature[Index] > m_TargetTemperature - TOLERANCE)||
                             (m_CurrentTemperature[Index] < m_TargetTemperature + TOLERANCE))
@@ -1106,7 +1108,8 @@ bool CRotaryValveDevice::IsOutsideRange(quint8 Index)
 {
     if(GetTemperature(0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature[Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperature-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperature[Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperature[Index] < m_TargetTemperature - TOLERANCE)||
                             (m_CurrentTemperature[Index] > m_TargetTemperature + TOLERANCE))

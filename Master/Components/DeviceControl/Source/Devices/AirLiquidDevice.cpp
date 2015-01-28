@@ -7,6 +7,7 @@
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
+#include <limits>
 #include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
 namespace DeviceControl
@@ -712,7 +713,7 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
 void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, float TargetPressure)
 {
     Q_UNUSED(ReturnCode)
-    if ((TargetPressure != m_TargetPressure)&&(UNDEFINED_4_BYTE != TargetPressure))
+    if (qAbs(TargetPressure-m_TargetPressure)>std::numeric_limits<float>::epsilon() && qAbs(UNDEFINED_4_BYTE-TargetPressure)>std::numeric_limits<float>::epsilon())
     {
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_FAILED);
         FILE_LOG_L(laDEVPROC, llWARNING) << " ERROR: Target pressure is not reached. ";
@@ -1916,7 +1917,7 @@ qreal CAirLiquidDevice::GetRecentPressure(void)
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetPressureTime) <= 500) // check if 200 msec has passed since last read
     {
-        if(m_CurrentPressure != UNDEFINED_4_BYTE)
+        if(qAbs(m_CurrentPressure-UNDEFINED_4_BYTE) > std::numeric_limits<float>::epsilon())
         {
             return (m_CurrentPressure - m_PressureDrift);
         }
@@ -2158,7 +2159,8 @@ bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -2188,7 +2190,8 @@ bool CAirLiquidDevice::IsOutsideRange(ALTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] + TOLERANCE))

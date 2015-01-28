@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <QtDebug>
 #include <unistd.h>
+#include <limits>
 #include <DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h>
 
 namespace DeviceControl
@@ -825,7 +826,8 @@ bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -855,7 +857,8 @@ bool CRetortDevice::IsOutsideRange(RTTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
+        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
+                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
         {
             if ((m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] + TOLERANCE))
