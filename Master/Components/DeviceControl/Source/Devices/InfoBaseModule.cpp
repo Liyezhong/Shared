@@ -47,7 +47,7 @@ CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubMod
 {
     //lint -esym(1524, CInfoBaseModule)
     CState *p_Init = new CState("Init", this);
-    CState *p_ReqSerialNumber = new CState("ReqSerialNumber", this);
+   // CState *p_ReqSerialNumber = new CState("ReqSerialNumber", this);
     CState *p_ReqEndTestResult = new CState("ReqEndTestResult", this);
     CState *p_ReqHWInfo = new CState("ReqHWInfo", this);
     CState *p_ReqSWInfo = new CState("ReqSWInfo", this);
@@ -61,7 +61,7 @@ CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubMod
 
     p_Init->addTransition(this, SIGNAL(Skip()), p_Final);
 
-    p_Init->addTransition(new CInfoBaseModuleTransition(
+    /*p_Init->addTransition(new CInfoBaseModuleTransition(
         p_Init, SIGNAL(entered()),
         *this, &CInfoBaseModule::ReqSerialNumber,
         p_ReqSerialNumber));
@@ -69,11 +69,18 @@ CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubMod
     p_ReqSerialNumber->addTransition(new CInfoBaseModuleTransition(
         mp_BaseModule, SIGNAL(ReportSerialNumber(quint32, ReturnCode_t, QString)),
         *this, &CInfoBaseModule::ReqEndTestResult,
+        p_ReqEndTestResult));*/
+
+    p_Init->addTransition(new CInfoBaseModuleTransition(
+        p_Init, SIGNAL(entered()),
+        *this, &CInfoBaseModule::ReqEndTestResult,
         p_ReqEndTestResult));
+
     p_ReqEndTestResult->addTransition(new CInfoBaseModuleTransition(
         mp_BaseModule, SIGNAL(ReportEndTestResult(quint32, ReturnCode_t, TestResult_t, QDate)),
         *this, &CInfoBaseModule::ReqHWInfo,
         p_ReqHWInfo));
+
     p_ReqHWInfo->addTransition(new CInfoBaseModuleTransition(
         mp_BaseModule, SIGNAL(ReportHWInfo(quint32, ReturnCode_t, quint8, quint8 ,QDate)),
         *this, &CInfoBaseModule::ReqSWInfo,
@@ -160,7 +167,7 @@ bool CInfoBaseModule::ReqSerialNumber(QEvent *p_Event)
 bool CInfoBaseModule::ReqEndTestResult(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode;
-    QString SerialNumber;
+    /*QString SerialNumber;
 
     ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
@@ -175,7 +182,9 @@ bool CInfoBaseModule::ReqEndTestResult(QEvent *p_Event)
     if (!mp_SubModule->UpdateParameterInfo("SerialNumber", SerialNumber)) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
-    }
+    }*/
+
+    Q_UNUSED(p_Event);
 
     ReturnCode = mp_BaseModule->ReqEndTestResult();
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
