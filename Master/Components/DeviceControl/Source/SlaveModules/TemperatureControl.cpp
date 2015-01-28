@@ -775,7 +775,7 @@ void CTemperatureControl::HandleCANMsgTemperature(can_frame* pCANframe)
 {
     ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
     TempCtrlStatus_t TempCtrlStatus = TEMPCTRL_STATUS_OFF;
-    TempCtrlOperatingMode_t TempCtrlOpMode = TEMPCTRL_OPMODE_HOLD;
+    TempCtrlOperatingMode_t TempCtrlOpMode = TEMPCTRL_OPMODE_FULL;
     TempCtrlMainsVoltage_t TempCtrlVoltage = TEMPCTRL_VOLTAGE_220V;
 
     if(pCANframe->can_dlc == 7)
