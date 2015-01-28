@@ -586,6 +586,10 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
 /****************************************************************************/
 void CAirLiquidDevice::CheckSensorsData()
 {
+    if (!CBaseDevice::m_SensorsDataCheckFlag) {
+        return ;
+    }
+
     if(m_pPressureCtrl )
     {
         (void)GetPressureAsync();

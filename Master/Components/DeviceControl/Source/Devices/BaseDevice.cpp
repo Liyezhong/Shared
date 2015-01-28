@@ -34,7 +34,7 @@
 namespace DeviceControl
 {
 
-
+bool CBaseDevice::m_SensorsDataCheckFlag = true;
 /****************************************************************************/
 /*!
  *  \brief    Constructor of the CBaseDevice class

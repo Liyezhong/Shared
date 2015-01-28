@@ -377,6 +377,10 @@ void CRotaryValveDevice::HandleIdleState()
 /****************************************************************************/
 void CRotaryValveDevice::CheckSensorsData()
 {
+    if (!CBaseDevice::m_SensorsDataCheckFlag) {
+        return ;
+    }
+
     if(m_pTempCtrl)
     {
         (void)GetTemperatureAsync(0);

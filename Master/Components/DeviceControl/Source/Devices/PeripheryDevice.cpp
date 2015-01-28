@@ -393,6 +393,10 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
 /****************************************************************************/
 void CPeripheryDevice::CheckSensorsData()
 {
+    if (!CBaseDevice::m_SensorsDataCheckFlag) {
+        return ;
+    }
+
     if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS])
     {
         (void)GetLocalAlarmStatusAsync();

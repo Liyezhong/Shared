@@ -458,6 +458,10 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
 /****************************************************************************/
 void CRetortDevice::CheckSensorsData()
 {
+    if (!CBaseDevice::m_SensorsDataCheckFlag) {
+        return ;
+    }
+
     if(m_pTempCtrls[RT_BOTTOM])
     {
         (void)GetTemperatureAsync(RT_BOTTOM, 0);

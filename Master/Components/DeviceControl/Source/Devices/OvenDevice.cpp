@@ -419,6 +419,10 @@ ReturnCode_t COvenDevice::HandleConfigurationState()
 /****************************************************************************/
 void COvenDevice::CheckSensorsData()
 {
+    if (!CBaseDevice::m_SensorsDataCheckFlag) {
+        return ;
+    }
+
     if(m_pTempCtrls[OVEN_TOP])
     {
         (void)GetTemperatureAsync(OVEN_TOP, 0);

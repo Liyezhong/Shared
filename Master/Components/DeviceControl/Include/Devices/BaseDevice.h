@@ -346,6 +346,12 @@ public:
     /****************************************************************************/
     void SetModuleLifeCycleRecord(ModuleLifeCycleRecord* pModuleLifeCycleRecord);
 
+
+    static void SetSensorDataCheckFlag(bool flag)
+    {
+        m_SensorsDataCheckFlag = flag;
+    }
+
 signals:
     /****************************************************************************/
     /*!
@@ -516,6 +522,7 @@ protected:
     QVector<ReportError_t>  m_ReportErrorList; //!< report error list
     QStateMachine m_machine;        //!< State machine
     ModuleLifeCycleRecord* m_ModuleLifeCycleRecord; //!< module life cycle record
+    static bool m_SensorsDataCheckFlag;
 };
 
 } //namespace
