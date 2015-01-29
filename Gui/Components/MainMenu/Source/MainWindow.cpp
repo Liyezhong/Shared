@@ -34,7 +34,7 @@ namespace MainMenu {
 
 CMainWindow::UserRole_t CMainWindow::m_CurrentUserRole = CMainWindow::Operator; //!< Operator type
 bool CMainWindow::m_ProcessRunning = false;      //!< Process running state
-bool CMainWindow::m_IsSystemError = false;       //!< SystemError flag
+
 //bool StyleSize = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetStyleSize();   //!< Application type Colorado/Sepia
 
 /****************************************************************************/
@@ -416,15 +416,6 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
     return result;
 }
 
-void CMainWindow::SetSystemErrorStatus(bool isError)
-{
-    m_IsSystemError = isError;
-}
-
-bool CMainWindow::GetSystemErrorStatus()
-{
-    return m_IsSystemError;
-}
 /****************************************************************************/
 /*!
  *  \brief  Shows the Status screen
