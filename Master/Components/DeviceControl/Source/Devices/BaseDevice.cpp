@@ -642,7 +642,11 @@ ReportError_t CBaseDevice::GetSlaveModuleError(quint8 errorCode, quint32 instanc
     {
         if (instanceID == iter->instanceID && errorCode == iter->errorCode)
         {
-            reportError = (*iter);
+            reportError.instanceID = iter->instanceID;
+            reportError.errorGroup = iter->errorGroup;
+            reportError.errorCode = iter->errorCode;
+            reportError.errorData = iter->errorData;
+            reportError.errorTime = iter->errorTime;
             found = true;
             break;
         }
