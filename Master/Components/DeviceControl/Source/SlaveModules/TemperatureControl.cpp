@@ -1408,6 +1408,7 @@ ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 Slope
             m_ModuleCommand[CmdIndex].Temperature = Temperature;
             m_ModuleCommand[CmdIndex].SlopeTempChange = SlopeTempChange;
             m_ModuleCommand[CmdIndex].TempCtrlState = TEMPCTRL_STATUS_ON;
+            m_ModuleCommand[CmdIndex].TempCtrlOpMode = TEMPCTRL_OPMODE_FULL;
             FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Temperature: " << Temperature;
         }
         else
