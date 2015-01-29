@@ -2060,7 +2060,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
         {
             delete event;
             event = NULL;
-            m_EventLoopsForSyncCall.erase(iter);
+            m_EventLoopsForSyncCall.erase(iter++);
             break;
         }
     }
@@ -2107,7 +2107,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
         {
             delete event;
             event = NULL;
-            m_EventLoopsForSyncCall.erase(iter);
+            m_EventLoopsForSyncCall.erase(iter++);
             break;
         }
     }
