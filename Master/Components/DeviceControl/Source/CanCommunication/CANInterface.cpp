@@ -132,6 +132,10 @@ qint16 CANInterface::Open(const char* szOpenInterface)
         return ERROR_CANINTERFACE_SOCKET_BIND;
     }
 
+    // disable receivement of own messages
+    int recv_own_msgs = 0; /* 0 = disabled (default), 1 = enabled */
+    sRetval = setsockopt(m_sockCan, SOL_CAN_RAW, CAN_RAW_RECV_OWN_MSGS, &recv_own_msgs, sizeof(recv_own_msgs));
+
     //Error handling options
     err_mask = (CAN_ERR_TX_TIMEOUT | CAN_ERR_LOSTARB | CAN_ERR_CRTL | CAN_ERR_PROT | CAN_ERR_TRX |
                 CAN_ERR_ACK | CAN_ERR_BUSOFF | CAN_ERR_BUSERROR | CAN_ERR_RESTARTED );
