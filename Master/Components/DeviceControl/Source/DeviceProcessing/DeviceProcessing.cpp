@@ -2078,6 +2078,10 @@ void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, ReturnCode_t Va
 {
     for (int i =0; i<m_EventLoopsForSyncCall.size(); ++i)
     {
+        if (m_EventLoopsForSyncCall[i] == NULL)
+        {
+            continue;
+        }
         if (CmdType == m_EventLoopsForSyncCall[i]->GetCmdType())
         {
             m_EventLoopsForSyncCall[i]->exit(Value);

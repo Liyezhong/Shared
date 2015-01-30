@@ -533,17 +533,18 @@ signals:
     quint32 m_unCanIDServiceFan;            //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDHardwareReq;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDHardware;              //!< CAN-message id of 'TBD' message
-    qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
+    qint16 m_aktionTimespan;                ///< Delay im ms, for timeout detection
     quint32 m_unCanIDNotiAutoTune;          //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDSetSwitchState;       ///<  Definition/Declaration of variable m_unCanIDSetSwitchState
-    quint32 m_unCanIDLevelSensorState;       ///<  Definition/Declaration of variable m_unCanIDLevelSensorState
+    quint32 m_unCanIDSetSwitchState;        ///<  Definition/Declaration of variable m_unCanIDSetSwitchState
+    quint32 m_unCanIDLevelSensorState;      ///<  Definition/Declaration of variable m_unCanIDLevelSensorState
     quint32 m_unCanIDAcCurrentWatchdogSet;    //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDAcCurrentWatchdogSetExt; //!< CAN-message id of 'TBD' message
-    Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
+    Global::MonotonicTime m_timeAction;       ///< Action start time, for timeout detection
     quint32 m_LifeCycle;
     bool m_bLogLifeCycle;
+    const quint16 m_TempThreshold;          ///< temperature threshold in settemperature and settemperaturePID
 };
 
 } //namespace

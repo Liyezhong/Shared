@@ -64,7 +64,7 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
     m_aktionTimespan(0), m_unCanIDNotiAutoTune(0),
     m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),m_unCanIDSetSwitchState(0),
     m_unCanIDLevelSensorState(0), m_unCanIDAcCurrentWatchdogSet(0), m_unCanIDAcCurrentWatchdogSetExt(0),
-    m_LifeCycle(0), m_bLogLifeCycle(false)
+    m_LifeCycle(0), m_bLogLifeCycle(false), m_TempThreshold(150)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -1397,7 +1397,7 @@ ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 Slope
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if((Temperature < 0 )||(Temperature > 130)||(SlopeTempChange > 130))
+    if((Temperature < 0 )||(Temperature > m_TempThreshold)||(SlopeTempChange > m_TempThreshold))
     {
         RetVal = DCL_ERR_INVALID_PARAM;
     }
@@ -1795,7 +1795,7 @@ ReturnCode_t CTemperatureControl::SetTemperaturePid(quint16 MaxTemperature, quin
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if(MaxTemperature > 132)
+    if(MaxTemperature > m_TempThreshold)
     {
         RetVal = DCL_ERR_INVALID_PARAM;
     }
