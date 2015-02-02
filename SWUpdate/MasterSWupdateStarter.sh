@@ -241,7 +241,7 @@ CheckSlaveHWVersion()
         local CurrentHWVersion=${CurrentSlaveHWVersionMap[$Name]}
         local RequiredHWVersion=${UpdatePkgSlaveHWVersionMap[$Name]}
         local Return=$(CompareVersion $CurrentHWVersion $RequiredHWVersion )
-        if [ $Return = "LOWER" ]; then
+        if [ $Return != "EQUAL" ]; then
             ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_DOESNOT_HAVE_REQ_HW_VER" "$Name" "$CurrentHWVersion" "$RequiredHWVersion"		
         else
             Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_HAS_REQ_HW_VER" "$Name" "$CurrentHWVersion"
