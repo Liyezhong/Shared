@@ -188,6 +188,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
     else if (mp_DataManagerBase->IsInitialized() && m_SWUpdateStatus == "Success" && mp_SWUpdateManager) {
         m_UpdatingRollback = true;
         mp_SWUpdateManager->UpdateSoftware("-updateRollback", "");
+        Global::EventObject::Instance().RaiseEvent(SWUpdate::EVENT_SW_UPDATE_SUCCESS);
     }
 
 
