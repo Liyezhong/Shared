@@ -492,6 +492,20 @@ Rollback()
             ;;
     esac
 }
+#=== FUNCTION ================================================================
+# NAME: UpdateSettingForRollback
+# DESCRIPTION: To Update Settings to Rollback folder after update process is successful
+# PARAMETER : NA
+#=============================================================================
+UpdateSettingForRollback()
+{
+    cd $SETTINGDIR
+    for File in "${LIST_OF_FILES_FOR_UPDATE_ROLLBACK[@]}"; do
+        cp -r $File $ROLLBACKSETTING
+    done
+    cd -
+    return 0
+}
 
 #=== FUNCTION ================================================================
 # NAME: UpdateRollback
