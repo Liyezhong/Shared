@@ -2052,12 +2052,18 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t T
     {
         return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
     }
+#if 0
     if (IsTemperatureControlOn(Type))
     {
         if( DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
         }
+    }
+#endif
+    if( DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
+    {
+        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
     }
 
     retCode = SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
