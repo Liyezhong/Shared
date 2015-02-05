@@ -988,11 +988,11 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
             //close both valve
             (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
             (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-            (void)TurnOffFan();
+            //(void)TurnOffFan();
             return DCL_ERR_DEV_LA_RELEASING_TIMEOUT;
         }
     }
-    (void)TurnOffFan();
+    //(void)TurnOffFan();
     LogDebug(QString("INFO: Pressure released, exit now."));
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
@@ -1013,7 +1013,7 @@ ReturnCode_t CAirLiquidDevice::Vaccum(float targetPressure)
         LogDebug(QString("WARNING:  Release pressure failed, exit now."));
         goto SORTIE;
     }
-    (void)TurnOnFan();
+    //(void)TurnOnFan();
     RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_NEGATIVE, targetPressure);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
@@ -1022,7 +1022,7 @@ ReturnCode_t CAirLiquidDevice::Vaccum(float targetPressure)
         //close both valve
         (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
         (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-        (void)TurnOffFan();
+       // (void)TurnOffFan();
     }
 SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
@@ -1044,7 +1044,7 @@ ReturnCode_t CAirLiquidDevice::Pressure(float targetPressure)
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release pressure failed, exit now.";
         goto SORTIE;
     }
-    (void)TurnOnFan();
+    //(void)TurnOnFan();
 
     RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_POSITIVE, targetPressure);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
@@ -1054,7 +1054,7 @@ ReturnCode_t CAirLiquidDevice::Pressure(float targetPressure)
         //close both valve
         (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
         (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-        (void)TurnOffFan();
+       // (void)TurnOffFan();
     }
 SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
@@ -1069,7 +1069,7 @@ ReturnCode_t CAirLiquidDevice::SealingCheckPressure()
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release pressure failed, exit now.";
         goto SORTIE;
     }
-    (void)TurnOnFan();
+   // (void)TurnOnFan();
     RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_POSITIVE, 15);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
@@ -1078,7 +1078,7 @@ ReturnCode_t CAirLiquidDevice::SealingCheckPressure()
         //close both valve
         (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
         (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-        (void)TurnOffFan();
+       // (void)TurnOffFan();
     }
 SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
@@ -1119,7 +1119,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure,
         goto SORTIE;
     }
 
-    (void)TurnOnFan();
+   // (void)TurnOnFan();
     RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_POSITIVE, targetPressure);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
@@ -1264,7 +1264,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
         goto SORTIE;
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking now.";
-    (void)TurnOnFan();
+   // (void)TurnOnFan();
     RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_NEGATIVE, m_WorkingPressureNegative);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
@@ -1413,7 +1413,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
 
 SORTIE:
     (void)ReleasePressure();
-    (void)TurnOffFan();
+   // (void)TurnOffFan();
     return RetValue;
 }
 
@@ -1462,7 +1462,7 @@ ReturnCode_t CAirLiquidDevice::FillingForService(quint32 DelayTime, bool EnableI
         goto SORTIE;
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking now.";
-    (void)TurnOnFan();
+   // (void)TurnOnFan();
     RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_NEGATIVE, m_WorkingPressureNegative);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
@@ -1588,7 +1588,7 @@ ReturnCode_t CAirLiquidDevice::FillingForService(quint32 DelayTime, bool EnableI
 
 SORTIE:
     (void)ReleasePressure();
-    (void)TurnOffFan();
+    //(void)TurnOffFan();
     return RetValue;
 
 }
