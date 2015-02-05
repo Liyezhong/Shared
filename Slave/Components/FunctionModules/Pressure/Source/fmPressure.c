@@ -1551,6 +1551,7 @@ static Error_t pressGetServiceSensor (UInt16 Channel, CanMessage_t* Message)
  *      settings will be responded:
  *
  *      - Current at the pumping elements (in milliampere)
+ *      - Current through fan element (in milliampere)
  *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
@@ -1570,7 +1571,8 @@ static Error_t pressGetHardware (UInt16 Channel, CanMessage_t* Message)
     bmSetMessageItem (&RespMessage, Data->NumberPumps, 1, 1);
     bmSetMessageItem (&RespMessage, Data->NumberPid, 2, 1);
     bmSetMessageItem (&RespMessage, pressPumpCurrent(), 3, 2);
-    RespMessage.Length = 5;
+    bmSetMessageItem (&RespMessage, pressFanCurrent(), 5, 2);
+    RespMessage.Length = 7;
 
     return (canWriteMessage(Data->Channel, &RespMessage));
 }
