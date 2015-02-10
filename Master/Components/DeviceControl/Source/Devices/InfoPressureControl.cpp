@@ -147,6 +147,8 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     }
 
     quint32 diffPump = pumpOperationTime - m_LastPumpOperationTime;
+    m_LastPumpOperationTime = pumpOperationTime;
+
     quint32 newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffPump;
     mp_PressureControl->SetActiveCarbonFilterLifeTime(newVal);
 

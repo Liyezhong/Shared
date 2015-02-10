@@ -81,7 +81,7 @@ bool CInfoDigitalInput::Finished(QEvent *p_Event)
         return false;
     }
 
-    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(mp_DigitalInput->GetLifeCycle()))) {
+    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(mp_DigitalInput->GetLifeCycle() / 2))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
@@ -91,7 +91,7 @@ bool CInfoDigitalInput::Finished(QEvent *p_Event)
         return true;
 
     QString paramName = mp_SubModule->GetSubModuleName() + "_LifeCycle";
-    QString strLifeTimeNew = QString().setNum(mp_DigitalInput->GetLifeCycle());
+    QString strLifeTimeNew = QString().setNum(mp_DigitalInput->GetLifeCycle() / 2);
     QMap<QString, QString>::const_iterator iter = pPartLifeCycleRecord->m_ParamMap.find(paramName);
     if (iter != pPartLifeCycleRecord->m_ParamMap.end())
         pPartLifeCycleRecord->m_ParamMap[paramName] = strLifeTimeNew;

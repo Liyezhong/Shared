@@ -274,7 +274,7 @@ ReturnCode_t COvenDevice::HandleInitializationState()
             if (pPartLifeCycleRecord)
             {
                 quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value(m_pLidDigitalInput->GetKey() + "_LifeCycle").toUInt();
-                m_pLidDigitalInput->SetLifeCycle(lifeCycle);
+                m_pLidDigitalInput->SetLifeCycle(lifeCycle * 2);
                 m_pLidDigitalInput->SetPartLifeCycleRecord(pPartLifeCycleRecord);
             }
         }
