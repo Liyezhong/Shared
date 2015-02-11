@@ -690,7 +690,9 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
         {
             return retCode;
         }
+        LogDebug("In SetPressure, before BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE)");
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE);
+        LogDebug("In SetPressure, after BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE)");
     }
     else
     {
