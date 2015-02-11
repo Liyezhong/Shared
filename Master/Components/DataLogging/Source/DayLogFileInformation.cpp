@@ -129,7 +129,8 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                          Counter++) {
                         if (QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).
                                 compare(STRING_NEWLINE) != 0) {
-                            TranslateStringList << ReadData.split(DELIMITER_SEMICOLON).value(Counter);
+                            TranslateStringList << QString::fromUtf8(ReadData.split(DELIMITER_SEMICOLON)
+                                                                     .value(Counter).toStdString().c_str());
                         }
                     }
                     // used for alternate text
@@ -183,8 +184,8 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                                QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTID))
                                + STRING_SEMICOLON + EventType + STRING_SEMICOLON + EventData + STRING_NEWLINE;
 
-                    FileData.append(ReadData);
-                    FileData.append(STRING_NEWLINE);
+                    FileData.append(ReadData.toUtf8());
+                    FileData.append(STRING_NEWLINE.toUtf8());
                 }
             }
         }
@@ -195,8 +196,8 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                             ReadData.split(DELIMITER_UNDERSCORE).value(2) + STRING_NEWLINE;
                 }
                 // append the data
-                FileData.append(ReadData);
-                FileData.append(STRING_NEWLINE);
+                FileData.append(ReadData.toUtf8());
+                FileData.append(STRING_NEWLINE.toUtf8());
             }
         }
     }

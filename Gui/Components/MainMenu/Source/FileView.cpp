@@ -159,7 +159,7 @@ void CFileView::DayRunLogFileContent(const QDataStream &DataStream)
 {
     (void)DataStream.device()->reset();
     // read all the data into string
-    QByteArray Text(DataStream.device()->readAll());
+    QString Text = QString::fromUtf8(DataStream.device()->readAll());
 
     // tr function is used for translator
     mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CFileView", "Event Viewer",
