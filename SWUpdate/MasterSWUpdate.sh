@@ -314,7 +314,8 @@ GenerateFirmwareName()
     elif [[ "$1" =~ "ASB7_0" ]]; then
         local  FirmwareName="SABb.bin"
     else
-        local  FirmwareName=$(echo $1 | awk -F_ '{ print $1 }').bin # e,g, ASB13_0.bin will become ASB13.bin
+        #local  FirmwareName=$(echo $1 | awk -F_ '{ print $1 }').bin # e,g, ASB13_0.bin will become ASB13.bin
+        local  FirmwareName=$(echo $1 | awk -F_ '{ print $1 }') # The bin now is ASB3.bin
     fi
     echo $FirmwareName
 }
