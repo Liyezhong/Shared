@@ -346,8 +346,8 @@ void CMsgBoxManager::AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgD
 //            m_PopupTimer.start(1000);
 //        }
 //    }
-//    ShowMsgBoxIfQueueNotEmpty();
-    m_PopupTimer.start(10);
+    ShowMsgBoxIfQueueNotEmpty();
+   // m_PopupTimer.start(10);
 }
 
 /****************************************************************************/
