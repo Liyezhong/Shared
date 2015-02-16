@@ -980,6 +980,12 @@ private slots:
      */
     /****************************************************************************/
     void OnTimeOutSaveServiceInfor();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of OnTimeOutSaveLifeCycleRecord
+     */
+    /****************************************************************************/
+    void OnTimeOutSaveLifeCycleRecord();
 
 private:
     //! Handle the state 'Task request pending'
@@ -1029,6 +1035,7 @@ private:
     QList<quint32> m_deviceList;    //!< device list
     bool    m_EnableLowerPressure;  //!< enable lower pressure
     int m_DevProcTimerInterval;              //!< timer interval for mp_DevProcTimer
+    QTimer m_SaveLifeCycleRecordTimer;
 };
 
 } //namespace

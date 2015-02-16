@@ -50,6 +50,7 @@ namespace DeviceControl
 {
 //2* 60 * 60 * 1000;
 const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2 * 60 * 60 * 1000;  //!< 2 hours
+const int INTERVAL_SAVE_LIFE_CYCLE_RECORD =  10 * 60 * 1000;  //!< 10 mintues
 /****************************************************************************/
 /*!
  *  \brief  Constructor of the class IDeviceProcessing
@@ -58,7 +59,9 @@ const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2 * 60 * 60 * 1000;  //!< 2 hours
 /****************************************************************************/
 IDeviceProcessing::IDeviceProcessing(int DevProcTimerInterval) :
         m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
-        m_reqTaskParameter1(0), m_reqTaskParameter2(0), m_machine(this), m_TimerSaveServiceInfor(this), m_DevProcTimerInterval(DevProcTimerInterval)
+        m_reqTaskParameter1(0), m_reqTaskParameter2(0), m_machine(this), m_TimerSaveServiceInfor(this),
+        m_DevProcTimerInterval(DevProcTimerInterval),
+        m_SaveLifeCycleRecordTimer(this)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
@@ -92,6 +95,11 @@ IDeviceProcessing::IDeviceProcessing(int DevProcTimerInterval) :
     CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
     CONNECTSIGNALSLOT(&m_TimerSaveServiceInfor, timeout(),this, OnTimeOutSaveServiceInfor());
     m_TimerSaveServiceInfor.setInterval(INTERVAL_SAVE_SERVICE_LIFE_CYCLE);
+
+    CONNECTSIGNALSLOT(&m_SaveLifeCycleRecordTimer, timeout(),this, OnTimeOutSaveLifeCycleRecord());
+    m_SaveLifeCycleRecordTimer.setInterval(INTERVAL_SAVE_LIFE_CYCLE_RECORD);
+    m_SaveLifeCycleRecordTimer.setSingleShot(true);
+
     // Shutdown signal to device threads
     CONNECTSIGNALSIGNAL(this, DeviceShutdown(), mp_DevProc, DeviceShutdown());
     CONNECTSIGNALSIGNAL(mp_DevProc, ReportLevelSensorStatus1(), this, ReportLevelSensorStatus1());
@@ -441,10 +449,7 @@ void IDeviceProcessing::ResetActiveCarbonFilterLifeTime()
         m_pAirLiquid->ResetActiveCarbonFilterLifeTime();
     }
     ArchiveServiceInfor();
-    if (mp_DevProc)
-    {
-        mp_DevProc->WriteDeviceLifeCycle();
-    }
+    m_SaveLifeCycleRecordTimer.start();
 }
 
 /****************************************************************************/
@@ -681,6 +686,11 @@ void IDeviceProcessing::OnDestroyFinished()
 void IDeviceProcessing::OnTimeOutSaveServiceInfor()
 {
     ArchiveServiceInfor();
+    m_SaveLifeCycleRecordTimer.start();
+}
+
+void IDeviceProcessing::OnTimeOutSaveLifeCycleRecord()
+{
     if (mp_DevProc)
     {
         mp_DevProc->WriteDeviceLifeCycle();
