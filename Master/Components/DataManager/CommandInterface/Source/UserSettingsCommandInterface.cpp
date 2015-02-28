@@ -99,12 +99,17 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             return;
         }
         else {
-
             // Set volume values for UserSettings
             Global::AlarmPlayer::Instance().setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
             Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
             Global::AlarmPlayer::Instance().setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
             Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
+
+            Global::AlarmHandler *alarmHandler = &Global::AlarmHandler::Instance();
+            if (TempSettings.GetSoundPeriodicWarning() != Settings.GetSoundPeriodicWarning())
+                alarmHandler->setWarnPeriod(Settings.GetSoundPeriodicWarning());
+            if (TempSettings.GetSoundPeriodicTimeWarning() != Settings.GetSoundPeriodicTimeWarning())
+                alarmHandler->setWarnPeriodInterval(Settings.GetSoundPeriodicTimeWarning());
 
             // raise the event if the language is changed
             if (TempSettings.GetLanguage() != Settings.GetLanguage()) {

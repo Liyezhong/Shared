@@ -87,6 +87,25 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief Switch for warning alarm period
+     *
+     * \iparam onoff = on off flag
+     */
+    /****************************************************************************/
+    void setWarnPeriod(bool onoff);
+
+    /****************************************************************************/
+    /**
+     * \brief Switch for warning alarm period
+     *
+     * \iparam interval = period time, minutes
+     */
+    /****************************************************************************/
+    void setWarnPeriodInterval(qint32 interval);
+
+
+    /****************************************************************************/
+    /**
      * \brief  Get reference to instance.
      *
      * \return Reference to instance.
@@ -109,6 +128,10 @@ private:
      */
     /****************************************************************************/
     Q_DISABLE_COPY(AlarmHandler)
+
+private:
+    bool m_WarnPeriodOn;   ///< warning period flag
+    quint32 m_WarnPeriod;  ///< warning period interval
 
 private slots:
     /****************************************************************************/

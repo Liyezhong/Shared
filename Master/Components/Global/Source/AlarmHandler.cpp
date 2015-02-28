@@ -29,6 +29,9 @@ namespace Global {
 /****************************************************************************/
 AlarmHandler::AlarmHandler(QObject *p_Parent, quint16 TimeOut)
     : QObject(p_Parent)
+    , m_WarnPeriodOn(true)
+    , m_WarnPeriod(0)
+
 {
     m_Timer = new QTimer(this);
     connect(m_Timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
@@ -43,7 +46,6 @@ AlarmHandler::~AlarmHandler()
 {
 }
 
-
 void AlarmHandler::onTimeout()
 {
     if (!(m_errorList.size() == 0))
@@ -56,12 +58,30 @@ void AlarmHandler::onTimeout()
     }
 }
 
-
 void AlarmHandler::setTimeout(quint16 timeout)
 {
+    qDebug() << "AlarmHandler::setTimeout: alarm interval now is: " << timeout << " mseconds.";
+    if (timeout <= 0)
+        return ;
+
     m_Timer->stop();
     m_Timer->setInterval(timeout);
     m_Timer->start();
+}
+
+void AlarmHandler::setWarnPeriod(bool onoff)
+{
+    this->m_WarnPeriodOn = onoff;
+}
+
+void AlarmHandler::setWarnPeriodInterval(qint32 interval)
+{
+    qDebug() << "AlarmHandler::setWarnPeriodInterval: interval=" << interval;
+    this->m_WarnPeriod = interval;
+    if (m_WarnPeriodOn && m_warningList.size() > 0) {
+        if (m_errorList.size() < 1)
+            this->setTimeout(m_WarnPeriod * 60 * 1000);
+    }
 }
 
 void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active)
