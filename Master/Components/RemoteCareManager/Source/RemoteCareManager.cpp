@@ -32,6 +32,13 @@
 #include <NetCommands/Include/CmdRCSoftwareUpdate.h>
 #include <NetCommands/Include/CmdRemoteCareState.h>
 
+#include <Global/Include/EventTranslator.h>
+#include <Global/Include/Utils.h>
+#include <Global/Include/EventObject.h>
+
+#include <DataLogging/Include/DataLoggingEventCodes.h>
+#include <QDebug>
+
 const QString RC_EVENT_CLASS_ALARM = "1";        //!< event log level, only alarms
 const QString RC_EVENT_CLASS_ALARM_WARN = "2";   //!< event log level, alarms+warnings
 const QString RC_EVENT_CLASS_ALARM_WARN_INFO = "3"; //!< event log level, only alarms+warnings+info
@@ -220,7 +227,7 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
         if (!m_RemoteCareStatus || !m_RCAAvailable)
             return;
     }
-
+    qDebug() <<RCEventData.EventCode << "\n" << __FUNCTION__ << __LINE__ << "\n\n";
     switch(RCEventData.EventCode)
     {
         case RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS:
@@ -378,11 +385,65 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
         bool UseAltEventString = false;
 
         //add msg string
-        QString MsgString = Global::UITranslator::TranslatorInstance().Translate(
+        QString TrEventMessage = Global::UITranslator::TranslatorInstance().Translate(
                     Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString()),
                         UseAltEventString); //"Event String translated to the set langauge";
 
-        EventReportData.m_EventMessage = MsgString;
+        //----------------------->
+
+        if (TrEventMessage.length() == 0) {
+            TrEventMessage = TheEvent.GetEventName();
+            if (TheEvent.GetString().count() > 0) {
+                TrEventMessage += " (";
+            }
+            foreach (Global::TranslatableString s, TheEvent.GetString())
+            {
+                TrEventMessage += s.GetString() + " ";
+            }
+            if (TheEvent.GetString().count() > 0)
+            {
+                TrEventMessage += ")";
+            }
+        }
+        if (!TheEvent.IsEventActive())
+            TrEventMessage = Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_RESOLVED) + TrEventMessage;
+        QString AcknowledgeString = "";
+        if (TheEvent.GetAckValue() != NetCommands::NOT_SPECIFIED) {
+            quint32 ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_OK;
+            switch (TheEvent.GetAckValue()) {
+            case NetCommands::OK_BUTTON:
+                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_OK;
+                break;
+            case NetCommands::CANCEL_BUTTON:
+                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_CANCEL;
+                break;
+            case NetCommands::CONTINUE_BUTTON:
+                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_CONTINUE;
+                break;
+            case NetCommands::STOP_BUTTON:
+                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_STOP;
+                break;
+            case NetCommands::YES_BUTTON:
+                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_YES;
+                break;
+            case NetCommands::NO_BUTTON:
+                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_NO;
+                break;
+            default:
+                break;
+            }
+
+            TrEventMessage = Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED)
+                + " "
+                + Global::EventTranslator::TranslatorInstance().Translate(ButtonEventName)
+                + ": "
+                + TrEventMessage;
+        }
+
+
+        //<-----------------------
+
+        EventReportData.m_EventMessage = TrEventMessage;
 
         //add event severity
         if (Global::EVTTYPE_ERROR == TheEvent.GetEventType() || Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {
