@@ -166,7 +166,6 @@ void MasterThreadController::CreateAndInitializeObjects() {
 
     MasterThreadController::RegisterCommands();
 
-
     CHECKPTR(p_DataContainer->SettingsInterface);
     mp_UserSettings = p_DataContainer->SettingsInterface->GetUserSettings();
     CHECKPTR(mp_UserSettings);
@@ -188,10 +187,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
     else if (mp_DataManagerBase->IsInitialized() && m_SWUpdateStatus == "Success" && mp_SWUpdateManager) {
         m_UpdatingRollback = true;
         mp_SWUpdateManager->UpdateSoftware("-updateRollback", "");
-        Global::EventObject::Instance().RaiseEvent(SWUpdate::EVENT_SW_UPDATE_SUCCESS);
     }
-
-
     else if (m_SWUpdateStatus == "HigherVersionNA") {
         Global::EventObject::Instance().RaiseEvent(SWUpdate::EVENT_SW_UPDATE_NOT_PERFORMED);
     }

@@ -53,6 +53,7 @@ struct EventRuntimeInfo_t
     Global::tTranslatableStringList EventStringParList;     //!< event parameters strings
     Global::tTranslatableStringList EventRDStringParList;   //!< event RD parameter strings
     bool AlarmActFlag;                                 //!< alarm action flag
+    bool Active;                                      //!< active flag
 };
 
 /****************************************************************************/

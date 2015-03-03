@@ -27,6 +27,7 @@
 #include <NetCommands/Include/CmdSystemAction.h>
 #include <EventHandler/Include/HimalayaEventHandlerThreadController.h>
 #include <EventHandler/Include/EventHandlerEventCodes.h>
+#include <SWUpdateManager/Include/SWUpdateEventCodes.h>
 #include <DataManager/Helper/Include/Helper.h>
 #include <QFile>
 #include <stdio.h>
@@ -112,6 +113,28 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
         m_ActiveEvents.remove(EventKey);
         return ;
     }
+
+    if (EventID == SWUpdate::EVENT_SW_UPDATE_SUCCESS) {
+        if (!m_GuiAvailable) {
+            m_PendingGuiEvent.push_back(EventKey);
+            if(!m_ActiveEvents.contains(EventKey)) {
+                EventRuntimeInfo_t EventInfo;
+                EventInfo.time = QDateTime::currentMSecsSinceEpoch();
+                EventInfo.EventKey = EventKey;
+                EventInfo.EventID = EventID;
+                EventInfo.ActionResult = ActionResult;
+                EventInfo.CurrentStep = 0;
+                //EventInfo.Event = pEvent; //postponed event assigning until GUI is available
+                EventInfo.EventStringParList = EventStringParList;
+                EventInfo.EventRDStringParList = EventRDStringParList;
+                EventInfo.AlarmActFlag = false;
+                EventInfo.Active = Active;
+                m_ActiveEvents.insert(EventKey, EventInfo);
+            }
+        }
+        return ;
+    }
+
     if (EventID == EVENT_GUI_AVAILABLE) {
         SetGuiAvailable(true);
         return;
@@ -498,22 +521,29 @@ void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
 {
     qDebug() << "HimalayaEventHandlerThreadController::SetGuiAvailable" << active;
     m_GuiAvailable = active;
-
-    if (active)
-    {
-        foreach(quint32 EventKey, m_PendingGuiEvent)
-        {
+    if (active) {
+        foreach(quint32 EventKey, m_PendingGuiEvent) {
             Global::tRefType Ref = GetNewCommandRef();
             NetCommands::EventReportDataStruct EventReportData;
-            EventRuntimeInfo_t Eventinfo = m_ActiveEvents.value(EventKey);
-            //todo init EventReportData by Eventinfo
+            EventRuntimeInfo_t EventInfo = m_ActiveEvents.value(EventKey);
+            //todo init EventReportData by EventInfo
+            if (EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_SUCCESS) {
+                const EventStep* pNextStep = NULL;
+                const XMLEvent* pEvent = m_EventManager.GetEvent(EventInfo.EventID);
+                if (pEvent)
+                    pNextStep = pEvent->GetStep(0);
 
-            SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+                if (pNextStep != NULL && pNextStep->GetButtonType() != Global::NOT_SPECIFIED) {
+                    SendMSGCommand(EventKey, pEvent, pNextStep, EventInfo.Active);
+                }
+            }
+            else {
+                SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+            }
         }
         m_PendingGuiEvent.clear();
     }
 }
-
 
 void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& EventInfo, bool Service)
 {

@@ -268,6 +268,7 @@ void CMsgBoxManager::LanguageChanged()
     QHashIterator<quint64, MsgData> i(m_EventIDMsgDataHash);
     while(i.hasNext())
     {
+        (void)i.next();
         MsgData data = i.value();
         quint64 EventID  = i.key();
         if(!m_MsgDlgEventIDHash.contains(EventID) || m_MsgDlgEventIDHash.value(EventID) == NULL)
