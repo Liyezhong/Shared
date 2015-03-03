@@ -177,7 +177,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
 
         Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_ERROR, mp_UserSettings->GetSoundNumberError());
         Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_WARNING, mp_UserSettings->GetSoundNumberWarning());
-        Global::AlarmPlayer::Instance().setVolume(Global::ALARM_ERROR,mp_UserSettings->GetSoundLevelError());
+        Global::AlarmPlayer::Instance().setVolume(Global::ALARM_ERROR, mp_UserSettings->GetSoundLevelError());
         Global::AlarmPlayer::Instance().setVolume(Global::ALARM_WARNING, mp_UserSettings->GetSoundLevelWarning());
     }
 

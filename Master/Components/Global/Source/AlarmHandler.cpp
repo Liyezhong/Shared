@@ -31,7 +31,6 @@ AlarmHandler::AlarmHandler(QObject *p_Parent, quint16 TimeOut)
     : QObject(p_Parent)
     , m_WarnPeriodOn(true)
     , m_WarnPeriod(0)
-
 {
     m_Timer = new QTimer(this);
     connect(m_Timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
@@ -48,24 +47,27 @@ AlarmHandler::~AlarmHandler()
 
 void AlarmHandler::onTimeout()
 {
-    if (!(m_errorList.size() == 0))
-    {
+    if (!(m_errorList.size() == 0)) {
         emitAlarm(Global::ALARM_ERROR);
+        qDebug() << "AlarmHandler::onTimeout error...";
     }
-    else if (!(m_warningList.size() == 0))
-    {
+    else if (!(m_warningList.size() == 0)) {
         emitAlarm(Global::ALARM_WARNING);
+        qDebug() << "AlarmHandler::onTimeout warning... timeout: " << this->m_WarnPeriod;
     }
 }
 
 void AlarmHandler::setTimeout(quint16 timeout)
 {
     qDebug() << "AlarmHandler::setTimeout: alarm interval now is: " << timeout << " mseconds.";
-    if (timeout <= 0)
-        return ;
+    quint16 interval = timeout;
+    if (interval <= 0) {
+        interval = 2000;  //Max ring tone length from file under "Sounds" dir
+        qDebug() << "AlarmHandler::setTimeout: alarm interval is set to 0, change it to: " << interval << " mseconds.";
+    }
 
     m_Timer->stop();
-    m_Timer->setInterval(timeout);
+    m_Timer->setInterval(interval);
     m_Timer->start();
 }
 
@@ -76,37 +78,36 @@ void AlarmHandler::setWarnPeriod(bool onoff)
 
 void AlarmHandler::setWarnPeriodInterval(qint32 interval)
 {
-    qDebug() << "AlarmHandler::setWarnPeriodInterval: interval=" << interval;
+    qDebug() << "AlarmHandler::setWarnPeriodInterval: interval=" << interval << "seconds.";
     this->m_WarnPeriod = interval;
-    if (m_WarnPeriodOn && m_warningList.size() > 0) {
-        if (m_errorList.size() < 1)
-            this->setTimeout(m_WarnPeriod * 60 * 1000);
-    }
 }
 
 void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active)
 {
-    if (active)
-    {
-        if (alarmType == Global::ALARM_ERROR)
-        {
+    if (active) {
+        if (alarmType == Global::ALARM_ERROR) {
             m_errorList.insert(eventKey, alarmType);
         }
-        else if (alarmType == Global::ALARM_WARNING)
-        {
+        else if (alarmType == Global::ALARM_WARNING) {
             m_warningList.insert(eventKey, alarmType);
         }
     }
-    else
-    {
-        if (alarmType == Global::ALARM_ERROR)
-        {
+    else {
+        if (alarmType == Global::ALARM_ERROR) {
             m_errorList.remove(eventKey);
         }
-        else if (alarmType == Global::ALARM_WARNING)
-        {
+        else if (alarmType == Global::ALARM_WARNING) {
             m_warningList.remove(eventKey);
         }
+    }
+
+    if (m_WarnPeriodOn && m_warningList.size() > 0 && m_errorList.size() < 1) {
+        this->setTimeout(m_WarnPeriod * 1000);
+        qDebug() << "AlarmHandler::setAlarm warn period, interval: " << m_WarnPeriod;
+    }
+    else {
+        this->setTimeout(DEFAULT_ALARM_TIMEOUT);
+        qDebug() << "AlarmHandler::setAlarm error period, interval: " << DEFAULT_ALARM_TIMEOUT;
     }
 }
 

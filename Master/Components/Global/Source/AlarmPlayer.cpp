@@ -135,14 +135,11 @@ void AlarmPlayer::emitAlarm(Global::AlarmType alarmType, bool UsePresetValues, Q
 
     QString soundFile = ((UsePresetValues) ? m_soundList.value(alarmType) : Filename);
 
-    if (!m_processPlay)
-    {
+    if (!m_processPlay) {
         m_processPlay = new QProcess();
     }
-    else
-    {
-        if (m_processPlay->state() == QProcess::Running)
-        {
+    else {
+        if (m_processPlay->state() == QProcess::Running) {
             m_processPlay->kill();
             m_processPlay->waitForFinished();
         }
