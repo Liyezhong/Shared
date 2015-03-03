@@ -2351,11 +2351,13 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_EMPTY;
             LOG()<<"Bottle Check: Empty";
         }
+#if 0
         else if(pressure < (0.7 * baseLine))
         {
             retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_LEAKAGE;
             LOG()<<"Bottle Check: Leakage or Not Full";
         }
+#endif
         else if(pressure < (2 * baseLine))
         {
             retCode = DCL_ERR_FCT_CALL_SUCCESS;
