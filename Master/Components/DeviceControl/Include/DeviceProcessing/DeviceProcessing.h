@@ -84,6 +84,7 @@ class DCLEventLoop : public QEventLoop
 {
     Q_OBJECT
 public:
+    DCLEventLoop() { m_Resumed = false; }
     /****************************************************************************/
     /*!
      *  \brief  Set command type
@@ -103,6 +104,25 @@ public:
      */
     /****************************************************************************/
     SyncCmdType_t GetCmdType() { return m_CmdType; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Set resume status to true
+     *
+     *  \return void
+     */
+    /****************************************************************************/
+    void SetResumed() { m_Resumed = true; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get resume status
+     *
+     *  \return bool
+     */
+    /****************************************************************************/
+    bool GetResumed() { return m_Resumed; }
+
 public slots:
 
     /****************************************************************************/
@@ -121,6 +141,7 @@ public slots:
     }
 private:
     SyncCmdType_t    m_CmdType; //!< command type
+    bool             m_Resumed; //!< flag to indicate if resuming has executed
 
 };
 
@@ -204,6 +225,30 @@ public:
      */
     /****************************************************************************/
 	QObject* GetParent() const { return mp_Parent; }
+
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Create syncCall object
+     *
+     *  \param CmdType = SyncCmdType_t type parameter
+     *
+     *  \return Pointer to the syncCall object
+     */
+    /****************************************************************************/
+    DCLEventLoop* CreateSyncCall(SyncCmdType_t CmdType);
+
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function BlockingForSyncCall
+     *
+     *  \param  event = syncCall pointer
+     *
+     *  \return from BlockingForSyncCall
+     */
+    /****************************************************************************/
+    ReturnCode_t BlockingForSyncCall(DCLEventLoop* event);
 
     /****************************************************************************/
     /*!

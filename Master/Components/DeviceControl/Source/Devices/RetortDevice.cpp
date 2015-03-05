@@ -919,8 +919,10 @@ ReturnCode_t CRetortDevice::SetTemperature(RTTempCtrlType_t Type, qreal NominalT
 {
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
+    DCLEventLoop* event = NULL;
     if(m_pTempCtrls[Type] != NULL)
     {
+        event = m_pDevProc->CreateSyncCall(SYNC_CMD_RT_SET_TEMP);
         retCode = m_pTempCtrls[Type]->SetTemperature(NominalTemperature, SlopeTempChange);
     }
     else
@@ -933,7 +935,7 @@ ReturnCode_t CRetortDevice::SetTemperature(RTTempCtrlType_t Type, qreal NominalT
     }
     if(m_pDevProc)
     {
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_TEMP);
+        retCode =  m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
@@ -1088,6 +1090,7 @@ ReturnCode_t CRetortDevice::SetTemperaturePid(RTTempCtrlType_t Type, quint16 Max
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_RT_SET_TEMP_PID);
         retCode = m_pTempCtrls[Type]->SetTemperaturePid(MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -1095,7 +1098,7 @@ ReturnCode_t CRetortDevice::SetTemperaturePid(RTTempCtrlType_t Type, quint16 Max
         }
         if(m_pDevProc)
         {
-            return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_TEMP_PID);
+            return m_pDevProc->BlockingForSyncCall(event);
         }
         else
         {
@@ -1159,8 +1162,10 @@ ReturnCode_t CRetortDevice::SetDOValue(quint16 OutputValue, quint16 Duration, qu
 {
     m_TargetDOOutputValue = OutputValue;
     ReturnCode_t retCode;
+    DCLEventLoop* event = NULL;
     if(m_pLockDigitalOutput)
     {
+        event = m_pDevProc->CreateSyncCall(SYNC_CMD_RT_SET_DO_VALUE);
         retCode = m_pLockDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
     }
     else
@@ -1173,7 +1178,7 @@ ReturnCode_t CRetortDevice::SetDOValue(quint16 OutputValue, quint16 Duration, qu
     }
     if(m_pDevProc)
     {
-        return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_DO_VALUE);
+        return m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
@@ -1412,6 +1417,7 @@ ReturnCode_t CRetortDevice::SetTemperatureSwitchState(RTTempCtrlType_t Type, qin
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_RT_SET_SWITCH_STATE);
         retCode = m_pTempCtrls[Type]->SetSwitchState(HeaterVoltage, AutoType);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -1419,7 +1425,7 @@ ReturnCode_t CRetortDevice::SetTemperatureSwitchState(RTTempCtrlType_t Type, qin
         }
         if(m_pDevProc)
         {
-            return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_SWITCH_STATE);
+            return m_pDevProc->BlockingForSyncCall(event);
         }
         else
         {

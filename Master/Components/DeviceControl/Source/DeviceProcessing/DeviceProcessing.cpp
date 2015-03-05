@@ -2041,6 +2041,38 @@ void DeviceProcessing::WriteDeviceLifeCycle()
 }
 
 #ifdef HAL_CV_TEST
+
+DCLEventLoop* DeviceProcessing::CreateSyncCall(SyncCmdType_t CmdType)
+{
+    DCLEventLoop* event = new DCLEventLoop();
+    event->SetCmdType(CmdType);
+    m_EventLoopsForSyncCall.push_back(event);
+    return event;
+}
+
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(DCLEventLoop* event)
+{
+    ReturnCode_t ret=DCL_ERR_FCT_CALL_SUCCESS;
+
+    if (!event->GetResumed())
+    {
+        ret = (ReturnCode_t)(event->exec());
+    }
+    for (QVector<DCLEventLoop*>::iterator iter = m_EventLoopsForSyncCall.begin(); iter!= m_EventLoopsForSyncCall.end(); ++iter)
+    {
+        if (*iter == event)
+        {
+            delete event;
+            event = NULL;
+            m_EventLoopsForSyncCall.erase(iter++);
+            break;
+        }
+    }
+    return ret;
+}
+
+
+
 /****************************************************************************/
 /*!
  *  \brief  Block caller's current thread with specified type
@@ -2084,6 +2116,7 @@ void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, ReturnCode_t Va
         }
         if (CmdType == m_EventLoopsForSyncCall[i]->GetCmdType())
         {
+            m_EventLoopsForSyncCall[i]->SetResumed();
             m_EventLoopsForSyncCall[i]->exit(Value);
         }
     }

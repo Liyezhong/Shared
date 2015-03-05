@@ -684,15 +684,14 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
     ReturnCode_t retCode;
     if(m_pPressureCtrl)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_PRESSURE);
         m_TargetPressure = NominalPressure + m_PressureDrift;
         retCode =  m_pPressureCtrl->SetPressure(flag, m_TargetPressure);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
-        LogDebug("In SetPressure, before BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE)");
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE);
-        LogDebug("In SetPressure, after BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE)");
+        retCode =  m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
@@ -747,11 +746,12 @@ ReturnCode_t CAirLiquidDevice::SetValve(quint8 ValveIndex, quint8 ValveState)
     ReturnCode_t retCode;
     if(m_pPressureCtrl)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_VALVE);
         retCode = m_pPressureCtrl->SetValve(ValveIndex, ValveState);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
             return retCode;
         }
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_VALVE);
+        retCode =  m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
@@ -2261,8 +2261,10 @@ ReturnCode_t CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, float Nomin
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
 
+    DCLEventLoop* event = NULL;
     if(m_pTempCtrls[Type] != NULL)
     {
+        event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_TEMP);
         retCode = m_pTempCtrls[Type]->SetTemperature(NominalTemperature, SlopeTempChange);
     }
     else
@@ -2273,7 +2275,7 @@ ReturnCode_t CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, float Nomin
     {
         return retCode;
     }
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_TEMP);
+    retCode =  m_pDevProc->BlockingForSyncCall(event);
     return retCode;
 }
 
@@ -2511,12 +2513,13 @@ ReturnCode_t CAirLiquidDevice::SetTemperaturePid(ALTempCtrlType_t Type, quint16 
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_TEMP_PID);
         retCode = m_pTempCtrls[Type]->SetTemperaturePid(MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
-        return m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_TEMP_PID);
+        return m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
@@ -2594,12 +2597,13 @@ ReturnCode_t CAirLiquidDevice::TurnOnFan()
     ReturnCode_t retCode = DCL_ERR_NOT_INITIALIZED;
     if(m_pPressureCtrl)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_FAN_STATUS);
         retCode = m_pPressureCtrl->SetFan(1);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
-        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_FAN_STATUS);
+        retCode = m_pDevProc->BlockingForSyncCall(event);
     }
     return retCode;
 }
@@ -2616,12 +2620,13 @@ ReturnCode_t CAirLiquidDevice::TurnOffFan()
     ReturnCode_t retCode = DCL_ERR_NOT_INITIALIZED;
     if(m_pPressureCtrl)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_FAN_STATUS);
         retCode = m_pPressureCtrl->SetFan(0);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
-        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_FAN_STATUS);
+        retCode = m_pDevProc->BlockingForSyncCall(event);
     }
     return retCode;
 }

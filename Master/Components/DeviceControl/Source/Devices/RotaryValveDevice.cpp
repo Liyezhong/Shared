@@ -524,8 +524,10 @@ ReturnCode_t CRotaryValveDevice::SetTemperature(qreal NominalTemperature, quint8
 {
     m_TargetTemperature = NominalTemperature;
     ReturnCode_t retCode;
+    DCLEventLoop* event = NULL;
     if(m_pTempCtrl != NULL)
     {
+        event = m_pDevProc->CreateSyncCall(SYNC_CMD_RV_SET_TEMP);
         retCode = m_pTempCtrl->SetTemperature(NominalTemperature, SlopeTempChange);
     }
     else
@@ -538,7 +540,7 @@ ReturnCode_t CRotaryValveDevice::SetTemperature(qreal NominalTemperature, quint8
     }
     if(m_pDevProc)
     {
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_SET_TEMP);
+        retCode =  m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
@@ -812,6 +814,7 @@ ReturnCode_t CRotaryValveDevice::SetTemperaturePid(quint16 MaxTemperature, quint
     ReturnCode_t retCode;
     if(m_pTempCtrl != NULL)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_RV_SET_TEMP_PID);
         retCode = m_pTempCtrl->SetTemperaturePid(MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -819,7 +822,7 @@ ReturnCode_t CRotaryValveDevice::SetTemperaturePid(quint16 MaxTemperature, quint
         }
         if(m_pDevProc)
         {
-            return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_SET_TEMP_PID);
+            return m_pDevProc->BlockingForSyncCall(event);
         }
         else
         {
@@ -2381,9 +2384,8 @@ void CRotaryValveDevice::OnSetConfiguration(quint32 /*InstanceID*/, ReturnCode_t
 /****************************************************************************/
 ReturnCode_t CRotaryValveDevice::SetMotorState(bool flag)
 {
-
-
     ReturnCode_t retCode;
+    DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_RV_SET_MOTOR_STATE);
     if(m_pMotorRV)
     {
         retCode = m_pMotorRV->SetMotorState(flag);
@@ -2397,7 +2399,7 @@ ReturnCode_t CRotaryValveDevice::SetMotorState(bool flag)
     }
     if(m_pDevProc)
     {
-       retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_SET_MOTOR_STATE);
+       retCode = m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
@@ -2537,6 +2539,7 @@ ReturnCode_t CRotaryValveDevice::SetTemperatureSwitchState(qint8 HeaterVoltage, 
     ReturnCode_t retCode;
     if(m_pTempCtrl != NULL)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_RV_SET_SWITCH_STATE);
         retCode = m_pTempCtrl->SetSwitchState(HeaterVoltage, AutoType);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -2544,7 +2547,7 @@ ReturnCode_t CRotaryValveDevice::SetTemperatureSwitchState(qint8 HeaterVoltage, 
         }
         if(m_pDevProc)
         {
-            return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_SET_SWITCH_STATE);
+            return m_pDevProc->BlockingForSyncCall(event);
         }
         else
         {

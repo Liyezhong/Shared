@@ -873,8 +873,10 @@ ReturnCode_t COvenDevice::SetTemperature(OVENTempCtrlType_t Type, qreal NominalT
 {
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
+    DCLEventLoop* event = NULL;
     if(m_pTempCtrls[Type] != NULL)
     {
+        event = m_pDevProc->CreateSyncCall(SYNC_CMD_OVEN_SET_TEMP);
         retCode = m_pTempCtrls[Type]->SetTemperature(NominalTemperature, SlopeTempChange);
     }
     else
@@ -887,7 +889,7 @@ ReturnCode_t COvenDevice::SetTemperature(OVENTempCtrlType_t Type, qreal NominalT
     }
     if(m_pDevProc)
     {
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP);
+        retCode =  m_pDevProc->BlockingForSyncCall(event);
     }
     return retCode;
 }
@@ -1044,6 +1046,7 @@ ReturnCode_t COvenDevice::SetTemperaturePid(OVENTempCtrlType_t Type, quint16 Max
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
+        DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID);
         retCode = m_pTempCtrls[Type]->SetTemperaturePid(MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -1051,7 +1054,7 @@ ReturnCode_t COvenDevice::SetTemperaturePid(OVENTempCtrlType_t Type, quint16 Max
         }
         if(m_pDevProc)
         {
-            retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID);
+            retCode = m_pDevProc->BlockingForSyncCall(event);
         }
         return retCode;
     }

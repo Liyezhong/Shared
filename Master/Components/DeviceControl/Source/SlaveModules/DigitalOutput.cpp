@@ -347,6 +347,7 @@ void CDigitalOutput::HandleCommandRequestTask()
                                                     m_ModuleCommand[idx].m_Delay);
 
                 m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+                //There is no acknoledge, so we just send out signal immediately
                 emit ReportOutputValueAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].m_OutputValue);
             }
             else  if(m_ModuleCommand[idx].m_Type == FM_DO_CMD_TYPE_REQ_ACTVALUE)

@@ -470,6 +470,7 @@ ReturnCode_t CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue,
 {
     m_TargetDOOutputValues[Type] = OutputValue;
 
+    DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_PER_SET_DO_VALUE);
     ReturnCode_t retCode = m_pDigitalOutputs[Type]->SetOutputValue(m_TargetDOOutputValues[Type], Duration, Delay);
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
@@ -477,7 +478,7 @@ ReturnCode_t CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue,
     }
     if(m_pDevProc)
     {
-        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_SET_DO_VALUE);
+        retCode = m_pDevProc->BlockingForSyncCall(event);
     }
     else
     {
