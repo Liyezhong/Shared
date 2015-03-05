@@ -536,6 +536,7 @@ void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
                 if (pNextStep != NULL && pNextStep->GetButtonType() != Global::NOT_SPECIFIED) {
                     SendMSGCommand(EventKey, pEvent, pNextStep, EventInfo.Active);
                 }
+                m_ActiveEvents.remove(EventKey); //Note: need no ack from GUI.
             }
             else {
                 SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
