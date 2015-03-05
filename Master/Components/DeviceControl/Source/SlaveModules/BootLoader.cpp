@@ -447,6 +447,8 @@ void CBootLoader::HandleCanMessage(const can_frame *p_CanFrame)
         ReturnCode = HandleCanMsgUpdateInfoAck(p_CanFrame);
     }
 
+//    QString dbg = QString("echo canid %1 returncode %2").arg(p_CanFrame->can_id).arg(quint32(ReturnCode));
+//    system(dbg.toStdString().c_str());
     if (ReturnCode != DCL_ERR_FCT_CALL_SUCCESS) {
         m_Timer.stop();
         if (m_State == BOOTLOADER_FIRMWARE) {
@@ -620,6 +622,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateAck(const can_frame *p_CanFrame)
                 return DCL_ERR_INTERNAL_ERR;
             }
             delete[] p_ImageData;
+            p_ImageData = NULL;
 
             CanMsg.can_id = m_CanIdUpdateTrailer;
             CanMsg.data[0] = Crc32 >> 24;
@@ -765,6 +768,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoAck(const can_frame *p_CanFrame)
     // Check if CRC failed or not
     else if (p_CanFrame->can_dlc == 1) {
         delete[] mp_Info;
+        mp_Info = NULL;
         m_State = BOOTLOADER_ACTIVE;
         if (p_CanFrame->data[0] == 0) {
             emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);

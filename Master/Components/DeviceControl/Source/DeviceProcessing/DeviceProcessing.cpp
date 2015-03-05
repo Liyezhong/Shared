@@ -1324,14 +1324,6 @@ void DeviceProcessing::HandleTaskShutDown(DeviceProcTask* pActiveTask)
     else if(m_SubStateShutDown == DP_SUB_STATE_SHUTDOWN_CLOSE_OBJECTS)
     {
         FILE_LOG_L(laDEVPROC, llINFO) << "  DeviceProcessing::HandleTaskShutDown start DP_SUB_STATE_SHUTDOWN_CLOSE_OBJECTS";
-        delete m_pCANMessageConfiguration;
-
-        // delete the services
-        delete m_pConfigurationService;
-        delete m_pDiagnosticService;
-        delete m_pAdjustmentService;
-        delete m_pShutdownService;
-        delete m_pFunctionModuleTaskManager;
 
         // delete CANNodes
         while(!m_ObjectTree.isEmpty())
@@ -1341,6 +1333,13 @@ void DeviceProcessing::HandleTaskShutDown(DeviceProcTask* pActiveTask)
             delete p_BaseModule;
         }
 
+        delete m_pCANMessageConfiguration;
+        // delete the services
+        delete m_pConfigurationService;
+        delete m_pDiagnosticService;
+        delete m_pAdjustmentService;
+        delete m_pShutdownService;
+        delete m_pFunctionModuleTaskManager;
         m_SubStateShutDown = DP_SUB_STATE_SHUTDOWN_FINISHED;
     }
 }

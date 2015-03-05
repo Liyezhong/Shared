@@ -170,6 +170,7 @@ CBaseModule::~CBaseModule()
              delete m_ModuleCommand.takeFirst();
         }
         delete mp_BootLoader;
+        mp_BootLoader = NULL;
         mp_MessageConfiguration = 0;
         m_pCANCommunicator = 0;
     }
