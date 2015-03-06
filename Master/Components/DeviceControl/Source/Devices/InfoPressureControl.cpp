@@ -48,7 +48,7 @@ CInfoPressureControl::CInfoPressureControl(CPressureControl *p_PressureControl, 
     CState(p_SubModule->GetSubModuleName(), p_Parent),
     mp_PressureControl(p_PressureControl),
     mp_SubModule(p_SubModule),
-    m_LastPumpOperationTime(0)
+    m_LastExhaustFanOperationTime(0)
 {
     CState *p_Init = new CState("Init", this);
     CState *p_RequestPumpLifeTimeData = new CState("RequestPumpLifeTimeData", this);
@@ -145,14 +145,19 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    quint32 diffTime = 0;
+    if (m_LastExhaustFanOperationTime > 0)
+    {
+        diffTime = now - m_LastExhaustFanOperationTime;
+        diffTime = diffTime / 1000;
+    }
+    m_LastExhaustFanOperationTime = now;
 
-    quint32 diffPump = pumpOperationTime - m_LastPumpOperationTime;
-    m_LastPumpOperationTime = pumpOperationTime;
-
-    quint32 newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffPump;
+    quint32 newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffTime;
     mp_PressureControl->SetActiveCarbonFilterLifeTime(newVal);
 
-    newVal = mp_PressureControl->GetExhaustFanLifeTime() + diffPump;
+    newVal = mp_PressureControl->GetExhaustFanLifeTime() + diffTime;
     mp_PressureControl->SetExhaustFanLifeTime(newVal);
 
     if (!mp_SubModule->UpdateParameterInfo("ActiveCarbonFilterLifeTime", QString().setNum(mp_PressureControl->GetActiveCarbonFilterLifeTime()))) {
