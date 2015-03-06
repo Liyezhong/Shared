@@ -288,7 +288,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
             PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Retort_Lid_Lock");
             if (pPartLifeCycleRecord)
             {
-                quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Retort_Lid_Lock_LifeCycle").toUInt();
+                quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("lid_status_LifeCycle").toUInt();
                 m_pLockDigitalInput->SetLifeCycle(lifeCycle * 2);
                 m_pLockDigitalInput->SetPartLifeCycleRecord(pPartLifeCycleRecord);
             }
