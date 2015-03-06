@@ -1722,7 +1722,7 @@ bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qr
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, float pressure)
 {
-    if(pressure > 0)
+    if(pressure > std::numeric_limits<float>::epsilon()) //larger than float zero
     {
         //close valve 1
         (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
@@ -1730,7 +1730,15 @@ ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, float pressure)
         (void)SetValve(VALVE_2_INDEX, VALVE_STATE_OPEN);
         return  SetPressure(flag, pressure);//should be 1 or 17
     }
-    else if(pressure < 0)
+    else if(qAbs(pressure) < std::numeric_limits<float>::epsilon()) //equal to float zero
+    {
+        //close valve 1
+        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        //close valve 2
+        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        return  SetPressure(flag, pressure);
+    }
+    else if (pressure < -(std::numeric_limits<float>::epsilon())) //less than zero
     {
         //open valve 1
         (void)SetValve(VALVE_1_INDEX, VALVE_STATE_OPEN);
