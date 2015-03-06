@@ -639,6 +639,14 @@ void SetThreadPriority(const ThreadPrio_t ThreadPriority);
 * \param RebootFileContent content
 */
 void UpdateRebootFile(const QMap<QString, QString> RebootFileContent);
+
+/**
+* \brief function  WriteBootVariable
+* \param RebootFileContent content
+* \param file boot file
+*/
+void WriteBootVariable(const QMap<QString, QString> content, QFile &file);
+
 /****************************************************************************/
 /**
  * \brief  Creates the symbolic link to font files to system font folder

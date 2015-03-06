@@ -417,20 +417,30 @@ void UpdateRebootFile(const QMap<QString, QString> RebootFileContent)
     QFile RebootFile(RebootPath);
     if(!RebootFile.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
         //!< todo raise event.
-        qDebug()<<"Reboot file open failed";
+        qDebug()<<"UpdateRebootFile: Boot file open failed";
     }
-    QTextStream RebootFileStream(&RebootFile);
-    RebootFileStream.setFieldAlignment(QTextStream::AlignLeft);
-    QMapIterator<QString, QString> RebootfileItr(RebootFileContent);
-    while (RebootfileItr.hasNext()) {
-        RebootfileItr.next();
-        QString Key = RebootfileItr.key();
-        QString Value = RebootFileContent.value(Key);
-        RebootFileStream << Key << ":" << Value << "\n" << left;
+
+    WriteBootVariable(RebootFileContent, RebootFile);
+}
+
+void WriteBootVariable(const QMap<QString, QString> content, QFile &file)
+{
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        qDebug()<<"WriteBootVariable: Boot file open failed";
     }
-    RebootFile.flush();
-    fsync(RebootFile.handle());
-    RebootFile.close();
+
+    QTextStream fstream(&file);
+    fstream.setFieldAlignment(QTextStream::AlignLeft);
+    QMapIterator<QString, QString> iter(content);
+    while (iter.hasNext()) {
+        iter.next();
+        QString key = iter.key();
+        QString val = content.value(key);
+        fstream << key << ":" << val << "\n" << left;
+    }
+    file.flush();
+    fsync(file.handle());
+    file.close();
 }
 
 bool Workaroundchecking(const QString& Type)

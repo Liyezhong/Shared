@@ -114,7 +114,8 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
         return ;
     }
 
-    if (EventID == SWUpdate::EVENT_SW_UPDATE_SUCCESS || EventID == SWUpdate::EVENT_SW_UPDATE_NOT_PERFORMED) {
+    if (EventID == SWUpdate::EVENT_SW_UPDATE_SUCCESS || EventID == SWUpdate::EVENT_SW_UPDATE_NOT_PERFORMED ||\
+        EventID == SWUpdate::EVENT_SW_UPDATE_FAILED) {
         if (!m_GuiAvailable) {
             m_PendingGuiEvent.push_back(EventKey);
             if(!m_ActiveEvents.contains(EventKey)) {
@@ -528,7 +529,8 @@ void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
             EventRuntimeInfo_t EventInfo = m_ActiveEvents.value(EventKey);
             //todo init EventReportData by EventInfo
             if (EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_SUCCESS ||\
-                EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_NOT_PERFORMED) {
+                    EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_NOT_PERFORMED ||\
+                    EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_FAILED) {
                 const EventStep* pNextStep = NULL;
                 const XMLEvent* pEvent = m_EventManager.GetEvent(EventInfo.EventID);
                 if (pEvent)

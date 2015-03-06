@@ -128,6 +128,9 @@ MasterThreadController::MasterThreadController(const QString &ShutdownSharedMemN
         CreateRebootFile(&BootConfigFile);
     }
     ReadBootConfigFile(&BootConfigFile);
+    // Reset boot variables if neccessary
+    Global::WriteBootVariable(m_BootConfigFileContent, BootConfigFile);
+
     SetHeartbeatTimeout(HeartBeatManager::CONTROLLER_HERATBEAT_TIMEOUT);
 }
 
