@@ -91,6 +91,8 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
         else if (alarmType == Global::ALARM_WARNING) {
             m_warningList.insert(eventKey, alarmType);
         }
+
+        onTimeout(); // trigger the alarm immediately.
     }
     else {
         if (alarmType == Global::ALARM_ERROR) {

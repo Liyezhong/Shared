@@ -179,6 +179,9 @@ void MasterThreadController::CreateAndInitializeObjects() {
         Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_WARNING, mp_UserSettings->GetSoundNumberWarning());
         Global::AlarmPlayer::Instance().setVolume(Global::ALARM_ERROR, mp_UserSettings->GetSoundLevelError());
         Global::AlarmPlayer::Instance().setVolume(Global::ALARM_WARNING, mp_UserSettings->GetSoundLevelWarning());
+
+        Global::AlarmHandler::Instance().setWarnPeriod(mp_UserSettings->GetSoundPeriodicWarning());
+        Global::AlarmHandler::Instance().setWarnPeriodInterval(mp_UserSettings->GetSoundPeriodicTimeWarning());
     }
 
     if (m_SWUpdateStatus == "Failure") {

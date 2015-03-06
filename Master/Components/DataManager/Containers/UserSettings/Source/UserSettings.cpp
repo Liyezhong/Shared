@@ -637,6 +637,42 @@ CUserSettings& CUserSettings::operator=(const CUserSettings& UserSettings)
     return *this;
 }
 
+
+/****************************************************************************/
+/*!
+ *  \brief Get the warning sound periodic time
+ *
+ *  \return warning sound periodic time
+ */
+/****************************************************************************/
+int CUserSettings::GetSoundPeriodicTimeWarning(void) const
+{
+    return Helper::ConvertTimeStringToSeconds
+            (GetValue(WARNING_TONE_PERIODIC_TIME));
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief Get the warning sound periodic flag
+ *
+ *  \return warning sound periodic flag
+ */
+/****************************************************************************/
+bool CUserSettings::GetSoundPeriodicWarning(void) const
+{
+    QString Value = GetValue(WARNING_TONE_PERIODIC).toLower();
+    if (PERIODIC_ON == Value)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
 /****************************************************************************/
 /*!
  *  \brief Get value of a particular setting from the value list
