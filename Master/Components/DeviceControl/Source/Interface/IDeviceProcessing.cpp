@@ -2395,6 +2395,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             retCode = m_pRotaryValve->ReqMoveToRVPosition(targetPosition);
             if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
+                m_pAirLiquid->LogDebug("In IDSealingCheck, ReqMoveToRVPosition failed");
                 return retCode;
             }
         }
@@ -2413,6 +2414,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         }
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
+            m_pAirLiquid->LogDebug("In IDSealingCheck, failure in setting 30Kpa pressure in 30 seconds");
             return retCode;
         }
         QTime delayTime = QTime::currentTime().addMSecs(30000);
@@ -2428,6 +2430,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         }
         if (false == targetPressureFlag)
         {
+            m_pAirLiquid->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE");
             return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
         }
 #ifdef __arm__
@@ -2454,6 +2457,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
             if(previousPressure-(m_pAirLiquid->GetPressure()) > ThresholdPressure)
             {
+                m_pAirLiquid->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE(Wait for 30 seconds to get current pressure)");
                 LOG()<<"Sealing test: Failed.";
                 (void)m_pAirLiquid->ReleasePressure();
                 return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
