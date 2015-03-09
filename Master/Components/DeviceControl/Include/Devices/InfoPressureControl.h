@@ -74,7 +74,7 @@ private:
 
     CPressureControl *mp_PressureControl; //!< Function module used to get the information
     DataManager::CSubModule *mp_SubModule;      //!< Data container in which the data is stored
-    qint64 m_LastExhaustFanOperationTime;
+    qint64 m_LastExhaustFanOperationTime;       //!< last ExhaustFan OperationTime
 };
 
 } //namespace

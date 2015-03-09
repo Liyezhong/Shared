@@ -145,6 +145,7 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
+
     qint64 now = QDateTime::currentMSecsSinceEpoch();
     quint32 diffTime = 0;
     if (m_LastExhaustFanOperationTime > 0)
