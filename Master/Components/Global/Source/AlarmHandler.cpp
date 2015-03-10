@@ -57,10 +57,10 @@ void AlarmHandler::onTimeout()
     }
 }
 
-void AlarmHandler::setTimeout(quint16 timeout)
+void AlarmHandler::setTimeout(quint32 timeout)
 {
     qDebug() << "AlarmHandler::setTimeout: alarm interval now is: " << timeout << " mseconds.";
-    quint16 interval = timeout;
+    quint32 interval = timeout;
     if (interval <= 0) {
         interval = 2000;  //Max ring tone length from file under "Sounds" dir
         qDebug() << "AlarmHandler::setTimeout: alarm interval is set to 0, change it to: " << interval << " mseconds.";

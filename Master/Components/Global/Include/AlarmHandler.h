@@ -83,7 +83,7 @@ public:
      * \iparam timeout = time out for alarm
      */
     /****************************************************************************/
-    void setTimeout(quint16 timeout);
+    void setTimeout(quint32 timeout);
 
     /****************************************************************************/
     /**
