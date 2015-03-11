@@ -54,6 +54,8 @@ public:
     void AddSettingsPanel (QString Title, QWidget *p_Content);
     QWidget *GetCurrentPanel();
 
+    void SetEnableButton(int Index, bool Enable, bool NextFlag = false);
+
     void Clear();
 private:
     void AddButton (QString Text);

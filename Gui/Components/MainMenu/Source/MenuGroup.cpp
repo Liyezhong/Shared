@@ -259,4 +259,21 @@ void CMenuGroup::ShowWidget(int ButtonClicked)
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief set button status from ButtonGroup
+ *
+ *  \iparam Index = Button Index
+ *  \iparam Enable = flag of button status
+ *  \iparam NextVisibleFlag = flag for visible next button
+ */
+/****************************************************************************/
+void CMenuGroup::SetEnableButton(int Index, bool Enable, bool NextVisibleFlag)
+{
+    mp_ButtonGroup->button(Index)->setEnabled(Enable);
+    if (NextVisibleFlag) {
+        ButtonPressed(Index + 1);
+    }
+}
+
 } // end namespace MainMenu
