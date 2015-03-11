@@ -201,7 +201,7 @@ void CNetworkSettingsWidget::UpdateIpAddress(QString IpAddress)
 {
     mp_Ui->proxyIpAddressButton->setText(IpAddress);
     mp_Ui->proxyIpAddressButton->setEnabled(true);
-    mp_Ui->saveButton->setEnabled(true);
+    mp_Ui->saveButton->setEnabled(false);
 }
 
 /****************************************************************************/
@@ -271,6 +271,7 @@ void CNetworkSettingsWidget::OnOkClicked(QString EnteredText)
 void CNetworkSettingsWidget::OnSave()
 {
     Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IPADDRESS_UPDATED);
+    mp_Ui->saveButton->setEnabled(false);
     emit SaveIPAddress(mp_Ui->proxyIpAddressButton->text());
 }
 
@@ -512,6 +513,7 @@ void CNetworkSettingsWidget::SetNetworkSettingsResult(PlatformService::NetworkSe
             }
             (void) m_Model.setData(m_Model.index(2, 1), SetPixMap, (int) Qt::DecorationRole);
         }
+        mp_Ui->saveButton->setEnabled(true);
         break;
     case PlatformService::DOWNLOAD_FIRMWARE:
         if (Result) {
