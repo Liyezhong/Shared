@@ -1963,6 +1963,7 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
     }
     else
     {
+        LogDebug(QString("In AirLiquid device, invalid temperature. Current state is: %1").arg(m_MainState));
         RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;

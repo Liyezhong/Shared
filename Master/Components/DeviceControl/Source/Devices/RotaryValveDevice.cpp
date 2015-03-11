@@ -683,6 +683,10 @@ qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
     {
         RetValue = m_CurrentTemperature[Index];
     }
+    else
+    {
+        LogDebug(QString("In RotaryValve device, invalid temperature. Current state is: %1").arg(m_MainState));
+    }
     return RetValue;
 }
 

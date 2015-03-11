@@ -598,6 +598,7 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
     }
     else
     {
+        LogDebug(QString("In Retort device, invalid temperature. Current state is: %1").arg(m_MainState));
         RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;
