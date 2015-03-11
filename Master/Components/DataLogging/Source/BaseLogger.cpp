@@ -90,7 +90,6 @@ void BaseLogger::OpenFileForAppend(const QString &FileName) {
             m_FlushEventCount = 0;
             // don't log the data - disable permanently
             Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_DATA_LOGGING_DISABLED);
-            Global::EventObject::Instance().RaiseEvent(Global::EVENT_STOP_ACCEPT_NEW_RACK);
             return;
         }
         else {

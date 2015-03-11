@@ -181,6 +181,10 @@ const quint32 EVENT_DM_STATION_ID_MISSING                       = EVENT_GROUP_PL
 //const quint32 EVENT_DM_STATION_INVALID_DATA                     = EVENT_GROUP_PLATFORM_DM_STATIONS + 0x000A; ///< Station  %1 attribute is Invalid.
 const quint32 EVENT_DM_STATION_INVALID_FIRST_USAGEDATE          = EVENT_GROUP_PLATFORM_DM_STATIONS + 0x000B; ///< Station %1 Usage Date %2 not valid.
 const quint32 EVENT_DM_STATION_UKNOWN_COLORADO_XML_DATA_FOUND   = EVENT_GROUP_PLATFORM_DM_STATIONS + 0x000C; ///< Station  %1 XML data Invalid.
+const quint32 EVENT_DM_STATION_RESET_STATION                    = EVENT_GROUP_PLATFORM_DM_STATIONS + 0x000D; ///< User reset the Station %1.
+const quint32 EVENT_DM_STATION_CHANGE_STATION                   = EVENT_GROUP_PLATFORM_DM_STATIONS + 0x000e; ///< User change the Station %1 to reagent %2.
+const quint32 EVENT_DM_STATION_SET_STATION_FULL                 = EVENT_GROUP_PLATFORM_DM_STATIONS + 0x000f; ///< User set the Station %1 to full.
+const quint32 EVENT_DM_STATION_SET_STATION_EMPTY                = EVENT_GROUP_PLATFORM_DM_STATIONS + 0x0010; ///< User set the Station %1 to empty.
 
 const quint32 EVENT_DM_REAGENT_NAME_NOT_UNIQUE                   =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x0001; ///< Reagent name '%1' already in use. Please choose different reagent name.
 const quint32 EVENT_DM_REAGENT_SHORT_NAME_NOT_UNIQUE             =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x0002; ///< Reagent Short name '%1' already in use. Please choose different Reagent Short name.
@@ -199,6 +203,10 @@ const quint32 EVENT_DM_REAGENT_ADD_FAILED_INTERNAL_ERR           =   EVENT_GROUP
 const quint32 EVENT_DM_REAGENT_OPERATION_FAILED                  =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x000F; ///< Reagent : '%1' operation failed
 const quint32 EVENT_DM_REAGENT_DEL_FAILED_INTERNAL_ERR           =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x0010; ///< Reagent deletion failed.
 const quint32 EVENT_DM_REAGENT_INVALID_COLORADO_XML_DATA_FOUND   =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x0011; ///< Invalid Colorado Xml data with Reagent '%1' found.
+const quint32 EVENT_DM_REAGENT_ADD_REAGENT   =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x0012; ///< User add reagent %1.
+const quint32 EVENT_DM_REAGENT_DEL_REAGENT   =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x0013; ///< User delete reagent %1.
+const quint32 EVENT_DM_REAGENT_UPDATE_REAGENT   =   EVENT_GROUP_PLATFORM_DM_REAGENTS + 0x0014; ///< User update reagent %1.
+
 
 }
 
