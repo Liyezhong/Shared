@@ -590,21 +590,9 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
         m_EventEntry.SetButtonType(Global::NOT_SPECIFIED);
     }
 
-    emit LogEventEntry(m_EventEntry); //Log the event
-
-    // check signal connection
-    if (receivers(SIGNAL(SendEventToRemoteCare(const DataLogging::DayEventEntry&, const quint64))) == 0)
-        return;
-
-    if (EventInfo.Event->GetErrorType() == Global::EVTTYPE_DEBUG || EventInfo.Event->GetErrorType() == Global::EVTTYPE_UNDEFINED)
-        return;
-//    if (EventInfo.Event->GetAlarmType() != Global::ALARMPOS_REMOTE)
-//        return;
-
     quint64 EventId64 = ((quint64)EventInfo.EventID << 32) | EventInfo.EventKey;
-
-    /// \todo this is a test of Axeda Remote Care error reporting:
-    emit SendEventToRemoteCare(m_EventEntry, EventId64);
+    m_EventEntry.SetStringID_KEY(EventId64);
+    emit LogEventEntry(m_EventEntry); //Log the event
 }
 
 }//end of namespace EventHandler

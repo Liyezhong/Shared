@@ -362,7 +362,7 @@ private slots:
      * \iparam   EventId64
      */
     /****************************************************************************/
-    void ForwardEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
+    void ForwardEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const QString &message);
 
     /****************************************************************************/
     /**

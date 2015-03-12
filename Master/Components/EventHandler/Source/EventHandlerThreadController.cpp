@@ -806,7 +806,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
         }
         InformGUI(EventEntry, EventId64);
         /// \todo this is a test of Axeda Remote Care error reporting:
-        emit SendEventToRemoteCare(EventEntry, EventId64);
+//        emit SendEventToRemoteCare(EventEntry, EventId64);
 
         if (!EventStatus) {
             SetCountForEventId(EventID, 0);

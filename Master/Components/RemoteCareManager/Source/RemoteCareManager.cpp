@@ -326,20 +326,21 @@ void RemoteCareManager::SetEventClassHandler(const Global::tRefType &Ref,
 }
 
 /****************************************************************************/
-void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64)
+void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const QString &message)
 {
     if (!m_RemoteCareStatus)
         return;
 
     qDebug() << "==================" << "TheEvent.GetEventName ="<< TheEvent.GetEventName() << "GetEventCode=" << TheEvent.GetEventCode() << "TheEvent.GetEventType() =" \
              << TheEvent.GetEventType() << "TheEvent.GetLogLevel() =" << TheEvent.GetLogLevel();
-
+    if (TheEvent.GetEventType() == Global::EVTTYPE_DEBUG || TheEvent.GetEventType() == Global::EVTTYPE_UNDEFINED)
+        return;
     if (m_RCAAvailable && m_SubscriptionStatus && m_IsConnectedToWeb) {
         bool SendEvent = false;
 
-        if (EventId64 == EVENT_RCMANAGER_RECEIVED_COMMAND ||
-                EventId64 == EVENT_RCMANAGER_REMOTESESSION_ACCEPTED ||
-                EventId64 == EVENT_RCMANAGER_SENT_COMMAND) {
+        if (TheEvent.GetStringID() == EVENT_RCMANAGER_RECEIVED_COMMAND ||
+                TheEvent.GetStringID() == EVENT_RCMANAGER_REMOTESESSION_ACCEPTED ||
+                TheEvent.GetStringID() == EVENT_RCMANAGER_SENT_COMMAND) {
             SendEvent = false;
         }
         //send only those event types registered by Remote Care
@@ -380,70 +381,10 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
 
         NetCommands::RCEventReportDataStruct EventReportData;
 
-        EventReportData.m_EventName = QString::number(EventId64);
-
-        bool UseAltEventString = false;
+        EventReportData.m_EventName = QString::number(TheEvent.GetStringID_KEY());
 
         //add msg string
-        QString TrEventMessage = Global::UITranslator::TranslatorInstance().Translate(
-                    Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString()),
-                        UseAltEventString); //"Event String translated to the set langauge";
-
-        //----------------------->
-
-        if (TrEventMessage.length() == 0) {
-            TrEventMessage = TheEvent.GetEventName();
-            if (TheEvent.GetString().count() > 0) {
-                TrEventMessage += " (";
-            }
-            foreach (Global::TranslatableString s, TheEvent.GetString())
-            {
-                TrEventMessage += s.GetString() + " ";
-            }
-            if (TheEvent.GetString().count() > 0)
-            {
-                TrEventMessage += ")";
-            }
-        }
-        if (!TheEvent.IsEventActive())
-            TrEventMessage = Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_RESOLVED) + TrEventMessage;
-        QString AcknowledgeString = "";
-        if (TheEvent.GetAckValue() != NetCommands::NOT_SPECIFIED) {
-            quint32 ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_OK;
-            switch (TheEvent.GetAckValue()) {
-            case NetCommands::OK_BUTTON:
-                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_OK;
-                break;
-            case NetCommands::CANCEL_BUTTON:
-                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_CANCEL;
-                break;
-            case NetCommands::CONTINUE_BUTTON:
-                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_CONTINUE;
-                break;
-            case NetCommands::STOP_BUTTON:
-                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_STOP;
-                break;
-            case NetCommands::YES_BUTTON:
-                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_YES;
-                break;
-            case NetCommands::NO_BUTTON:
-                ButtonEventName = DataLogging::EVENT_USER_ACK_BUTTON_NO;
-                break;
-            default:
-                break;
-            }
-
-            TrEventMessage = Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED)
-                + " "
-                + Global::EventTranslator::TranslatorInstance().Translate(ButtonEventName)
-                + ": "
-                + TrEventMessage;
-        }
-
-
-        //<-----------------------
-
-        EventReportData.m_EventMessage = TrEventMessage;
+        EventReportData.m_EventMessage = message;
 
         //add event severity
         if (Global::EVTTYPE_ERROR == TheEvent.GetEventType() || Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {

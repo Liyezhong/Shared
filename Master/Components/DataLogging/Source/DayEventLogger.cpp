@@ -99,7 +99,7 @@ void DayEventLogger::RemoveOutdatedFiles(QString Prefix, quint8 DaysBack)
 }
 
 /****************************************************************************/
-void DayEventLogger::Log(const DayEventEntry &Entry) {    
+void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
 
     // translate event type
     quint32 IDStrEvtType = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
@@ -209,6 +209,8 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
                         QString::number(Entry.GetStringID(),10) + ";" +
                         TrEventMessage;
     }
+
+    message = TrEventMessage;
 
     // check if we must printout to console (because we sent it to the data logger
     // and we have to avoid a ping pong of error messages)

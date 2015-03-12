@@ -289,6 +289,17 @@ public slots:
     /****************************************************************************/
     void CheckLoggingEnabled();
 
+signals:
+    /****************************************************************************/
+    /**
+     * \brief Forward event to Remote Care
+     *
+     * \iparam   &TheEvent
+     * \iparam   &message
+     */
+    /****************************************************************************/
+    void ForwardEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const QString &message);
+
 }; // end class DataLoggingThreadController
 
 } // end namespace DataLogging

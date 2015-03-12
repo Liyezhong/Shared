@@ -145,7 +145,13 @@ void DataLoggingThreadController::OnAcknowledge(Global::tRefType Ref, const Glob
 void DataLoggingThreadController::SendToDayEventLogger(const DayEventEntry &Entry) {
     // silently discard entry if power fails
     if(!m_oPowerFail) {
-        mp_DayEventLogger->Log(Entry);
+        QString TrEventMessage;
+        mp_DayEventLogger->Log(Entry, TrEventMessage);
+        // check signal connection
+        if (receivers(SIGNAL(ForwardEventToRemoteCare(const DataLogging::DayEventEntry&, const QString &))) == 0)
+            return;
+
+        emit ForwardEventToRemoteCare(Entry, TrEventMessage);
     }
 }
 

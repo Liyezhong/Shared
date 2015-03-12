@@ -613,15 +613,6 @@ signals:
      */
     /****************************************************************************/
     void GuiAvailability(bool active);
-    /****************************************************************************/
-    /**
-     * \brief Signal for forwarding to Remote Care
-     *
-     * \iparam   &TheEvent
-     * \iparam   EventId64
-     */
-    /****************************************************************************/
-    void SendEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
 };
 
 } // end namespace EventHandler

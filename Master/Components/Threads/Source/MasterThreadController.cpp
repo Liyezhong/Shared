@@ -270,10 +270,13 @@ void MasterThreadController::CreateControllersAndThreads() {
              mp_DataManagerBase->GetRCConfigurationInterface(),
              mp_DataManagerBase->GetUserSettingsInterface()->GetUserSettings()->GetRemoteCare() == Global::ONOFFSTATE_ON);
 
-        mp_RemoteCareManager->Init();
+        mp_RemoteCareManager->Init();        
+
+
         // Connect Remote Care related signals/slots:
-        CONNECTSIGNALSLOT(mp_EventThreadController, SendEventToRemoteCare(const DataLogging::DayEventEntry&, const quint64),
-                          mp_RemoteCareManager, ForwardEventToRemoteCare(const DataLogging::DayEventEntry&, const quint64));
+        CONNECTSIGNALSLOT(mp_DataLoggingThreadController, ForwardEventToRemoteCare(const DataLogging::DayEventEntry&, const QString&),
+                          mp_RemoteCareManager, ForwardEventToRemoteCare(const DataLogging::DayEventEntry&, const QString&));
+
         CONNECTSIGNALSIGNAL(mp_RemoteCareManager, RemoteCareExport(const quint8 &),
                             this, RemoteCareExport(const quint8 &));
         CONNECTSIGNALSLOT(this, RemoteCareExportFinished(const QString),

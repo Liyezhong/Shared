@@ -150,9 +150,10 @@ public:
      * log file. If date changed it will be switched to a new log file.
      *
      * \iparam   Entry   Event entry to log.
+     * \iparam   TrEventMessage   return event message.
      */
     /****************************************************************************/
-    void Log(const DataLogging::DayEventEntry &Entry);
+    void Log(const DataLogging::DayEventEntry &Entry, QString &TrEventMessage);
 
     /****************************************************************************/
     /**

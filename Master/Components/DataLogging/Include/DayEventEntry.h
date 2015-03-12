@@ -77,6 +77,8 @@ private:
     QString m_ActionString;                                 ///< Action
     quint32 m_StringID;                                     ///< Message or log string ID
 
+    quint64 m_StringID_KEY;                                 ///<  Message or log string ID and key
+
     /****************************************************************************/
     /**
      * \brief Copy other instance to self.
@@ -639,6 +641,27 @@ public:
     /****************************************************************************/
     inline void SetStringID(qint32 StringID){
         m_StringID= StringID;
+    }    
+
+    /****************************************************************************/
+    /**
+     * \brief Get String ID_KEY .
+     *
+     * \return  String id&key.
+     */
+    /****************************************************************************/
+    quint64 GetStringID_KEY () const{
+        return m_StringID_KEY;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set string ID_KEY
+     *
+     * \iparam  StringID_KEY  string id&key.
+     */
+    /****************************************************************************/
+    inline void SetStringID_KEY(quint64 StringID_KEY){
+        m_StringID_KEY= StringID_KEY;
     }
     /****************************************************************************/
     /**
