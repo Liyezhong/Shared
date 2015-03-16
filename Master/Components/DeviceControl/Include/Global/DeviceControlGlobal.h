@@ -264,7 +264,8 @@ typedef enum
     SYNC_CMD_BASE_GET_VOLTAGE = 48,
     SYNC_CMD_BASE_GET_CURRENT = 49,
 
-    SYNC_CMD_TOTAL_NUM = 50
+    SYNC_CMD_TOTAL_DELAY = 50,
+    SYNC_CMD_TOTAL_NUM = 51
 } SyncCmdType_t;
 
 /*! Node state definitions */

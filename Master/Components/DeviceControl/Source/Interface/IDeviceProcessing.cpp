@@ -881,7 +881,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         delayTime = QTime::currentTime().addMSecs(30*1000);
         while (QTime::currentTime() < delayTime)
         {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            DelaySomeTime(100);
             RVPosition_t position = m_pRotaryValve->ReqActRVPosition();
             if (position == RVPos+1)
             {
@@ -908,7 +908,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         bool IsGetTargetPressure = false;
         while (QTime::currentTime() < delayTime)
         {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            DelaySomeTime(100);
             pressure = m_pAirLiquid->GetPressure();
             if (qAbs(pressure - targetPressure) < 5.0)
             {
@@ -958,7 +958,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         delayTime = QTime::currentTime().addMSecs(180*1000);
         while (QTime::currentTime() < delayTime)
         {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            DelaySomeTime(100);
             pressure = m_pAirLiquid->GetPressure();
             if (pressure < 3 * BasePressure)
             {
@@ -2305,11 +2305,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         m_pAirLiquid->StopCompressor();
 
         // dealy one second to make sure the command has been sent to HW
-        QTime delayTime = QTime::currentTime().addMSecs(1000);
-        while (QTime::currentTime() < delayTime)
-        {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-        }
+        DelaySomeTime(1000);
 
         // Move RV to tube position
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
@@ -2318,11 +2314,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             return retCode;
         }
         //make the stable threshold time 3 seconds
-        delayTime = QTime::currentTime().addMSecs(3000);
-        while (QTime::currentTime() < delayTime)
-        {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-        }
+        DelaySomeTime(3000);
         qreal pressure = m_pAirLiquid->GetPressure();
 
         qreal baseLine = 0;
@@ -2378,7 +2370,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
     }
 }
 
-ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
+ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPosition_t SealPosition)
 {
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
 
@@ -2389,10 +2381,9 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
     if((m_pRotaryValve)&&(m_pAirLiquid))
     {
         RVPosition_t currentPosition = m_pRotaryValve->ReqActRVPosition();
-        if(!m_pRotaryValve->IsSealPosition(currentPosition))
+        if(SealPosition != currentPosition)
         {
-            RVPosition_t targetPosition = m_pRotaryValve->ReqAdjacentPosition(currentPosition);
-            retCode = m_pRotaryValve->ReqMoveToRVPosition(targetPosition);
+            retCode = m_pRotaryValve->ReqMoveToRVPosition(SealPosition);
             if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 m_pAirLiquid->LogDebug("In IDSealingCheck, ReqMoveToRVPosition failed");
@@ -2421,7 +2412,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         bool targetPressureFlag = false;
         while (QTime::currentTime() < delayTime)
         {
-            QCoreApplication::processEvents(QEventLoop::AllEvents,100);
+            DelaySomeTime(100);
             if (std::abs(targetPressure - m_pAirLiquid->GetPressure()) < 5.0)
             {
                 targetPressureFlag = true;
@@ -2435,11 +2426,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         }
 #ifdef __arm__
         //make the stable threshold time 5 seconds
-        delayTime = QTime::currentTime().addMSecs(5000);
-        while (QTime::currentTime() < delayTime)
-        {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-        }
+        DelaySomeTime(5000);
 #endif
         qreal previousPressure = m_pAirLiquid->GetPressure();
 
@@ -2454,7 +2441,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         delayTime = QTime::currentTime().addMSecs(30000);
         while (QTime::currentTime() < delayTime)
         {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            DelaySomeTime(100);
             if(previousPressure-(m_pAirLiquid->GetPressure()) > ThresholdPressure)
             {
                 m_pAirLiquid->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE(Wait for 30 seconds to get current pressure)");
@@ -2714,6 +2701,18 @@ ReturnCode_t IDeviceProcessing::IDSetAlarm(qint8 opcode)
         break;
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+int IDeviceProcessing::DelaySomeTime(int DelayTime)
+{
+    int ret = -1;
+    if(DelayTime > 0)
+    {
+        QEventLoop event;
+        QTimer::singleShot(DelayTime, &event, SLOT(quit()));
+        ret = event.exec();
+    }
+    return ret;
 }
 
 } // namespace

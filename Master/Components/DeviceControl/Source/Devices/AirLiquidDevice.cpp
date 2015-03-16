@@ -1047,7 +1047,6 @@ ReturnCode_t CAirLiquidDevice::Pressure(float targetPressure)
         goto SORTIE;
     }
     //(void)TurnOnFan();
-
     RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_POSITIVE, targetPressure);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
@@ -1210,20 +1209,8 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure,
     //waiting for some time
     if(DelayTime > 0)
     {
-        QTime extraTime = QTime::currentTime().addMSecs(DelayTime);
-         LogDebug(QString("INFO: Draining Finished. start hold for %1 millisecond.").arg(DelayTime));
-        while (QTime::currentTime() < extraTime)
-        {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-            if (DCL_ERR_UNEXPECTED_BREAK == retCode)
-            {
-                FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
-                LogDebug(QString("WARNING: Draining procedure has been interrupted, exit now."));
-                RetValue = DCL_ERR_UNEXPECTED_BREAK;
-                goto SORTIE;
-            }
-        }
-
+        LogDebug(QString("INFO: Draining Finished. start hold for %1 millisecond.").arg(DelayTime));
+        m_pDevProc->BlockingForSyncCall(SYNC_CMD_TOTAL_DELAY, DelayTime);
     }
 
 SORTIE:

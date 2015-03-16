@@ -713,7 +713,7 @@ public:
      *  \return from IDSealingCheck
      */
     /****************************************************************************/
-    ReturnCode_t IDSealingCheck(qreal ThresholdPressure);
+    ReturnCode_t IDSealingCheck(qreal ThresholdPressure, RVPosition_t SealPosition);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetFunctionModuleRef
@@ -857,6 +857,15 @@ public:
      */
     /****************************************************************************/
     quint8 GetHeaterSwitchType(const QString& DevName);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  delay some time
+     *  \param  DelayTime - time value
+     *  \return return the exec value
+     */
+    /****************************************************************************/
+    int DelaySomeTime(int DelayTime);
 
 signals:
     //! Forward the 'intitialisation finished' notification
