@@ -132,8 +132,8 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventInfo.Active = Active;
                 m_ActiveEvents.insert(EventKey, EventInfo);
             }
+            return ;
         }
-        return ;
     }
 
     if (EventID == EVENT_GUI_AVAILABLE) {
@@ -531,10 +531,17 @@ void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
             if (EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_SUCCESS ||\
                     EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_NOT_PERFORMED ||\
                     EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_FAILED) {
+
                 const EventStep* pNextStep = NULL;
                 const XMLEvent* pEvent = m_EventManager.GetEvent(EventInfo.EventID);
                 if (pEvent)
                     pNextStep = pEvent->GetStep(0);
+
+                if(pEvent->GetServiceString() > 0)
+                    LogEntry(EventInfo, true);
+
+                if(pNextStep->GetType().compare("MSG") == 0)
+                    LogEntry(m_ActiveEvents[EventKey]);
 
                 if (pNextStep != NULL && pNextStep->GetButtonType() != Global::NOT_SPECIFIED) {
                     SendMSGCommand(EventKey, pEvent, pNextStep, EventInfo.Active);
