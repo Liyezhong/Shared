@@ -31,7 +31,8 @@
 #include "DataLogging/Include/DataLoggingEventCodes.h"
 #include "DataLogging/Include/DayLogFileInformation.h"
 #include <Global/Include/Utils.h>
-
+#include "QCoreApplication"
+#include "QEventLoop"
 
 namespace DataLogging {
 
@@ -418,6 +419,7 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
     QDir LogDirectory(m_LogFilePath);
     // iterate each file and change the name to daily run log file
     foreach (QString LogFileName, LogDirectory.entryList(QStringList() << (m_FileNamePrefix + MULTIPLEFILES))) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         if (!LogFileName.contains(EVENTLOG_TEMP_FILE_NAME_SUFFIX)) {
             // get the date time value from the event log file name
             QString DateAndTimeValue = LogFileName.split(DELIMITER_UNDERSCORE).value
@@ -442,6 +444,7 @@ void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileNam
     QByteArray& FileData = const_cast<QByteArray&>(FileContent);
     // iterate each file and find whcih event log file it is referring to it
     foreach (QString LogFileName, LogDirectory.entryList(QStringList() << (m_FileNamePrefix + MULTIPLEFILES))) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         if (LogFileName.contains(FileName.split(DELIMITER_UNDERSCORE).value
                                  (FileName.split(DELIMITER_UNDERSCORE).count() - 1))) {
             ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, FileData);
@@ -464,6 +467,7 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
     // iterate each file and find whcih event log file it is referring to it
     foreach (QString LogFileName, LogDirectory.entryList(QStringList() << (m_FileNamePrefix + MULTIPLEFILES))) {
         FileData.clear();
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
         // get the date time value from the event log file name
         QString DateAndTimeValue = LogFileName.split(DELIMITER_UNDERSCORE).value
                 (LogFileName.split(DELIMITER_UNDERSCORE).count() - 1);

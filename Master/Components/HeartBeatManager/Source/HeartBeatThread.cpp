@@ -273,6 +273,21 @@ void HeartBeatThreadController::HeartbeatCheck()
         OnMissingHeartBeats(*it);
     }
 
+    /// This is intended. In debug mode if it hits break point then heart beat of the thread is not received
+    /// and system does not work. To avoid that this flag is used so that it logs in the log file instead of
+    /// stopping the debug session
+    bool EmitHeartBeatSignal = true;
+#ifdef QT_DEBUG
+    EmitHeartBeatSignal = false;
+#endif
+
+    if (EmitHeartBeatSignal) {
+        if(!Missing.empty())
+        {
+            emit HeartBeatNotReceived(Missing);
+        }
+    }
+
     for(QSet<quint32>::iterator it = NotRegistered.begin(); it != NotRegistered.end(); ++it)
     {
         Global::TranslatableString SourceString(*it);
@@ -377,8 +392,6 @@ bool HeartBeatThreadController::ReadHeartBeatConfigFile(QString filename)
 void HeartBeatThreadController::OnMissingHeartBeats(quint32 ThreadId)
 {
     Global::EventObject::Instance().RaiseEvent(Threads::EVENT_THREADS_ERROR_NO_HEARTBEAT, Global::FmtArgs() << ThreadId);
-    //send thread shutdown command to MasterThreadController
-    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(new Global::CmdShutDown(true)));
 
 #if 0
     //increase the number of counts that the heartbeat has been missed from this controller

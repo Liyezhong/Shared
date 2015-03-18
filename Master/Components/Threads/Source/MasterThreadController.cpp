@@ -301,6 +301,9 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
     CONNECTSIGNALSLOT(this, SigHeartBeatTimerStart(), mp_HeartBeatThreadController, StartHeartBeatCheckTimer());
     CONNECTSIGNALSLOT(this, SigHeartBeatTimerStop(), mp_HeartBeatThreadController, StopHeartBeatCheckTimer());
     CONNECTSIGNALSLOT(this, AddControllerForHeartBeatCheck(quint32), mp_HeartBeatThreadController, AddControllerForHeartBeatCheck(quint32));
+    qRegisterMetaType<QSet<quint32> > ("QSet<quint32>");
+    CONNECTSIGNALSLOT(mp_HeartBeatThreadController, HeartBeatNotReceived(const QSet<quint32>),
+                      this, OnMissingHeartBeats(const QSet<quint32>));
 
     // Create the data logger controller and the data logger thread.
     // Remember pointer to data logging controller to do some automatic connecting.
@@ -1421,7 +1424,7 @@ void MasterThreadController::OnMissingHeartBeats(const QSet<quint32> Missing)
             std::cout << "Heart beat missing for one or more threads. Shutting down the system..";
 
             //shutdown the system
-            InitiateShutdown();
+            InitiateShutdown();;
         }
     }
 }
