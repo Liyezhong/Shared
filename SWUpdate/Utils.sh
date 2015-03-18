@@ -53,10 +53,9 @@ ExitOnError()
         else
             UpdateBootConfigFile "Software_Update_Status" "Failure"
         fi
-        kill -9 $(pidof ImageTestApp) > /dev/null 2>&1
-        kill -9 $(pidof -x PowerFailMonitor.sh) > /dev/null 2>&1
     fi
-    
+    kill -9 $(pidof ImageTestApp) > /dev/null 2>&1
+
     Clean
     Log "$@"
     Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FAILED"
