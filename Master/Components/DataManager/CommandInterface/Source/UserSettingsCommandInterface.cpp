@@ -115,7 +115,11 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                 LanguageChanged = true;
             }
 
-            if (0 == Settings.GetActiveCarbonHours())
+            QString str = Settings.GetActiveCarbonLastResetDate();
+            QDateTime lastResetDateTime = QDateTime::fromString(str);
+            QDateTime currentDateTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            int diff = lastResetDateTime.secsTo(currentDateTime);
+            if (diff < 3600)
             {
                 emit ResetActiveCarbonFilterLifeTime();
             }
