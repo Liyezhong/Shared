@@ -1259,7 +1259,12 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
             {
                 break;
             }
-            (void)usleep(500*1000);//should sleep for 0.5 sec
+            //should sleep for 0.5 sec
+            if(m_pDevProc)
+            {
+                m_pDevProc->BlockingForSyncCall(SYNC_CMD_TOTAL_DELAY, 500);
+            }
+            //(void)usleep(500*1000);
         }
         if(Step < LowerLimit)
         {
@@ -1799,7 +1804,11 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
         while(((Retry++) < 30)&&(lsCode != "1")&&(lsCode != "3"))
         {
             LogDebug(QString("WARNING: Get unexpected LS Code: %1, wait 0.5 sec to read again.").arg(lsCode));
-            (void)usleep(500*1000);
+            if(m_pDevProc)
+            {
+                m_pDevProc->BlockingForSyncCall(SYNC_CMD_TOTAL_DELAY, 500);
+            }
+            //(void)usleep(500*1000);
             lsCode = GetLimitSwitchCode();
         }
         if(Retry >= 30)

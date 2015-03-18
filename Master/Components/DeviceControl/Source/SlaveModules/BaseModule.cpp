@@ -1577,9 +1577,19 @@ ReturnCode_t CBaseModule::SendCANMsgHeartbeatConfig()
 
     FILE_LOG_L(laCONFIG, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send 'HeartbeatConfig'.: 0x" << std::hex << m_unCanIDHearbeatCfg;
 
-    quint8  HeartbeatMode = 0x80;
-    quint16 HBSlaveIntervall = 1000;
-    quint16 HBMasterIntervall = 0;
+    //#ifndef QT_NO_DEBUG
+    #if 0
+    // debug mode setting
+        quint8 HeartbeatMode = 0x80;
+        quint16 HBSlaveIntervall = 1000;
+        quint16 HBMasterIntervall = 0;
+    #else
+    // release mode setting
+        quint8 HeartbeatMode = 0xC0;
+        quint16 HBSlaveIntervall = 1000;
+        quint16 HBMasterIntervall = 3500;
+    #endif
+
 
     canmsg.can_id = m_unCanIDHearbeatCfg;
     canmsg.data[0] = HeartbeatMode;

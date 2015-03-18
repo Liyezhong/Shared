@@ -1023,11 +1023,11 @@ void DeviceProcessing::HandleTasks()
             }
         }
     }
-
+*/
     if (m_MainState != DP_MAIN_STATE_ERROR) {
         CheckMasterHeartbeat();
     }
-    */
+
 }
 
 /****************************************************************************/
