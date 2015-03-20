@@ -239,6 +239,7 @@ void StateHandler::setAvailability(bool active, quint32 eventId)
     else
     {
         m_errorList.removeOne(eventId);
+        m_errorList.clear();
         if (m_errorList.count() == 0)
         {
             Global::EventObject::Instance().RaiseEvent(EVENT_NORMAL_STATE);

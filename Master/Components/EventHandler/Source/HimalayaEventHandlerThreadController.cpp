@@ -533,17 +533,23 @@ void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
                     EventInfo.EventID == SWUpdate::EVENT_SW_UPDATE_FAILED) {
 
                 const EventStep* pNextStep = NULL;
-                const XMLEvent* pEvent = m_EventManager.GetEvent(EventInfo.EventID);
-                if (pEvent)
-                    pNextStep = pEvent->GetStep(0);
+                const XMLEvent* pEvent = NULL;
 
-                if(pEvent->GetServiceString() > 0)
-                    LogEntry(EventInfo, true);
+                pEvent = m_EventManager.GetEvent(EventInfo.EventID);
+                if (pEvent == NULL)
+                    continue;
+
+                EventInfo.Event = pEvent;
+
+                pNextStep = pEvent->GetStep(0);
+                if (pNextStep == NULL)
+                    continue;
 
                 if(pNextStep->GetType().compare("MSG") == 0)
-                    LogEntry(m_ActiveEvents[EventKey]);
+                    //LogEntry(m_ActiveEvents[EventKey]);
+                    LogEntry(EventInfo);
 
-                if (pNextStep != NULL && pNextStep->GetButtonType() != Global::NOT_SPECIFIED) {
+                if (pNextStep->GetButtonType() != Global::NOT_SPECIFIED) {
                     SendMSGCommand(EventKey, pEvent, pNextStep, EventInfo.Active);
                 }
                 m_ActiveEvents.remove(EventKey); //Note: need no ack from GUI.
