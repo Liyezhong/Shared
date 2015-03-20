@@ -28,6 +28,7 @@
 #include <Global/Include/EventObject.h>
 #include <QDir>
 #include <QTextStream>
+#include "Global/Include/SystemPaths.h"
 
 
 namespace DataLogging {
@@ -88,7 +89,27 @@ void BaseLoggerReusable::WriteHeader() {
                             "TimeStamp: " + GetTimeStampHeader() + "\n\n" +
                             "OperatingMode: " + m_OperatingMode + "\n\n" +
                             "Serial Number: " + m_SerialNumber + "\n\n" +
-                            "SW Version: " + m_SWVersion + "\n";
+                            "SW Version: " + m_SWVersion + "\n\n";
+
+    // Get hardware version for asb board
+    QString FilePCBVersion = Global::SystemPaths::Instance().GetSettingsPath() + "/Slave_HW_Version.txt";
+    if(QFile::exists(FilePCBVersion))
+    {
+        QFile HWVersion(FilePCBVersion);
+        if (HWVersion.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QTextStream in(&HWVersion);
+            while(!in.atEnd())
+            {
+                QStringList line = in.readLine().split(",");
+                if(line.size() > 2)
+                {
+                    HeaderString += QString("%1: %2\n\n").arg(line[0].split("_")[0]).arg(line[1]);
+                }
+            }
+            HWVersion.close();
+        }
+    }
     // append data to file
     AppendLine(HeaderString);
 }
