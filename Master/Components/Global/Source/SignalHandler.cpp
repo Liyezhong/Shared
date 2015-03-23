@@ -43,12 +43,12 @@ SignalHandler::SignalHandler()
 /****************************************************************************/
 void SignalHandler::init()
 {
-    signal(SIGSEGV, SignalHandler::crashHandler);
+    /*signal(SIGSEGV, SignalHandler::crashHandler);
     signal(SIGTERM, SignalHandler::crashHandler);
     signal(SIGINT, SignalHandler::crashHandler);
     signal(SIGFPE, SignalHandler::crashHandler);
     signal(SIGABRT, SignalHandler::crashHandler);
-    signal(SIGILL, SignalHandler::crashHandler);
+    signal(SIGILL, SignalHandler::crashHandler);*/
 }
 
 /****************************************************************************/
