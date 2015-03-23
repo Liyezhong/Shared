@@ -38,6 +38,7 @@ CONFIG(debug, debug|release) {
     DEFINES += QT_NO_DEBUG \
                QT_NO_DEBUG_OUTPUT \
                NDEBUG
+    QMAKE_CXXFLAGS_RELEASE += -g
     CONFIG(gcov) {
         QMAKE_CXXFLAGS_RELEASE += -fprofile-arcs -ftest-coverage
         QMAKE_CXXFLAGS_RELEASE -= -O2
