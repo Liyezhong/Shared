@@ -522,7 +522,6 @@ void CMainWindow::ResetWindowStatusTimer()
 /****************************************************************************/
 void CMainWindow::RetranslateUI()
 {
-    setWindowTitle(QApplication::translate("MainMenu::CMainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
 }
 
 } // end namespace MainMenu

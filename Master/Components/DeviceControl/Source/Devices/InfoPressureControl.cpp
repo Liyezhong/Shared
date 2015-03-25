@@ -155,7 +155,16 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     }
     m_LastExhaustFanOperationTime = now;
 
-    quint32 newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffTime;
+    quint32 newVal = 0;
+    if (mp_PressureControl->GetActiveCarbonFilterLifeTime() == 1)
+    {
+        newVal = 0 + diffTime;
+    }
+    else
+    {
+        newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffTime;
+    }
+
     mp_PressureControl->SetActiveCarbonFilterLifeTime(newVal);
 
     newVal = mp_PressureControl->GetExhaustFanLifeTime() + diffTime;
