@@ -28,7 +28,7 @@
 #include <QDebug>
 #include <QPainter>
 #include "Core/Include/GlobalHelper.h"
-
+#include "MainMenu/Include/MessageDlg.h"
 namespace MainMenu {
 
 /****************************************************************************/
@@ -206,6 +206,21 @@ void CDateTime::CollectData(bool Send)
     m_DateTime.setDate(QDate(mp_YearWheel->GetCurrentData().toInt(),
         mp_MonthWheel->GetCurrentData().toInt(), mp_DayWheel->GetCurrentData().toInt()));
     m_DateTime.setTime(QTime(mp_HourWheel->GetCurrentData().toInt(), mp_MinWheel->GetCurrentData().toInt()));
+    if (!m_DateTime.isValid())
+    {
+        MainMenu::CMessageDlg* pMessageDlg = new MainMenu::CMessageDlg(this);
+        pMessageDlg->SetTitle(QApplication::translate("MainMenu::CDateTime", "Information",
+                                                     0, QApplication::UnicodeUTF8));
+        pMessageDlg->SetIcon(QMessageBox::Information);
+        pMessageDlg->SetButtonText(1, QApplication::translate("MainMenu::CDateTime", "Ok",
+                                                               0, QApplication::UnicodeUTF8));
+        pMessageDlg->HideButtons();
+        pMessageDlg->SetText(QApplication::translate("MainMenu::CDateTime", "The selected date is invalid. Please select another one.",
+                                                         0, QApplication::UnicodeUTF8));
+        (void) pMessageDlg->exec();
+        delete pMessageDlg;
+        return;
+    }
 
     if (Send == true) {
         emit ShowWaitDialog(QApplication::translate("MainMenu::CDateTime", "Saving settings ...",

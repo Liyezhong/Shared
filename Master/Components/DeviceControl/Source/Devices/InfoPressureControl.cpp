@@ -155,16 +155,7 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     }
     m_LastExhaustFanOperationTime = now;
 
-    quint32 newVal = 0;
-    if (mp_PressureControl->GetActiveCarbonFilterLifeTime() == 1)
-    {
-        newVal = 0 + diffTime;
-    }
-    else
-    {
-        newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffTime;
-    }
-
+    quint32 newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffTime;
     mp_PressureControl->SetActiveCarbonFilterLifeTime(newVal);
 
     newVal = mp_PressureControl->GetExhaustFanLifeTime() + diffTime;
@@ -198,6 +189,8 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     QMap<QString, QString>::const_iterator iterFilter = pPartLifeCycleRecord->m_ParamMap.find("ActiveCarbonFilter_LifeTime");
     if (iterFilter != pPartLifeCycleRecord->m_ParamMap.end())
         pPartLifeCycleRecord->m_ParamMap["ActiveCarbonFilter_LifeTime"] = strLifeTimeCarbonFilter;
+
+    pPartLifeCycleRecord->m_ParamMap["CarbonFilter_FirstRecord_Flag"] = "0";
 
     QString strLifeTimeExhaustFan = QString().setNum(mp_PressureControl->GetExhaustFanLifeTime());
     QMap<QString, QString>::const_iterator iterExhaustFan = pPartLifeCycleRecord->m_ParamMap.find("Exhaust_Fan_LifeTime");
