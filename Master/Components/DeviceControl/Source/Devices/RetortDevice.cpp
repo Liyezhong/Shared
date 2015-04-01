@@ -7,7 +7,6 @@
 #include <sys/stat.h>
 #include <QtDebug>
 #include <unistd.h>
-#include <limits>
 #include <DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h>
 
 namespace DeviceControl
@@ -825,10 +824,10 @@ void CRetortDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnC
 /****************************************************************************/
 bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type, quint8 Index)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    if(!qFuzzyCompare(GetTemperature(Type, 0),UNDEFINED_4_BYTE))
     {
-        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
-                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
+        if(!qFuzzyCompare(m_TargetTemperatures[Type],UNDEFINED_4_BYTE)
+                || !qFuzzyCompare(m_CurrentTemperatures[Type][Index],UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -856,10 +855,10 @@ bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type, quint8 Index)
 /****************************************************************************/
 bool CRetortDevice::IsOutsideRange(RTTempCtrlType_t Type, quint8 Index)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    if(!qFuzzyCompare(GetTemperature(Type, 0),UNDEFINED_4_BYTE))
     {
-        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
-                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
+        if(!qFuzzyCompare(m_TargetTemperatures[Type],UNDEFINED_4_BYTE)
+                || !qFuzzyCompare(m_CurrentTemperatures[Type][Index],UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] + TOLERANCE))

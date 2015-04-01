@@ -7,7 +7,6 @@
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
-#include <limits>
 #include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
 namespace DeviceControl
@@ -78,7 +77,6 @@ void CAirLiquidDevice::Reset()
 
     m_PressureDrift = 0;
     m_instanceID = DEVICE_INSTANCE_ID_AIR_LIQUID;
-    m_TargetPressure = UNDEFINED_4_BYTE;
     m_CurrentPressure = UNDEFINED_4_BYTE;
 
     m_WorkingPressurePositive = AL_TARGET_PRESSURE_POSITIVE;
@@ -681,12 +679,13 @@ void CAirLiquidDevice::HandleErrorState()
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
 {
-    ReturnCode_t retCode;
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     if(m_pPressureCtrl)
     {
         DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_PRESSURE);
-        m_TargetPressure = NominalPressure + m_PressureDrift;
-        retCode =  m_pPressureCtrl->SetPressure(flag, m_TargetPressure);
+        float targetPressure = NominalPressure + m_PressureDrift;
+        retCode =  m_pPressureCtrl->SetPressure(flag, targetPressure);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
@@ -714,20 +713,12 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
 void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, float TargetPressure)
 {
     Q_UNUSED(ReturnCode)
-    if (qAbs(TargetPressure-m_TargetPressure)>std::numeric_limits<float>::epsilon() && qAbs(UNDEFINED_4_BYTE-TargetPressure)>std::numeric_limits<float>::epsilon())
+    Q_UNUSED(TargetPressure)
+
+    if(m_pDevProc)
     {
-        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_FAILED);
-        FILE_LOG_L(laDEVPROC, llWARNING) << " ERROR: Target pressure is not reached. ";
-        LogDebug(QString("ERROR: Target pressure is not reached."));
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_SUCCESS);
     }
-    else
-    {
-        if(m_pDevProc)
-        {
-            m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_SUCCESS);
-        }
-    }
-    m_TargetPressure = 0;
 }
 
 /****************************************************************************/
@@ -1709,15 +1700,7 @@ bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qr
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, float pressure)
 {
-    if(pressure > std::numeric_limits<float>::epsilon()) //larger than float zero
-    {
-        //close valve 1
-        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-        //open valve 2
-        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_OPEN);
-        return  SetPressure(flag, pressure);//should be 1 or 17
-    }
-    else if(qAbs(pressure) < std::numeric_limits<float>::epsilon()) //equal to float zero
+    if(qFuzzyIsNull(pressure)) //equal to float zero
     {
         //close valve 1
         (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
@@ -1725,7 +1708,15 @@ ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, float pressure)
         (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
         return  SetPressure(flag, pressure);
     }
-    else if (pressure < -(std::numeric_limits<float>::epsilon())) //less than zero
+    else if(pressure > 0.0) //larger than float zero
+    {
+        //close valve 1
+        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        //open valve 2
+        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_OPEN);
+        return  SetPressure(flag, pressure);//should be 1 or 17
+    }
+    else if (pressure < 0.0) //less than zero
     {
         //open valve 1
         (void)SetValve(VALVE_1_INDEX, VALVE_STATE_OPEN);
@@ -1914,7 +1905,7 @@ qreal CAirLiquidDevice::GetRecentPressure(void)
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetPressureTime) <= 500) // check if 200 msec has passed since last read
     {
-        if(qAbs(m_CurrentPressure-UNDEFINED_4_BYTE) > std::numeric_limits<float>::epsilon())
+        if(!qFuzzyCompare(m_CurrentPressure, UNDEFINED_4_BYTE))
         {
             return (m_CurrentPressure - m_PressureDrift);
         }
@@ -2161,10 +2152,10 @@ void CAirLiquidDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t Retu
 /****************************************************************************/
 bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type, quint8 Index)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    if(!qFuzzyCompare(GetTemperature(Type, 0), UNDEFINED_4_BYTE))
     {
-        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
-                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
+        if(!qFuzzyCompare(m_TargetTemperatures[Type],UNDEFINED_4_BYTE)
+                || !qFuzzyCompare(m_CurrentTemperatures[Type][Index],UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -2192,10 +2183,10 @@ bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type, quint8 Index)
 /****************************************************************************/
 bool CAirLiquidDevice::IsOutsideRange(ALTempCtrlType_t Type, quint8 Index)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    if(!qFuzzyCompare(GetTemperature(Type, 0),UNDEFINED_4_BYTE))
     {
-        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
-                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
+        if(!qFuzzyCompare(m_TargetTemperatures[Type],UNDEFINED_4_BYTE)
+                || !qFuzzyCompare(m_CurrentTemperatures[Type][Index],UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] + TOLERANCE))

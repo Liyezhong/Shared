@@ -779,10 +779,10 @@ void COvenDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCod
 /****************************************************************************/
 bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type, quint8 Index)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    if(!qFuzzyCompare(GetTemperature(Type, 0),UNDEFINED_4_BYTE))
     {
-        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
-                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
+        if(!qFuzzyCompare(m_TargetTemperatures[Type],UNDEFINED_4_BYTE)
+                || !qFuzzyCompare(m_CurrentTemperatures[Type][Index],UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -810,10 +810,10 @@ bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type, quint8 Index)
 /****************************************************************************/
 bool COvenDevice::IsOutsideRange(OVENTempCtrlType_t Type, quint8 Index)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    if(!qFuzzyCompare(GetTemperature(Type, 0),UNDEFINED_4_BYTE))
     {
-        if(qAbs(m_TargetTemperatures[Type]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon()
-                || qAbs(m_CurrentTemperatures[Type][Index]-UNDEFINED_4_BYTE)>std::numeric_limits<qreal>::epsilon())
+        if(!qFuzzyCompare(m_TargetTemperatures[Type],UNDEFINED_4_BYTE)
+                || !qFuzzyCompare(m_CurrentTemperatures[Type][Index],UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] + TOLERANCE))

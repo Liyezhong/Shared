@@ -617,7 +617,6 @@ private:
     CTemperatureControl* m_pTempCtrls[AL_TEMP_CTRL_NUM]; //!< Temperature controls FMs for the heaters
     //CDigitalOutput* m_pFanDigitalOutput;                 //!< Digital output FM for the fan
 
-    float m_TargetPressure;                              //!< Target pressure; for verification of action result.
     float m_CurrentPressure;                             //!< Current pressure
     float m_PressureDrift;                               //!< Current pressure drift
     qint32 m_WorkingPressurePositive;                    //!< Positive working pressure
