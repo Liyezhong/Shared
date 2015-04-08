@@ -346,7 +346,12 @@ static Error_t pressModuleTask (UInt16 Instance)
         if (Error < 0) {
             dbgPrint("Fan sampling current error.\n");
         }
-                    
+
+        Error = pressFanProgress ();
+        if (Error != NO_ERROR) {
+            dbgPrint("Fan progress error.\n");
+        }
+                            
         //if (Instance == pressFindRoot ()) {
         if (Instance == 0) {
             if (bmTimeExpired (PressSampleTimestamp) >= PressSamplingTime) {
@@ -380,19 +385,18 @@ static Error_t pressModuleTask (UInt16 Instance)
             // check current and sensors
             Error = pressFetchCheck(Data, Instance, &Fail);
             if (Error != NO_ERROR) {
+                Data->State = STATE_IDLE;
                 return (pressShutDown (Data, Error, Instance));
             }
             // If one of the subsystems fails, shutdown and quit
             if (Fail == TRUE) {
+                Data->State = STATE_IDLE;
                 Data->Flags &= ~(MODE_MODULE_ENABLE);
                 return ((Error_t) Data->ModuleState);
             }            
         }
         
-        Error = pressFanProgress ();
-        if (Error != NO_ERROR) {
-            dbgPrint("Fan progress error.\n");
-        }
+
     }
 
 
