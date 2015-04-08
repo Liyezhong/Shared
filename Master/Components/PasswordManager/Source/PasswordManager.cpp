@@ -129,13 +129,18 @@ long CPasswordManager::ComputeFallbackPassword() {
 bool CPasswordManager::ServiceAuthentication(const QString &Password, const QString &DeviceName)
 {
     CServicePassword ServiceUser(Password, DeviceName);
-
-    if (ServiceUser.ReadServiceID().startsWith("manufacturing", Qt::CaseInsensitive)) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_BASIC_TAG_VALUE_IS_WRONG);
-        return false;
+    //return ServiceUser.ValidateAuthentication();
+    if (ServiceUser.ValidateAuthentication()) {
+        QString ServiceID = ServiceUser.ReadServiceID();
+        qDebug()<<"read serivce Id :"<<ServiceID;
+       if (ServiceID.startsWith("manufacturing", Qt::CaseInsensitive)) {
+          Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_BASIC_TAG_VALUE_IS_WRONG);
+          return false;
+       }
+       return true;
     }
 
-    return ServiceUser.ValidateAuthentication();
+    return false;
 }
 
 
