@@ -679,7 +679,6 @@ void CAirLiquidDevice::HandleErrorState()
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
 {
-    QMutexLocker Locker(&m_Mutex);
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     if(m_pPressureCtrl)
     {
