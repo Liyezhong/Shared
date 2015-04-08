@@ -217,6 +217,11 @@ void CDateTime::CollectData(bool Send)
         pMessageDlg->HideButtons();
         pMessageDlg->SetText(QApplication::translate("MainMenu::CDateTime", "The selected date is invalid. Please select another one.",
                                                          0, QApplication::UnicodeUTF8));
+        if (mp_MainWindow)
+        {
+            QRect scr = mp_MainWindow->geometry();
+            this->move( scr.center() - this->rect().center());
+        }
         (void) pMessageDlg->exec();
         delete pMessageDlg;
         return;
