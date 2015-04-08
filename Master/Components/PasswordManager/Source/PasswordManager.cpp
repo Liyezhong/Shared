@@ -23,6 +23,7 @@
 #include <Global/Include/Exception.h>
 #include <PasswordManager/Include/ServicePassword.h>
 #include <Global/Include/EventObject.h>
+#include "PasswordManager/Include/PasswordManagerEventCodes.h"
 
 namespace PasswordManager {
 
@@ -128,18 +129,13 @@ long CPasswordManager::ComputeFallbackPassword() {
 bool CPasswordManager::ServiceAuthentication(const QString &Password, const QString &DeviceName)
 {
     CServicePassword ServiceUser(Password, DeviceName);
-    //return ServiceUser.ValidateAuthentication();
-    if (ServiceUser.ValidateAuthentication()) {
-        QString ServiceID = ServiceUser.ReadServiceID();
-        qDebug()<<"read serivce Id :"<<ServiceID;
-       if (ServiceID.startsWith("manufacturing", Qt::CaseInsensitive)) {
-          Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_BASIC_TAG_VALUE_IS_WRONG);
-          return false;
-       }
-       return true;
+
+    if (ServiceUser.ReadServiceID().startsWith("manufacturing", Qt::CaseInsensitive)) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_BASIC_TAG_VALUE_IS_WRONG);
+        return false;
     }
 
-    return false;
+    return ServiceUser.ValidateAuthentication();
 }
 
 
