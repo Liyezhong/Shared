@@ -107,9 +107,9 @@ void NetworkClient::HandleSocketError(QAbstractSocket::SocketError err)
             }
             qDebug() << "Error is "<<err << Count;
             QTimer::singleShot(5000, this, SLOT(ConnectToServer()));
-            Global::EventObject::Instance().RaiseEvent(EVENT_NC_SOCKET_ERROR,
-                                                       Global::tTranslatableStringList() << m_myName
-                                                       << QString::number((int)err));
+//            Global::EventObject::Instance().RaiseEvent(EVENT_NC_SOCKET_ERROR,
+//                                                       Global::tTranslatableStringList() << m_myName
+//                                                       << QString::number((int)err));
             return;
         }
     }
@@ -407,8 +407,8 @@ void NetworkClient::SendMessage(quint8 type, const QByteArray &ba)
     int nofbytes = out.writeRawData(ba.data(), bsize);
     // send the buffer
     if ((m_tcpSocket.write(block) < (bsize + 1 + sizeof(qint32))) || nofbytes != bsize) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_NC_SOCKET_WRITE_ERROR,
-                                            Global::tTranslatableStringList() << m_myName);
+//        Global::EventObject::Instance().RaiseEvent(EVENT_NC_SOCKET_WRITE_ERROR,
+//                                            Global::tTranslatableStringList() << m_myName);
     }
 }
 
