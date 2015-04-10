@@ -51,6 +51,62 @@
 //****************************************************************************/
 // Device ID mapping (function-module to application specific)
 //****************************************************************************/
+
+#ifdef FCT_ASB_15
+//Local alarm -- PB9
+#define HAL_LOCAL_ALARM_CONTROL   		        HAL_DIGITAL_OUTPUT_0
+//Vacuum Pump control -- PB12
+#define HAL_VACUUM_PUMP_CONTROL		 	        HAL_DIGITAL_OUTPUT_1
+//Pump PWM control -- PB15
+#define HAL_PUMP_PWM_CONTROL	     	        HAL_DIGITAL_OUTPUT_2
+//Tube heat1 -- PC6
+#define HAL_HEAT_ELEMENT_CONTROL1	 	        HAL_DIGITAL_OUTPUT_3
+//Tube heat2 -- PC7
+#define HAL_HEAT_ELEMENT_CONTROL2    	        HAL_DIGITAL_OUTPUT_4
+//Level heat -- PC8
+#define HAL_HEAT_ELEMENT_CONTROL3    	        HAL_DIGITAL_OUTPUT_5
+//Main relay -- PC9
+#define HAL_HEATER_RELAY_CONTROL		        HAL_DIGITAL_OUTPUT_6
+//Exhaust fan -- PD6
+#define HAL_EXHAUST_FAN_CONTROL		 	        HAL_DIGITAL_OUTPUT_7
+//Air valve control 1 -- PD10
+#define HAL_AIR_VALVE_CONTROL_1		 	        HAL_DIGITAL_OUTPUT_8
+//Air valve control 2 -- PD11
+#define HAL_AIR_VALVE_CONTROL_2		 	        HAL_DIGITAL_OUTPUT_9
+//Remote alarm -- PE10
+#define HAL_REMOTE_ALARM_CONTROL    	        HAL_DIGITAL_OUTPUT_10
+
+
+//Local alarm status -- PB14
+#define HAL_LOCAL_ALARM_CONNECT     		    HAL_DIGITAL_INPUT_0
+//Retort Lid -- PE7
+#define HAL_LIDSTATUS_SIGNAL	     		    HAL_DIGITAL_INPUT_1
+//Oven lid -- PE8
+#define HAL_OVENDOOR_SIGNAL		     		    HAL_DIGITAL_INPUT_2
+//Remote alarm status -- PE15
+#define HAL_REMOTE_ALARM_CONNECT     		    HAL_DIGITAL_INPUT_3
+
+//Tube sensor1 -- PA4(read voltage)
+#define HAL_TUBE_SENSOR_1_VOLTAGE				HAL_ANALOG_INPUT_0 
+//Tube sensor2 -- PA5(read voltage)
+#define HAL_TUBE_SENSOR_2_VOLTAGE			    HAL_ANALOG_INPUT_1
+//Level sensor -- PA6(read voltage)
+#define HAL_LEVEL_SENSOR_VOLTAGE				HAL_ANALOG_INPUT_2
+//Pressure sensor -- PC5(read voltage)
+#define HAL_PRESSURE_SENSOR_VOLTAGE			 	HAL_ANALOG_INPUT_3
+//VCC5V -- PC1(read current)
+#define HAL_VCC5V_SENSOR_CURRENT				HAL_ANALOG_INPUT_4 
+//Tubeheat1/Tubeheat2/LevelSensor -- PC2(read current)
+#define HAL_TUBE_LEVEL_SENSOR_CURRENT  			HAL_ANALOG_INPUT_5
+//VacuumPump/Valve1&2 -- PC3(read current)
+#define HAL_PUMP_VALVE_SENSOR_CURRENT			HAL_ANALOG_INPUT_6
+//Exhaust fan sensor -- PA0(read current)
+#define HAL_EXHAUSTFAN_SENSOR_CURRENT			HAL_ANALOG_INPUT_7
+
+
+#else
+
+
 #ifdef ASB15_VER_A
 
 ////! Fan control signal
@@ -91,7 +147,6 @@
 
 
 #ifdef ASB15_VER_B
-
 ////! Fan control signal
 //#define HAL_FANCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
 
@@ -126,7 +181,7 @@
 //#define HAL_PUMP_PWM_CONTROL     HAL_ANALOG_OUTPUT_0
 
 #endif
-
+#endif
 
 /*********************************************************************************/
 /*

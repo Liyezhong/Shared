@@ -163,7 +163,11 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_B, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // VacuumPumpControl
     { PORT_E,  7, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // LimitSwitch1/LidSensor
     { PORT_E,  8, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // LimitSwitch1/OvenDoorSensor
+#ifndef FCT_ASB_15    
     { PORT_B, 15, PIN_MUX_SFIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // PWM
+#else    
+    { PORT_B, 15, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // GPIO
+#endif    
     //{ PORT_A, 10, PIN_MUX_SFIO, PIN_TYP_DOUT2,  PIN_OPT_NONE },
 #endif    
 
@@ -196,6 +200,7 @@ const UInt32 halPinDescriptorCount = ELEMENTS(halPinDescriptors);
  ***********************************************************************************/
 
 const halPortDescriptor_t halPortDescriptors[] = {
+#ifndef FCT_ASB_15
     { HAL_CAN_NODE_INDEX,      DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
     { HAL_CAN_LOOPBACK,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
 
@@ -254,7 +259,33 @@ const halPortDescriptor_t halPortDescriptors[] = {
     { HAL_PRESS_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  6, 1, 0, 0 },  //Fan
     { HAL_PRESS_CTRLVALVE_0,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },  //Pressure
     { HAL_PRESS_CTRLVALVE_1,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 }    //Vacuum
+#else//FCT configuration
+	{ HAL_CAN_NODE_INDEX,      DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
+    { HAL_CAN_LOOPBACK,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
 
+    { HAL_STATUS_LED1,         DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 13, 1, 0, 0 },
+    { HAL_STATUS_LED2,         DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 15, 1, 0, 0 },
+    { HAL_STATUS_LED3,         DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 14, 1, 0, 0 },
+
+	{ HAL_LOCAL_ALARM_CONTROL, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B,  9, 1, 0, 0 },
+	{ HAL_VACUUM_PUMP_CONTROL, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 12, 1, 0, 0 },
+	{ HAL_LOCAL_ALARM_CONNECT, DIR_INPUT,  BUS_TYPE_INTERN, PORT_B, 14, 1, 0, 0 },
+	{ HAL_PUMP_PWM_CONTROL,    DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 15, 1, 0, 0 },
+
+	{ HAL_HEAT_ELEMENT_CONTROL1,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  6, 1, 0, 0 },
+    { HAL_HEAT_ELEMENT_CONTROL2,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  7, 1, 0, 0 },
+    { HAL_HEAT_ELEMENT_CONTROL3,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  8, 1, 0, 0 },
+    { HAL_HEATER_RELAY_CONTROL,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  9, 1, 0, 0 },
+
+	{ HAL_EXHAUST_FAN_CONTROL,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  6, 1, 0, 0 }, 
+	{ HAL_AIR_VALVE_CONTROL_1,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },  
+    { HAL_AIR_VALVE_CONTROL_2,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 },
+
+	{ HAL_LIDSTATUS_SIGNAL,     DIR_INPUT,  BUS_TYPE_INTERN, PORT_E,  7, 1, 0, 0 },
+    { HAL_OVENDOOR_SIGNAL,      DIR_INPUT,  BUS_TYPE_INTERN, PORT_E,  8, 1, 0, 0 },
+	{ HAL_REMOTE_ALARM_CONTROL, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 10, 1, 0, 0 },
+	{ HAL_REMOTE_ALARM_CONNECT, DIR_INPUT,  BUS_TYPE_INTERN, PORT_E, 15, 1, 0, 0 },
+#endif
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
@@ -273,7 +304,7 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
  *      - Data direction (input, output)
  *      - Interface (intern, serial, I2C, SPI)
  *      - Converter resolution (number of bits)
- *      - Physical channel number
+ *      - Physical channel number(ADC channel)
  *      - Conversion time
  *      - Scaling facor (value for full scale)
  *      - Initial output value
@@ -281,6 +312,7 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
  ***********************************************************************************/
 
 const halAnalogDescriptor_t halAnalogDescriptors[] = {
+#ifndef FCT_ASB_15
     { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 33000, 0 },
     { HAL_SUPPLY_CURRENT,    DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,   750, 0 },
       
@@ -305,6 +337,17 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
 #endif
 
      //HAL_PRESS_CURRENT, HAL_PRESS_MAINVOLTAGE, HAL_PRESS_CTRLPUMPING, Instances);
+
+#else
+    { HAL_TUBE_SENSOR_1_VOLTAGE,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
+    { HAL_TUBE_SENSOR_2_VOLTAGE,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
+    { HAL_LEVEL_SENSOR_VOLTAGE,      DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
+    { HAL_PRESSURE_SENSOR_VOLTAGE,   DIR_INPUT, BUS_TYPE_INTERN, 12, 15, 6,  3000, 0 },
+    { HAL_VCC5V_SENSOR_CURRENT,      DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,  3000, 0 },
+    { HAL_TUBE_LEVEL_SENSOR_CURRENT, DIR_INPUT, BUS_TYPE_INTERN, 12, 12, 6,  3000, 0 },
+    { HAL_PUMP_VALVE_SENSOR_CURRENT, DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3000, 0 },
+    { HAL_EXHAUSTFAN_SENSOR_CURRENT, DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 }
+#endif
 };
 const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
 

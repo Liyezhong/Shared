@@ -345,7 +345,7 @@
               <MiscControls></MiscControls>
               <Define>ASB_VER_B, ASB15_VER_B</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\FunctionModules\Pressure\Include;..\..\..\FunctionModules\DigitalOutput\Include;..\..\..\FunctionModules\DigitalInput\Include;..\..\..\FunctionModules\AnalogOutput\Include</IncludePath>
+              <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\FunctionModules\Pressure\Include;..\..\..\FunctionModules\DigitalOutput\Include;..\..\..\FunctionModules\DigitalInput\Include;..\..\..\FunctionModules\AnalogOutput\Include;..\..\..\FunctionModules\AnalogInput\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1238,6 +1238,31 @@
               <FileName>fmAnaOutput.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\AnalogOutput\Source\fmAnaOutput.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AnalogInput include</GroupName>
+          <Files>
+            <File>
+              <FileName>fmAnaInput.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Include\fmAnaInput.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AnalogInput source</GroupName>
+          <Files>
+            <File>
+              <FileName>dbAnaInput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Source\dbAnaInput.c</FilePath>
+            </File>
+            <File>
+              <FileName>fmAnaInput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Source\fmAnaInput.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1582,7 +1607,7 @@
               <MiscControls></MiscControls>
               <Define>DEBUG, ASB_VER_B, ASB15_VER_B</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\FunctionModules\Pressure\Include;..\..\..\FunctionModules\DigitalOutput\Include;..\..\..\FunctionModules\DigitalInput\Include;..\..\..\FunctionModules\AnalogOutput\Include</IncludePath>
+              <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include;..\..\..\FunctionModules\Pressure\Include;..\..\..\FunctionModules\DigitalOutput\Include;..\..\..\FunctionModules\DigitalInput\Include;..\..\..\FunctionModules\AnalogOutput\Include;..\..\..\FunctionModules\AnalogInput\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2475,6 +2500,31 @@
               <FileName>fmAnaOutput.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\AnalogOutput\Source\fmAnaOutput.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AnalogInput include</GroupName>
+          <Files>
+            <File>
+              <FileName>fmAnaInput.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Include\fmAnaInput.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AnalogInput source</GroupName>
+          <Files>
+            <File>
+              <FileName>dbAnaInput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Source\dbAnaInput.c</FilePath>
+            </File>
+            <File>
+              <FileName>fmAnaInput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Source\fmAnaInput.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3712,6 +3762,31 @@
               <FileName>fmAnaOutput.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\AnalogOutput\Source\fmAnaOutput.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AnalogInput include</GroupName>
+          <Files>
+            <File>
+              <FileName>fmAnaInput.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Include\fmAnaInput.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AnalogInput source</GroupName>
+          <Files>
+            <File>
+              <FileName>dbAnaInput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Source\dbAnaInput.c</FilePath>
+            </File>
+            <File>
+              <FileName>fmAnaInput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\AnalogInput\Source\fmAnaInput.c</FilePath>
             </File>
           </Files>
         </Group>
