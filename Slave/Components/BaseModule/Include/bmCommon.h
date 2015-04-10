@@ -33,9 +33,9 @@
 
 /* basemodule's software version informations */
 #ifdef FCT_ASB_15
-#define SOFTWARE_VERSION         0x000B     //!< Software version number
+#define SOFTWARE_VERSION         0xFFFF     //!< Software version number
 #define SOFTWARE_CREATION_YEAR   2015       //!< Software creation date (year)
-#define SOFTWARE_CREATION_MONTH  4         //!< Software creation date (month)
+#define SOFTWARE_CREATION_MONTH  4          //!< Software creation date (month)
 #define SOFTWARE_CREATION_DAY    10         //!< Software creation date (day)
 #else
 #define SOFTWARE_VERSION         0x000A     //!< Software version number
