@@ -96,7 +96,7 @@ static const UInt32 TestOptionList[] = {
 
     MODULE_ID_PRESSURE, 1, 0x2111
 #else
-	MODULE_ID_DIGITAL_OUT, 11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    MODULE_ID_DIGITAL_OUT, 11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 #endif
     
 
@@ -136,7 +136,7 @@ static const bmModuleParameters_t ModuleInitTable[] = {
     { MODULE_ID_DIGITAL_IN,  4, diInitializeModule }
 #endif
 #else
-	{ MODULE_ID_DIGITAL_OUT, 11, doInitializeModule },
+    { MODULE_ID_DIGITAL_OUT, 11, doInitializeModule },
     { MODULE_ID_DIGITAL_IN,   4, diInitializeModule },
     { MODULE_ID_ANALOG_IN,    8, aiInitializeModule } 
 #endif
