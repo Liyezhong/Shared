@@ -2467,7 +2467,7 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
     ReportError_t reportError;
     memset(&reportError, 0, sizeof(reportError));
     FILE_LOG_L(laFCT, llERROR) << " Device name is: "<<devName.toStdString()<<" sensorname is: "<< sensorName;
-    if ("Retort" == devName)
+    if ("Retort" == devName && NULL != m_pRetort)
     {
         if (RT_BOTTOM == sensorName)
         {
@@ -2480,7 +2480,7 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
             reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         }
     }
-    else if ("Oven" == devName)
+    else if ("Oven" == devName && NULL != m_pOven)
     {
         if (OVEN_BOTTOM == sensorName)
         {
@@ -2493,12 +2493,12 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
             reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
         }
     }
-    else if ("RV" == devName)
+    else if ("RV" == devName && NULL != m_pRotaryValve)
     {
         //FILE_LOG_L(laFCT, llERROR) <<"RV current is: "<<m_pRotaryValve->GetHeaterCurrent();
         reportError = m_pRotaryValve->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
     }
-    else if ("LA" == devName)
+    else if ("LA" == devName && NULL != m_pAirLiquid)
     {
         if (AL_LEVELSENSOR == sensorName)
         {
