@@ -524,6 +524,7 @@ void CNetworkSettingsWidget::SetNetworkSettingsResult(PlatformService::NetworkSe
         } else {
             mp_Ui->firmwareCheckBoxLabel->setPixmap(PixMapFail);
         }
+        mp_Ui->downloadFirmwareBtn->setEnabled(true);
         break;
     default:
         break;
