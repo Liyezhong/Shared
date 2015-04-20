@@ -28,6 +28,7 @@
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
 #include <iostream>
+#include <QQueue>
 
 namespace DeviceControl
 {
@@ -1721,6 +1722,31 @@ bool CTemperatureControl::SetModuleTask(CANTempCtrlCmdType_t CommandType, quint8
 
     if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
     {
+        QQueue<TempCtrlCommand_t> queue;
+        //Firstly, make all the NON_STATE_FREE to queue
+        for (quint8 idx =0; idx < MAX_TEMP_MODULE_CMD_IDX; idx++)
+        {
+            if (m_ModuleCommand[idx].State != MODULE_CMD_STATE_FREE)
+            {
+                queue.enqueue(m_ModuleCommand[idx]);
+            }
+        }
+        if (!queue.isEmpty())
+        {
+            //clean up the whole array
+            for(quint8 idx = 0; idx < MAX_TEMP_MODULE_CMD_IDX; idx++)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                m_ModuleCommand[idx].TimeoutRetry = 0;
+            }
+            quint8 i = 0;
+            while (!queue.isEmpty())
+            {
+                TempCtrlCommand_t tmp = queue.dequeue();
+                memcpy(&m_ModuleCommand[i], &tmp, sizeof(TempCtrlCommand_t));
+                i++;
+            }
+        }
         for(quint8 idx = 0; idx < MAX_TEMP_MODULE_CMD_IDX; idx++)
         {
             if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_FREE)

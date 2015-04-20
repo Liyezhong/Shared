@@ -27,6 +27,7 @@
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
+#include <QQueue>
 
 namespace DeviceControl
 {
@@ -1363,6 +1364,7 @@ ReturnCode_t CPressureControl::SendCANMsgHardwareReq()
 /****************************************************************************/
 ReturnCode_t CPressureControl::SetPressure(quint8 flag, float Pressure)
 {
+    QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
@@ -1799,6 +1801,32 @@ bool CPressureControl::SetModuleTask(CANPressureCtrlCmdType_t CommandType, quint
 
     if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
     {
+        QQueue<PressureCtrlCommand_t> queue;
+        //Firstly, make all the NON_STATE_FREE to queue
+        for (quint8 idx =0; idx < MAX_PRESSURE_MODULE_CMD_IDX; idx++)
+        {
+            if (m_ModuleCommand[idx].State != MODULE_CMD_STATE_FREE)
+            {
+                queue.enqueue(m_ModuleCommand[idx]);
+            }
+        }
+        if (!queue.isEmpty())
+        {
+            //clean up the whole array
+            for(quint8 idx = 0; idx < MAX_PRESSURE_MODULE_CMD_IDX; idx++)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                m_ModuleCommand[idx].TimeoutRetry = 0;
+            }
+            quint8 i = 0;
+            while (!queue.isEmpty())
+            {
+                PressureCtrlCommand_t tmp = queue.dequeue();
+                memcpy(&m_ModuleCommand[i], &tmp, sizeof(PressureCtrlCommand_t));
+                i++;
+            }
+        }
+
         for(quint8 idx = 0; idx < MAX_PRESSURE_MODULE_CMD_IDX; idx++)
         {
             if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_FREE)
@@ -1806,7 +1834,6 @@ bool CPressureControl::SetModuleTask(CANPressureCtrlCmdType_t CommandType, quint
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ;
                 m_ModuleCommand[idx].Type = CommandType;
                 m_ModuleCommand[idx].TimeoutRetry = 0;
-
                 m_TaskID = MODULE_TASKID_COMMAND_HDL;
                 CommandAdded  = true;
                 if(pCmdIndex)

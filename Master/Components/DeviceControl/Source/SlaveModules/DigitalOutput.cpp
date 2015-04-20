@@ -639,6 +639,7 @@ ReturnCode_t CDigitalOutput::SendCANMsgLifeTimeDataReq()
 /****************************************************************************/
 ReturnCode_t CDigitalOutput::SetOutputValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
+    QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8  CmdIndex;
 
