@@ -131,6 +131,9 @@ bool CSWDetails::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Comple
             case FIRMWARE:
                 SWType = "1";
                 break;
+            case INITSCRPITS:
+                SWType = "2";
+                break;
         }
         XmlStreamWriter.writeAttribute("SWType", SWType);
 
@@ -193,6 +196,9 @@ bool CSWDetails::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool Comp
                 break;
             case 1:
                 m_SWType = FIRMWARE;
+                break;
+            case 2:
+                m_SWType = INITSCRPITS;
                 break;
         }
 

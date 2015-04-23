@@ -173,8 +173,8 @@ bool CSWVersionList::SerializeContent(QIODevice& IODevice, bool CompleteData)
     XmlStreamWriter.writeAttribute("Version", GetSWReleaseVersion());
     XmlStreamWriter.writeAttribute("Date", GetSWReleaseDate());
 
+    XmlStreamWriter.writeEndElement(); //Release
     XmlStreamWriter.writeEndElement(); //SW
-
 
 
     // write Master SW details in the xml file
@@ -185,6 +185,11 @@ bool CSWVersionList::SerializeContent(QIODevice& IODevice, bool CompleteData)
 
     // write firmware details in the xml file
     if (!WriteSWDetails(XmlStreamWriter, FIRMWARE, CompleteData)) {
+        qDebug() << "CSWVersionList::Write failed. WriteSWDetails (FIRMWARE) failed!";
+        Result = false;
+    }
+
+    if (!WriteSWDetails(XmlStreamWriter, INITSCRPITS, CompleteData)) {
         qDebug() << "CSWVersionList::Write failed. WriteSWDetails (FIRMWARE) failed!";
         Result = false;
     }
@@ -283,6 +288,11 @@ bool CSWVersionList::DeserializeContent(QIODevice& IODevice, bool CompleteData)
         return false;
     }
 
+    if (!ReadSWDetails(XmlStreamReader, "InitScripts", CompleteData)) {
+        qDebug() << "Failure in reading the firmware";
+        return false;
+    }
+
     //======NODE=======Temporary Data Variables=========================
     if (CompleteData) {
         if (!Helper::ReadNode(XmlStreamReader, "ClassTemporaryData")) {
@@ -351,8 +361,11 @@ bool CSWVersionList::ReadSWDetails(QXmlStreamReader& XmlStreamReader, QString No
                 if (NodeName == "Firmware") {
                     p_SWDetails->SetSWType(FIRMWARE);
                 }
-                else {
+                else if (NodeName == "Master_SW"){
                     p_SWDetails->SetSWType(MASTERSOFTWARE);
+                }
+                else {
+                    p_SWDetails->SetSWType(INITSCRPITS);
                 }
 
                 // Now add this SWDetails
@@ -393,6 +406,9 @@ bool CSWVersionList::WriteSWDetails(QXmlStreamWriter& XmlStreamWriter, SWType_t 
     }
     else if(SWType == FIRMWARE) {
         XmlStreamWriter.writeStartElement("Firmware");
+    }
+    else if (SWType == INITSCRPITS) {
+        XmlStreamWriter.writeStartElement("InitScripts");
     }
     else {
         qDebug() << "### Parameter Unknown SW Type: " << (int)SWType;

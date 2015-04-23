@@ -241,7 +241,8 @@ typedef enum
 typedef enum
 {
     MASTERSOFTWARE,
-    FIRMWARE
+    FIRMWARE,
+    INITSCRPITS
 } SWType_t;
 
 #endif // DATAMANAGER_TYPES_H
