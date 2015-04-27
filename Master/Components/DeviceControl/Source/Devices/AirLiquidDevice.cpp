@@ -1369,6 +1369,13 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                     RetValue = DCL_ERR_DEV_LA_FILLING_INSUFFICIENT;
                     goto SORTIE;
                 }
+                else
+                {
+                    for (qint32 i=0; i<PressureBuf.length(); i++)
+                    {
+                        LogDebug(QString("INFO: Pressure when 4 min error %1 is: %2").arg(i).arg(PressureBuf.at(i)));
+                    }
+                }
                 FILE_LOG_L(laDEVPROC, llERROR) << "ERROR! Do not get level sensor data in" << (SUCKING_MAX_SETUP_TIME / 1000)<<" seconds, Time out! Exit!";
                 LogDebug(QString("ERROR! Do not get level sensor data in %1 seconds, Timeout! Exit!").arg(SUCKING_MAX_SETUP_TIME / 1000));
                 RetValue = DCL_ERR_DEV_LA_FILLING_TIMEOUT_4MIN;
