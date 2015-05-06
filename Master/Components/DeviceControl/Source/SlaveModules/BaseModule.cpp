@@ -597,8 +597,9 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
             {
                 quint16 nAddData;
 
-                m_MainState = CN_MAIN_STATE_ERROR;
-                m_lastErrorTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                // Fix bug:Reset command cannot be sent out because sometimes the m_MainState is in inappropriate state
+//                m_MainState = CN_MAIN_STATE_ERROR;
+//                m_lastErrorTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
 
                 nAddData = (((m_FunctionModuleList.count() << 8) & 0xFF00) | (m_ChannelCount & 0x00FF));
                 emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_INIT_WRONG_CHANNEL_COUNT,
@@ -607,7 +608,11 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                                             << (m_FunctionModuleList.count() + 1) << " - " << (int) m_ChannelCount;
                 // Switch to the boot loader to change the firmware
                 mp_BootLoader->WaitForUpdate(true);
-                (void)SendCANMsgReset();
+                if(DCL_ERR_FCT_CALL_SUCCESS != SendCANMsgReset()){
+                    m_MainState = CN_MAIN_STATE_ERROR;
+                    m_lastErrorTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                }
+
             }
             else
             {
