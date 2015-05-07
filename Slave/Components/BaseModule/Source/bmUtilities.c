@@ -423,6 +423,7 @@ UInt16 bmGetDelta (UInt16 Value1, UInt16 Value2) {
 
 Bool bmCheckPassword (UInt16 Password) {
 
+#ifdef RTC_ENABLE
     UInt16 Calculated;
     DateTime_t Time;
 
@@ -441,6 +442,9 @@ Bool bmCheckPassword (UInt16 Password) {
         }
     }
     return (FALSE);
+#else 
+    return (TRUE);
+#endif
 }
 
 

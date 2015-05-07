@@ -329,6 +329,10 @@ static Error_t tempModuleTask (UInt16 Instance)
 
     InstanceData_t* Data = &DataTable[Instance];
 
+    if (DataTable[Instance].ModuleState == MODULE_STATE_COUNT) {
+        return (Error_t)MODULE_STATE_COUNT;
+    }
+
     if (Data->DetectSlope == 1 && Data->TempArray == NULL) {
         // Only set sampling array if temp. module has been configured.
         if ((Data->Flags & MODE_MODULE_ENABLE) != 0 && TempSamplingTime>0 ) {
@@ -1773,6 +1777,11 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     if (NULL == DataTable) {
         return (E_MEMORY_FULL);
     }
+
+    for (i=0; i < Instances; i++) {
+        DataTable[i].ModuleState = MODULE_STATE_COUNT;      // Invalid state
+    }
+
     // register function module to the scheduler
     Status = bmRegisterModule (ModuleID, Instances, &Interface);
     if (Status < 0) {
