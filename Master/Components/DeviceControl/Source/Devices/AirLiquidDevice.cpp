@@ -1224,6 +1224,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
     ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     QList<qreal> PressureBuf;
+    QList<qreal> AllPressureBuf;
     int levelSensorState = 0xFF;
     bool NeedOverflowChecking = true;
     bool stop = false;
@@ -1318,6 +1319,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
             if(CurrentPressure != (UNDEFINED_4_BYTE))
             {
                 PressureBuf.append(CurrentPressure);
+                AllPressureBuf.append(CurrentPressure);
             }
             if(PressureBuf.length() >= SUCKING_OVERFLOW_SAMPLE_SIZE)
             {
@@ -1371,9 +1373,9 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                 }
                 else
                 {
-                    for (qint32 i=0; i<PressureBuf.length(); i++)
+                    for (qint32 i=0; i<AllPressureBuf.length(); i++)
                     {
-                        LogDebug(QString("INFO: Pressure when 4 min error %1 is: %2").arg(i).arg(PressureBuf.at(i)));
+                        LogDebug(QString("INFO: Pressure when 4 min error %1 is: %2").arg(i).arg(AllPressureBuf.at(i)));
                     }
                 }
                 FILE_LOG_L(laDEVPROC, llERROR) << "ERROR! Do not get level sensor data in" << (SUCKING_MAX_SETUP_TIME / 1000)<<" seconds, Time out! Exit!";
