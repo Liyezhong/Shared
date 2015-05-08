@@ -122,6 +122,7 @@ void CUSBKeyValidator::OnOkClicked(QString EnteredString)
     PasswordManager::CServicePassword m_ServicePassword(m_EnteredPin, GetDeviceName());
     QString UserMode("");
 
+#if 0
     /* Code for debug purposes only. This section needs to be removed for release*/
     if(EnteredString.startsWith("1406"))
     {
@@ -138,6 +139,7 @@ void CUSBKeyValidator::OnOkClicked(QString EnteredString)
         DisconnectKeyBoardSignalSlots();
         return;
     }
+#endif
 
     QString MessageTitle, MessageInfo;
     /* Service Key authentication */
