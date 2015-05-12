@@ -318,7 +318,7 @@ int CExportData::WriteZipFile(const DataManager::CExportConfiguration &ExportCon
     // compression sw. Use a command line argument of Linux operating system
     ZipProcess.start(COMMAND_ZIP , FileList);
 
-    if (!(ZipProcess.waitForFinished())) {
+    if (!(ZipProcess.waitForFinished(-1))) {
         // save the data in temporay string for the zip process it can be error or success
         QString StdOutData(ZipProcess.readAllStandardOutput());
         if (StdOutData.length() == 0) {
