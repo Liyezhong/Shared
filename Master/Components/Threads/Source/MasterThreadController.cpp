@@ -918,7 +918,7 @@ void MasterThreadController::OnGoReceived()
         return;
     }
     CATCHALL();
-
+    Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_ON_CHECK_FLAG5, true);
     Shutdown();
 }
 
@@ -940,7 +940,7 @@ void MasterThreadController::OnSoftSwitchPressedAtStartup(Global::tRefType Ref, 
         return;
     }
     CATCHALL();
-
+    Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_ON_CHECK_FLAG6, true);
     Shutdown();
 }
 
@@ -1077,6 +1077,7 @@ void MasterThreadController::OnPowerFail(const Global::PowerFailStages PowerFail
             const QString MD5sumGenerator = QString("%1%2").arg(Global::SystemPaths::Instance().GetScriptsPath()).
                                             arg(QString("/EBox-Utils.sh update_md5sum_for_settings"));
             (void)system(MD5sumGenerator.toStdString().c_str());
+            Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_ON_CHECK_FLAG12, true);
             InitiateShutdown();
         }
         else {
@@ -1121,6 +1122,7 @@ void MasterThreadController::ExternalMemShutdownCheck() {
     }
     // check if termination requested.
     if(oTerminate) {
+        Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_ON_CHECK_FLAG3, true);
         InitiateShutdown();
     }
 #endif
