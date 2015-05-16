@@ -1561,10 +1561,15 @@ ReturnCode_t CBaseModule::SendCANMsgRealTime()
     canmsg.data[7] = (quint8) (MSec & 0x00ff);
     canmsg.can_dlc = 8;
 
+    // Pls. also check the RTC_ENABLE macro at slave sides if you want to enable/disable RealTime function
+#ifdef RTC_ENABLE
     //send the CAN-message
     result = m_pCANCommunicator->SendCOB(canmsg);
 
     return result;
+#else
+    return DCL_ERR_FCT_CALL_SUCCESS;
+#endif
 }
 
 /****************************************************************************/
