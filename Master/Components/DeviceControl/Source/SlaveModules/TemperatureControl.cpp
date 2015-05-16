@@ -195,6 +195,7 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiInRange        : 0x" << std::hex << m_unCanIDNotiInRange;
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiOutOfRange     : 0x" << std::hex << m_unCanIDNotiOutOfRange;
     FILE_LOG_L(laINIT, llDEBUG) << "   LevelSensorState   : 0x" << std::hex << m_unCanIDLevelSensorState;
+    FILE_LOG_L(laINIT, llDEBUG) << "   SetSwitchState     : 0x" << std::hex << m_unCanIDSetSwitchState;
     FILE_LOG_L(laINIT, llDEBUG) << "   CurrentAcWatchdogSet : 0x" << std::hex << m_unCanIDAcCurrentWatchdogSet;
     FILE_LOG_L(laINIT, llDEBUG) << "   CurrentAcWatchdogSetExt : 0x" << std::hex << m_unCanIDAcCurrentWatchdogSetExt;
     return RetVal;
