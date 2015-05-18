@@ -10,7 +10,7 @@
 namespace DeviceControl
 {
 
-#define CHECK_SENSOR_TIME (200) // in msecs
+#define CHECK_SENSOR_TIME (400) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
@@ -684,7 +684,7 @@ qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
     }
     else
     {
-        LogDebug(QString("In RotaryValve device, invalid temperature. Current state is: %1").arg(m_MainState));
+        //LogDebug(QString("In RotaryValve device, invalid temperature. Current state is: %1").arg(m_MainState));
     }
     return RetValue;
 }

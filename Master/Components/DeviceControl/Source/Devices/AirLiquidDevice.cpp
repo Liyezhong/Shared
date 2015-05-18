@@ -11,7 +11,8 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME               (200) // in msecs
+#define CHECK_SENSOR_TIME               (400) // in msecs
+#define CHECK_PRESSURE_SENSOR_TIME      (200) // in msecs
 //#define AL_TARGET_PRESSURE_POSITIVE     (30)
 //#define AL_TARGET_PRESSURE_NEGATIVE     (-30)
 #define AL_TARGET_PRESSURE_BOTTLECHECK  (10)
@@ -786,7 +787,7 @@ qreal CAirLiquidDevice::GetPressure(void)
 {
     qreal RetValue = m_CurrentPressure - m_PressureDrift;
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetPressureTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetPressureTime) >= CHECK_PRESSURE_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         if(m_pPressureCtrl)
         {
@@ -829,7 +830,7 @@ qreal CAirLiquidDevice::GetPressure(void)
 ReturnCode_t CAirLiquidDevice::GetPressureAsync(void)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetPressureTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetPressureTime) >= CHECK_PRESSURE_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         {
             m_LastGetPressureTime = Now;
@@ -1949,7 +1950,7 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
     }
     else
     {
-        LogDebug(QString("In AirLiquid device, invalid temperature. Current state is: %1").arg(m_MainState));
+        //LogDebug(QString("In AirLiquid device, invalid temperature. Current state is: %1").arg(m_MainState));
         RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;

@@ -2466,7 +2466,7 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
 {
     ReportError_t reportError;
     memset(&reportError, 0, sizeof(reportError));
-    FILE_LOG_L(laFCT, llERROR) << " Device name is: "<<devName.toStdString()<<" sensorname is: "<< sensorName;
+    //FILE_LOG_L(laFCT, llERROR) << " Device name is: "<<devName.toStdString()<<" sensorname is: "<< sensorName;
     if ("Retort" == devName && NULL != m_pRetort)
     {
         if (RT_BOTTOM == sensorName)

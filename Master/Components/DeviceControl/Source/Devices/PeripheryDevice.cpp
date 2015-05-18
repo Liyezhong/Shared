@@ -9,7 +9,7 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME (200) // in msecs
+#define CHECK_SENSOR_TIME (400) // in msecs
 /****************************************************************************/
 /*!
  *  \brief    Constructor of the CPeripheryDevice class

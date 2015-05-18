@@ -11,7 +11,7 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME (200) // in msecs
+#define CHECK_SENSOR_TIME (400) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
@@ -565,7 +565,7 @@ qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
     }
     else
     {
-        LogDebug(QString("In Oven device, invalid temperature. Current state is: %1").arg(m_MainState));
+        //LogDebug(QString("In Oven device, invalid temperature. Current state is: %1").arg(m_MainState));
         RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;

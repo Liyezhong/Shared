@@ -41,6 +41,7 @@ namespace DeviceControl
 {
 
 //#define NODE_CFG_LAST_FCT_VALUE 0xFF    //!< Code for last function module in list
+#define CHECK_ASB_VOLTAGE_TIME (400)      // in msecs
 
 #define CANNODE_DELAY_CONFIG_REQUEST        500 //!< Timeout configuration request
 #define CANNODE_MIN_HARDWAREID_REC_DELAY    900 //!< Time delay between two 'HardwareID' reception
@@ -229,7 +230,6 @@ ReturnCode_t CBaseModule::Initialize()
             m_SubStateInit = CN_SUB_STATE_INIT_START;
         }
     }
-
     StartTimeDelay();
 
     return RetVal;
@@ -646,7 +646,7 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
             }
         }
     }
-    // This part trys to reboot the slave after a certain tiemout during the init phase
+    // This part trys to reboot the slave after     a certain tiemout during the init phase
     else
     {
         // Function was called from HandeTasks(), checking the timeout
@@ -1060,7 +1060,7 @@ void CBaseModule::HandleTaskFctConfiguration()
 void CBaseModule::HandleIdleState()
 {
     qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if(now > (m_LastCheckTime + MINIMUM_CHECK_SENSOR_T))
+    if(now > (m_LastCheckTime + CHECK_ASB_VOLTAGE_TIME))
     {
         this->ReqVoltageState();
         this->ReqCurrentState();

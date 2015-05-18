@@ -469,13 +469,14 @@ const quint16  EVENT_GRP_DCL_CONFIGURATION      = 0x0303;  //!< configuration
 const quint16  EVENT_GRP_DCL_DEVICEPROC_CONFIG  = 0x0304; //!< device processing - configuration
 const quint16  EVENT_GRP_DCL_CANBUS             = 0x0305; //!< can bus
 const quint16  EVENT_GRP_DCL_DIAG               = 0x0306; //!< diagnsostic / service
-const quint16  EVENT_GRP_DCL_RV_DEV             = 0x0307; //!< Rotary Valve
-const quint16  EVENT_GRP_DCL_AL_DEV             = 0x0308; //!< Air liquid
-const quint16  EVENT_GRP_DCL_RT_DEV             = 0x0309; //!< Retort
-const quint16  EVENT_GRP_DCL_OVEN_DEV           = 0x030A; //!< Oven
-const quint16  EVENT_GRP_DCL_MC_DEV             = 0x030B; //!< Main controll
-const quint16  EVENT_GRP_DCL_NODE_DCL           = 0x030C; //!< CANNode
-const quint16  EVENT_GRP_DCL_NODE_SLV           = 0x030D; //!< CANNode
+const quint16  EVENT_GRP_DCL_RV_DEV             = 0x033C; //!< Rotary Valve
+const quint16  EVENT_GRP_DCL_AL_DEV             = 0x033D; //!< Air liquid
+const quint16  EVENT_GRP_DCL_RT_DEV             = 0x033E; //!< Retort
+const quint16  EVENT_GRP_DCL_OVEN_DEV           = 0x033F; //!< Oven
+const quint16  EVENT_GRP_DCL_MC_DEV             = 0x0340; //!< Main controll
+const quint16  EVENT_GRP_DCL_NODE_DCL           = 0x0310; //!< CANNode
+const quint16  EVENT_GRP_DCL_NODE_SLV           = 0x0320; //!< CANNode
+
 
 /*! Slaves used in Himalaya project */
 typedef enum {
