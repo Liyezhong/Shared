@@ -166,6 +166,7 @@ std::ostringstream& Log<T>::Get(TLogArea_t area, TLogLevel_t level, std::string 
     os << " " << ToString(level) << ":";
     //os << std::string(level > llDEBUG ? level - llDEBUG : 0, '\t') << strFunction << std::string("\t") << strClass << std::string("\t");
     os << std::string(((quint16)level) > ((quint16)llDEBUG) ? ((quint16)level) - ((quint16)llDEBUG) : 0, '\t') << /*strClass << "::" <<*/ strFunction;
+	os << "()";
 
     return os;
 }
