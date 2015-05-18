@@ -54,6 +54,7 @@ public:
         pParent = 0;
         m_sChannel = 0;
         m_sOrderNr = 0;
+        m_IsVirtual = false;
     }
 
     virtual ~CModuleConfig() {}

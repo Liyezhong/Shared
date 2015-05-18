@@ -508,7 +508,8 @@ void CBaseModule::HandleTasks()
 
     if(m_MainState == CN_MAIN_STATE_INIT)
     {
-        HandleTaskInitialization(0);
+        if (!(this->m_IsVirtual))
+            HandleTaskInitialization(0);
     }
     else if(m_MainState == CN_MAIN_STATE_CONFIG)
     {
