@@ -220,6 +220,7 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
     nodeId |= ((m_pCANObjectConfig->m_sChannel) << 12);         // and channel
 
     m_unCanIDConfig             = MSG_SMOT_CONFIG | nodeId;
+    m_unCanIDConfigAck          = MSG_SMOT_CONFIG_ACK | nodeId;
 
     m_unCanIDMotionProfile      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorMotionProfile", bIfaceID, m_pParent->GetNodeID());
 
@@ -269,6 +270,7 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   EventError            : 0x" << std::hex << m_unCanIDEventError;
     FILE_LOG_L(laINIT, llDEBUG) << "   EventFatalError       : 0x" << std::hex << m_unCanIDEventFatalError;
     FILE_LOG_L(laINIT, llDEBUG) << "   ConfigParameter       : 0x" << std::hex << m_unCanIDConfig;
+    FILE_LOG_L(laINIT, llDEBUG) << "   ConfigParameterAck    : 0x" << std::hex << m_unCanIDConfigAck;
     FILE_LOG_L(laINIT, llDEBUG) << "   DriveParameter        : 0x" << std::hex << m_unCanIDMotionProfile;
     FILE_LOG_L(laINIT, llDEBUG) << "   StateSet              : 0x" << std::hex << m_unCanIDStateSet;
     FILE_LOG_L(laINIT, llDEBUG) << "   StateSetAck           : 0x" << std::hex << m_unCanIDStateSetAck;
@@ -329,6 +331,10 @@ ReturnCode_t CStepperMotor::RegisterCANMessages()
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDStateSetAck, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDConfigAck, this);
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
