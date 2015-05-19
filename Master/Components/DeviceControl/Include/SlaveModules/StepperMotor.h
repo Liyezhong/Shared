@@ -490,6 +490,7 @@ private:
     quint32  m_unCanIDActSpeed;               ///< CAN message 'Actual speed'
     quint32  m_unCanIDActSpeedReq;            ///< CAN message 'Actual speed request'
     quint32  m_unCanIDConfig;                 ///< CAN message 'Configuration data'
+    quint32  m_unCanIDConfigAck;              ///< CAN message 'Configuration data acknowledge'
     quint32  m_unCanIDMotionProfile;          ///< CAN message 'Movement configuration data'
     quint32  m_unCanIDDiagSoftwareReq;        ///< CAN message 'Diagnostic Software request'
     quint32  m_unCanIDDiagSoftware;           ///< CAN message 'Diagnostic Software'
