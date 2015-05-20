@@ -38,10 +38,10 @@
 #define SOFTWARE_CREATION_MONTH  4          //!< Software creation date (month)
 #define SOFTWARE_CREATION_DAY    10         //!< Software creation date (day)
 #else
-#define SOFTWARE_VERSION         0x000B     //!< Software version number
+#define SOFTWARE_VERSION         0x000C     //!< Software version number
 #define SOFTWARE_CREATION_YEAR   2015       //!< Software creation date (year)
 #define SOFTWARE_CREATION_MONTH  5          //!< Software creation date (month)
-#define SOFTWARE_CREATION_DAY    7          //!< Software creation date (day)
+#define SOFTWARE_CREATION_DAY    20          //!< Software creation date (day)
 #endif
 /* basemodule global identifiers */
 #define BASEMODULE_CHANNEL       0          //!< Base module's channel ID
