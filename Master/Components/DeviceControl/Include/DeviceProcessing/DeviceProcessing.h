@@ -811,7 +811,8 @@ private:
 
 #endif
     ReturnCode_t m_SyncCallResult[SYNC_CMD_TOTAL_NUM]; //!< Synchronized call results
-    QMutex m_Mutex[SYNC_CMD_TOTAL_NUM];                //!< Mutexs for waitconditions
+    //QMutex m_Mutex[SYNC_CMD_TOTAL_NUM];                //!< Mutexs for waitconditions
+    QMutex                      m_EventLoopMutex;      //!< Protects the task handling thread from request functions
 };
 
 } // namespace
