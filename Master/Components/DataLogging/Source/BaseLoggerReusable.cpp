@@ -110,6 +110,13 @@ void BaseLoggerReusable::WriteHeader() {
             HWVersion.close();
         }
     }
+
+
+    HeaderString += QString("                            T_RV1    T_RV2    T_OvT   T_OvB1   T_OvB2");
+    HeaderString += QString("   T_RtB1   T_RtB2   T_RtSd     T_LS    T_Tb1    T_Tb2");
+    HeaderString += QString("    Press CurRV CurRt CurLT  Cur3  Cur5 Cur15");
+    HeaderString += QString("   RvP RtLk OvLid");
+
     // append data to file
     AppendLine(HeaderString);
 }
