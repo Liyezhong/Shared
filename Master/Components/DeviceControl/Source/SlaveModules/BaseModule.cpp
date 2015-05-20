@@ -630,7 +630,7 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                                                 << std::hex << m_unCanIDAcknHardwareID;
 
                     //after sending the 'HardwareIDAckn'-message, activate heartbeat supervision
-                    //SetHeartbeatSupervision(true);
+                    SetHeartbeatSupervision(true);
 
                     // start the timer used to delay the configuration request some milliseconds
                     StartTimeDelay();
@@ -921,7 +921,10 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
                     m_SubStateConfig = CN_SUB_STATE_CONFIG_FCT_CONFIRMED;
+#if 0
                     SetHeartbeatSupervision(true);
+#endif
+                    FILE_LOG_L(laCONFIG, llINFO) << "Enable heart beat 1111111111";
                 }
                 else
                 {
@@ -1018,7 +1021,6 @@ void CBaseModule::HandleTaskFctConfiguration()
         {
             QDateTime errorTimeStamp;
             quint16 nAdditonalData = 0;
-            FILE_LOG_L(laFCT, llERROR) << " Error: " << GetName().toStdString() << " Timeout node fct configuration";
             FILE_LOG_L(laINIT, llERROR) << " Error: " << GetName().toStdString() << " Timeout node fct configuration";
 
             //report all function module's state

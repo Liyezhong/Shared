@@ -132,6 +132,11 @@ qint16 CANInterface::Open(const char* szOpenInterface)
         return ERROR_CANINTERFACE_SOCKET_BIND;
     }
 
+#if defined(__arm__) //Target
+    // disable loopback
+    int loopback = 0; /* 0 = disabled, 1 = enabled (default) */
+    sRetval = setsockopt(m_sockCan, SOL_CAN_RAW, CAN_RAW_LOOPBACK, &loopback, sizeof(loopback));
+#endif
     // disable receivement of own messages
     int recv_own_msgs = 0; /* 0 = disabled (default), 1 = enabled */
     sRetval = setsockopt(m_sockCan, SOL_CAN_RAW, CAN_RAW_RECV_OWN_MSGS, &recv_own_msgs, sizeof(recv_own_msgs));

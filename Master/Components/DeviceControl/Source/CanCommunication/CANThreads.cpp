@@ -82,27 +82,33 @@ void CANReceiveThread::run()
                         m_pCANCommunicator->ReportCANError();
                     }
                     else {
-                        //m_pCANCommunicator->DispatchMessage(frame);
-                        if (0 == (frame.can_id & CAN_ERR_FLAG)) {
-                            // only support EFF
-                            if (CAN_EFF_FLAG == (frame.can_id & (CAN_EFF_FLAG | CAN_RTR_FLAG) )) {
-                                // forward message to module
-                                frame.can_id = frame.can_id & CAN_EFF_MASK;
-                                m_pCANCommunicator->DispatchMessage(frame);
-                                if (m_lastErrorFrame.can_id & CAN_ERR_MASK) {
-                                    frame.can_id = 0;               // log as resolved
-                                    m_lastErrorFrame.can_id = 0;    // reset error frame
+#if defined(__arm__) //Target
+                        if (0 == (frame.can_id & 0x01)) {   // process only slave messages
+#endif
+                            //m_pCANCommunicator->DispatchMessage(frame);
+                            if (0 == (frame.can_id & CAN_ERR_FLAG)) {
+                                // only support EFF
+                                if (CAN_EFF_FLAG == (frame.can_id & (CAN_EFF_FLAG | CAN_RTR_FLAG) )) {
+                                    // forward message to module
+                                    frame.can_id = frame.can_id & CAN_EFF_MASK;
+                                    m_pCANCommunicator->DispatchMessage(frame);
+                                    if (m_lastErrorFrame.can_id & CAN_ERR_MASK) {
+                                        frame.can_id = 0;               // log as resolved
+                                        m_lastErrorFrame.can_id = 0;    // reset error frame
+                                    }
+                                }
+                                else {
+                                    m_pCANCommunicator->ReportCANError();
                                 }
                             }
                             else {
-                                m_pCANCommunicator->ReportCANError();
+                                // error frame received
+                                FILE_LOG_L(laCAN, llWARNING) << " Error-CanID: " << std::hex << (frame.can_id & CAN_ERR_MASK);
+                                m_lastErrorFrame = frame;
                             }
+#if defined(__arm__) //Target
                         }
-                        else {
-                            // error frame received
-                            FILE_LOG_L(laCAN, llWARNING) << " Error-CanID: " << std::hex << (frame.can_id & CAN_ERR_MASK);
-                            m_lastErrorFrame = frame;
-                        }
+#endif
                     }
                 }
             }

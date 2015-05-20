@@ -74,7 +74,7 @@ namespace DeviceControl
 // basis module timeouts
 #define CAN_NODE_TIMEOUT_INIT                   3000  //!< Timeout initialisation procedure
 #define CAN_NODE_TIMEOUT_CONFIG_RECEIVE         3000  //!< Timeout configuration procedure
-#define CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES     3000  //!< Timeout function module configuration procedure
+#define CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES     5000  //!< Timeout function module configuration procedure
 #define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE      5000  //!< Timeout heartbeat failure
 #define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE_DBG  60*60*1000  //!< Timeout heartbeat failure (for debug build)
 #define CAN_NODE_TIMEOUT_SETINITOPDATA           500  //!< Timeout setting initial operation data
