@@ -229,10 +229,12 @@ static Error_t tempModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
 
         case MODULE_CONTROL_STOP:
             Data->ModuleState = MODULE_STATE_STOPPED;
+            Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
 
         case MODULE_CONTROL_SHUTDOWN:
             Data->ModuleState = MODULE_STATE_STANDBY;
+            Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
 
         case MODULE_CONTROL_RESET:
