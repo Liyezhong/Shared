@@ -346,7 +346,14 @@ public:
     /****************************************************************************/
     void SetModuleLifeCycleRecord(ModuleLifeCycleRecord* pModuleLifeCycleRecord);
 
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetSensorDataCheckFlag
+     *
+     *  \param flag = sensor data check flag
+     *
+     */
+    /****************************************************************************/
     static void SetSensorDataCheckFlag(bool flag)
     {
         m_SensorsDataCheckFlag = flag;
@@ -522,7 +529,7 @@ protected:
     QVector<ReportError_t>  m_ReportErrorList; //!< report error list
     QStateMachine m_machine;        //!< State machine
     ModuleLifeCycleRecord* m_ModuleLifeCycleRecord; //!< module life cycle record
-    static bool m_SensorsDataCheckFlag;
+    static bool m_SensorsDataCheckFlag; //!< sensor data check flag
 };
 
 } //namespace

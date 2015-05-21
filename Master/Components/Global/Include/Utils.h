@@ -642,8 +642,8 @@ void UpdateRebootFile(const QMap<QString, QString> RebootFileContent);
 
 /**
 * \brief function  WriteBootVariable
-* \param RebootFileContent content
-* \param file boot file
+* \param content = variable
+* \param file = boot file
 */
 void WriteBootVariable(const QMap<QString, QString> content, QFile &file);
 

@@ -708,8 +708,9 @@ public:
     /*!
      *  \brief  Definition/Declaration of function IDSealingCheck
      *
-     *  \param ThresholdPressure = qreal type parameter
+     *  \param  ThresholdPressure = qreal type parameter
      *
+     *  \param  SealPosition = seal position
      *  \return from IDSealingCheck
      */
     /****************************************************************************/
