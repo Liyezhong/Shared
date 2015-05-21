@@ -11,4 +11,4 @@ INCLUDEPATH += ../../ \
 DEPENDPATH += ../../
 	
 UseLibs(ExportData)
-UseLibsPlatform(Global ImportExport DataManager)
+UseLibsPlatform(Global EncryptionDecryption DataManager)
