@@ -924,7 +924,6 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
 #if 0
                     SetHeartbeatSupervision(true);
 #endif
-                    FILE_LOG_L(laCONFIG, llINFO) << "Enable heart beat 1111111111";
                 }
                 else
                 {
