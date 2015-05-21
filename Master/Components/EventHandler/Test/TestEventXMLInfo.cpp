@@ -94,8 +94,11 @@ void TestEventXMLInfo::UTAll()
 /******************************************************************ls**********/
 void TestEventXMLInfo::initTestCase()
 {
-    QStringList list;
-    list.append("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventConfig.xml");
+    QString AbsCurrentPath = QCoreApplication::applicationDirPath();
+    QString xmlFilePath = AbsCurrentPath + "/../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventConfig.xml";
+
+    QStringList list(xmlFilePath);
+    //list.append("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventConfig.xml");
     m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo(list));
     QVERIFY(m_pEventXMLInfo->InitXMLInfo() == true);
 }
