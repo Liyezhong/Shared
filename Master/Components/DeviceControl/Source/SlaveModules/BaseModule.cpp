@@ -1601,7 +1601,7 @@ ReturnCode_t CBaseModule::SendCANMsgHeartbeatConfig()
     // release mode setting
         quint8 HeartbeatMode = 0xC0;
         quint16 HBSlaveIntervall = 1000;
-        quint16 HBMasterIntervall = 3500;
+        quint16 HBMasterIntervall = 10000;
     #endif
 
 
