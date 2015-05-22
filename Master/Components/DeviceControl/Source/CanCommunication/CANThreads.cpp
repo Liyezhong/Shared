@@ -144,7 +144,7 @@ void CANReceiveThread::SetBreak()
  *
  *  \iparam pCANCommunicator = Class for transmit queue access
  *  \iparam rCANInterface = Class for can interface
- *  \iparam pCANLog = Class for can log
+ *
  */
 /****************************************************************************/
 CANTransmitThread::CANTransmitThread(CANCommunicator* pCANCommunicator, CANInterface & rCANInterface)

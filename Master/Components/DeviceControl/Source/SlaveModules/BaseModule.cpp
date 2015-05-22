@@ -41,7 +41,7 @@ namespace DeviceControl
 {
 
 //#define NODE_CFG_LAST_FCT_VALUE 0xFF    //!< Code for last function module in list
-#define CHECK_ASB_VOLTAGE_TIME (400)      // in msecs
+#define CHECK_ASB_VOLTAGE_TIME (400)      //!< in msecs
 
 #define CANNODE_DELAY_CONFIG_REQUEST        500 //!< Timeout configuration request
 #define CANNODE_MIN_HARDWAREID_REC_DELAY    900 //!< Time delay between two 'HardwareID' reception
@@ -1530,11 +1530,10 @@ ReturnCode_t CBaseModule::SendConfigurationRequest()
 /****************************************************************************/
 ReturnCode_t CBaseModule::SendCANMsgRealTime()
 {
-    ReturnCode_t result;
-    can_frame canmsg;
+
 
     FILE_LOG_L(laCONFIG, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send 'RealTime'.: 0x" << std::hex << m_unCanIDRealTime;
-
+#ifdef RTC_ENABLE
     // get date and time from system time
     QDateTime CurrentDateTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
     QDate CurrentDate = CurrentDateTime.date();
@@ -1551,6 +1550,8 @@ ReturnCode_t CBaseModule::SendCANMsgRealTime()
     int Second = CurrentTime.second();
     int MSec   = CurrentTime.msec();
 
+
+    can_frame canmsg;
     //assemble the CAN message
     canmsg.can_id = m_unCanIDRealTime;
     canmsg.data[0] = (quint8) (Year - 2000); //If this code runs after 12-31-2099, we run into trouble
@@ -1564,7 +1565,8 @@ ReturnCode_t CBaseModule::SendCANMsgRealTime()
     canmsg.can_dlc = 8;
 
     // Pls. also check the RTC_ENABLE macro at slave sides if you want to enable/disable RealTime function
-#ifdef RTC_ENABLE
+
+    ReturnCode_t result;
     //send the CAN-message
     result = m_pCANCommunicator->SendCOB(canmsg);
 
