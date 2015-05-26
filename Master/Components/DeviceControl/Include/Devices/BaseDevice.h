@@ -446,6 +446,20 @@ public slots:
 
     /****************************************************************************/
     /*!
+     *  \brief  This signal is emitted when the node state has changed
+     *
+     *  \iparam InstanceID = Instance identifier of this function module instance
+     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam NodeState  = Node state
+     *  \iparam EmergencyStopReason = No stop, heartbeat, master
+     *  \iparam VoltageState = Good, warning, failed, unknown
+     */
+    /****************************************************************************/
+    void OnReportNodeState(quint32 InstanceID, ReturnCode_t HdlInfo, NodeState_t NodeState,
+                         EmergencyStopReason_t EmergencyStopReason, PowerState_t VoltageState);
+
+    /****************************************************************************/
+    /*!
      *  \brief  Add device name in this slot function
      *
      *  \iparam ReturnCode = ReturnCode of Device Control Layer

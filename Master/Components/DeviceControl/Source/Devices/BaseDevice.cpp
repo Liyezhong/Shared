@@ -64,6 +64,10 @@ bool CBaseDevice::m_SensorsDataCheckFlag = true;
     m_MainState = DEVICE_MAIN_STATE_START;
     m_MainStateOld = DEVICE_MAIN_STATE_START;
     qRegisterMetaType<DataManager::CModule>("DataManager::CModule");
+//    qRegisterMetaType<quint32>("quint32");
+//    qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
+    qRegisterMetaType<EmergencyStopReason_t>("EmergencyStopReason_t");
+    qRegisterMetaType<NodeState_t>("NodeState_t");
     qRegisterMetaType<PowerState_t>("PowerState_t");
 
     // error handling
@@ -431,12 +435,24 @@ bool CBaseDevice::InsertBaseModule(CBaseModule* pBase)
     }
     if (m_BaseModuleList.empty())
     {
+        FILE_LOG_L(laDEV, llDEBUG)<<"pBase:"<<&pBase;
+
         if(!connect(pBase, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
-                  this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16))) || \
-        !connect(pBase, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
+                  this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16))))
+        {
+            FILE_LOG_L(laDEV, llDEBUG)<<"connect errors: ReportVoltageState";
+        }
+
+        if (!connect(pBase, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
                   this, SLOT(OnReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16))))
         {
-            FILE_LOG_L(laDEV, llDEBUG)<<"connect errors";
+            FILE_LOG_L(laDEV, llDEBUG)<<"connect errors: ReportCurrentState";
+        }
+
+        if(!connect(pBase, SIGNAL(ReportNodeState(quint32, ReturnCode_t, NodeState_t, EmergencyStopReason_t, PowerState_t)),
+                 this, SLOT(OnReportNodeState(quint32, ReturnCode_t, NodeState_t, EmergencyStopReason_t, PowerState_t))))
+        {
+            FILE_LOG_L(laDEV, llDEBUG)<<"connect errors: ReportNodeState";
         }
     }
     m_BaseModuleList.append(pBase);
@@ -697,6 +713,14 @@ void CBaseDevice::OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo,
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_BASE_GET_CURRENT, HdlInfo);
     }
 #endif
+}
+
+void CBaseDevice::OnReportNodeState(quint32 InstanceID, ReturnCode_t HdlInfo, NodeState_t NodeState, EmergencyStopReason_t EmergencyStopReason, PowerState_t VoltageState)
+{
+    LogDebug(QString("CBaseDevice::OnReportNodeState, InstanceID:%1, ReturnCode:%2, NodeState:%3, EmergencyStopReason:%4, PowerState:%5")
+             .arg(InstanceID, 0, 16).arg(HdlInfo).arg(NodeState).arg(EmergencyStopReason).arg(VoltageState));
+    FILE_LOG_L(laDEV, llDEBUG)<<"CBaseDevice::OnReportNodeState, InstanceID:"<<InstanceID <<"ReturnCode:" << HdlInfo << "NodeState:"<< NodeState
+                             << "EmergencyStopReason:"<<EmergencyStopReason << "PowerState:" << VoltageState;
 }
 
 void CBaseDevice::SetModuleLifeCycleRecord(ModuleLifeCycleRecord* pModuleLifeCycleRecord)

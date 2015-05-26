@@ -642,4 +642,6 @@ Q_DECLARE_METATYPE(DeviceControl::RTTempCtrlType_t)
 Q_DECLARE_METATYPE(DeviceControl::CANObjectKeyLUT::CANObjectIdentifier_t)
 Q_DECLARE_METATYPE(DeviceControl::TestResult_t)
 Q_DECLARE_METATYPE(DeviceControl::PowerState_t)
+Q_DECLARE_METATYPE(DeviceControl::EmergencyStopReason_t)
+Q_DECLARE_METATYPE(DeviceControl::NodeState_t)
 #endif /* DEVICE_CONTROL_GLOBAL_H */
