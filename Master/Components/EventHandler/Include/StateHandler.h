@@ -222,7 +222,7 @@ private:
     bool m_swInitFailed;//!< true indicates software initialization failed
     Global::PowerFailStages m_powerFailStage;   //!< power stage fail
     QHash<quint8, bool> m_stageRestrictions;    //!< Hash table for stage restrictions
-
+    QMutex m_Mutex;
 private slots:
     /****************************************************************************/
     /**

@@ -99,26 +99,28 @@ StateHandler::~StateHandler()
 
 bool StateHandler::isAllowed(Global::CommandShPtr_t command)
 {
+    QMutexLocker locker(&m_Mutex);
     bool retVal = true;
-
-    foreach (QAbstractState* state, m_operationMachine.configuration())
+    const QSet<QAbstractState*>& operationStateSet = m_operationMachine.configuration();
+    foreach (QAbstractState* state, operationStateSet)
     {
         if (!command.GetPointerToUserData()->isStateAllowed(state->objectName())) {
             retVal = false;
         }
     }
 
-    foreach (QAbstractState* state, m_availabilityMachine.configuration())
+    const QSet<QAbstractState*>& availabilityStateSet = m_availabilityMachine.configuration();
+    foreach (QAbstractState* state, availabilityStateSet)
     {
         if (!command.GetPointerToUserData()->isStateAllowed(state->objectName()))
             retVal = false;
     }
-
     return retVal;
 }
 
 QString StateHandler::getCurrentOperationState()
 {
+    QMutexLocker locker(&m_Mutex);
     if (!m_operationMachine.configuration().empty())
     {
         QAbstractState *state = m_operationMachine.configuration().toList().at(0);
@@ -129,6 +131,7 @@ QString StateHandler::getCurrentOperationState()
 
 QString StateHandler::getCurrentAvailabilityState()
 {
+    QMutexLocker locker(&m_Mutex);
     if (!m_availabilityMachine.configuration().empty())
     {
         QAbstractState *state = m_availabilityMachine.configuration().toList().at(0);
