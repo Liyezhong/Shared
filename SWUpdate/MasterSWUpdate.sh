@@ -406,6 +406,8 @@ RollbackFW()
 		if [ $? -ne 0 ];then 
         	RollbackFailed=true
         	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED"
+		else
+			cp $SLAVEFILEDIR/* $FIRMWAREDIR/
 		fi
     fi
 }
