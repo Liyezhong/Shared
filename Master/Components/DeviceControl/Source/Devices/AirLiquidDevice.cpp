@@ -11,8 +11,10 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME               (400) // in msecs
+#define CHECK_SENSOR_TIME               (800) // in msecs
 #define CHECK_PRESSURE_SENSOR_TIME      (200) // in msecs
+#define CHECK_CURRENT_TIME              (900) // in msecs
+
 //#define AL_TARGET_PRESSURE_POSITIVE     (30)
 //#define AL_TARGET_PRESSURE_NEGATIVE     (-30)
 #define AL_TARGET_PRESSURE_BOTTLECHECK  (10)
@@ -1912,7 +1914,7 @@ qreal CAirLiquidDevice::GetRecentPressure(void)
 {
    // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetPressureTime) <= 500) // check if 200 msec has passed since last read
+    if((Now - m_LastGetPressureTime) <= 500) // check if 500 msec has passed since last read
     {
         if(!qFuzzyCompare(m_CurrentPressure, UNDEFINED_4_BYTE))
         {
@@ -1944,7 +1946,7 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
   //  QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue;
-    if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_CurrentTemperatures[Type][Index];
     }
@@ -1970,7 +1972,7 @@ quint32 CAirLiquidDevice::GetRecentCurrent(ALTempCtrlType_t Type)
   //  QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint32 RetValue;
-    if((Now - m_LastGetTCCurrentTime[Type]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTCCurrentTime[Type]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_TCHardwareStatus[Type].Current;
     }
@@ -2314,7 +2316,7 @@ qreal CAirLiquidDevice::GetTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue = m_CurrentTemperatures[Type][Index];
-    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
@@ -2351,7 +2353,7 @@ qreal CAirLiquidDevice::GetTemperature(ALTempCtrlType_t Type, quint8 Index)
 ReturnCode_t CAirLiquidDevice::GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         m_LastGetTempTime[Type][Index] = Now;
         return m_pTempCtrls[Type]->ReqActTemperature(Index);
@@ -2374,7 +2376,7 @@ quint16 CAirLiquidDevice::GetHeaterCurrent(ALTempCtrlType_t Type)
     quint16 RetValue = UNDEFINED_2_BYTE;
     if(m_pTempCtrls[Type] != NULL)
     {
-        if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+        if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_CURRENT_TIME) // check if 900 msec has passed since last read
         {
             ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
             if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
@@ -2412,7 +2414,7 @@ quint16 CAirLiquidDevice::GetHeaterCurrent(ALTempCtrlType_t Type)
 ReturnCode_t CAirLiquidDevice::GetHeaterCurrentAsync(ALTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME && m_pTempCtrls[Type] != NULL) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_CURRENT_TIME && m_pTempCtrls[Type] != NULL) // check if 900 msec has passed since last read
     {
         m_LastGetTCCurrentTime[Type] = Now;
         return m_pTempCtrls[Type]->GetHardwareStatus();

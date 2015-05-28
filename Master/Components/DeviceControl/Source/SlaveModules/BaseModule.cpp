@@ -41,7 +41,7 @@ namespace DeviceControl
 {
 
 //#define NODE_CFG_LAST_FCT_VALUE 0xFF    //!< Code for last function module in list
-#define CHECK_ASB_VOLTAGE_TIME (400)      //!< in msecs
+#define CHECK_ASB_VOLTAGE_TIME (1000)     //!< in msecs
 
 #define CANNODE_DELAY_CONFIG_REQUEST        500 //!< Timeout configuration request
 #define CANNODE_MIN_HARDWAREID_REC_DELAY    900 //!< Time delay between two 'HardwareID' reception

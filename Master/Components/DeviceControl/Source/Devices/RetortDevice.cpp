@@ -11,7 +11,9 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME (400) // in msecs
+#define CHECK_SENSOR_TIME  (800) // in msecs
+#define CHECK_CURRENT_TIME (900) // in msecs
+#define CHECK_LOCKER_TIME  (700) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 
@@ -591,7 +593,7 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
    // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue;
-    if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_CurrentTemperatures[Type][Index];
     }
@@ -616,7 +618,7 @@ quint32 CRetortDevice::GetRecentCurrent(RTTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint32 RetValue;
-    if((Now - m_LastGetHardwareStatusTime[Type]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetHardwareStatusTime[Type]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_HardwareStatus[Type].Current;
     }
@@ -631,7 +633,7 @@ quint8 CRetortDevice::GetRecentHeaterSwitchType()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint32 RetValue = UNDEFINED_1_BYTE;
-    if((Now - m_LastGetHardwareStatusTime[RT_BOTTOM]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetHardwareStatusTime[RT_BOTTOM]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_HardwareStatus[RT_BOTTOM].HeaterSwitchType;
 
@@ -986,7 +988,7 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue = m_CurrentTemperatures[Type][Index];
-    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
@@ -1030,7 +1032,7 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
 ReturnCode_t CRetortDevice::GetTemperatureAsync(RTTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         m_LastGetTempTime[Type][Index] = Now;
         return m_pTempCtrls[Type]->ReqActTemperature(Index);
@@ -1278,7 +1280,7 @@ quint16 CRetortDevice::GetRecentRetortLockStatus()
    // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint16 RetValue;
-    if((Now - m_LastGetLockStatusTime) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetLockStatusTime) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_LockStatus;
     }
@@ -1299,7 +1301,7 @@ quint16 CRetortDevice::GetRecentRetortLockStatus()
 ReturnCode_t CRetortDevice::GetLockStatusAsync()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetLockStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetLockStatusTime) >= CHECK_LOCKER_TIME) // check if 700 msec has passed since last read
     {
         m_LastGetLockStatusTime = Now;
         if(m_pLockDigitalInput)
@@ -1363,7 +1365,7 @@ quint16 CRetortDevice::GetLidStatus()
 ReturnCode_t CRetortDevice::GetHardwareStatusAsync(RTTempCtrlType_t Type)
 {
     qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if((now - m_LastGetHardwareStatusTime[Type]) >= CHECK_SENSOR_TIME && m_pTempCtrls[Type] != NULL)
+    if((now - m_LastGetHardwareStatusTime[Type]) >= CHECK_CURRENT_TIME && m_pTempCtrls[Type] != NULL)
     {
         m_LastGetHardwareStatusTime[Type] = now;
         return m_pTempCtrls[Type]->GetHardwareStatus();

@@ -9,7 +9,7 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME (400) // in msecs
+#define CHECK_SENSOR_TIME (1000) // in msecs
 /****************************************************************************/
 /*!
  *  \brief    Constructor of the CPeripheryDevice class
@@ -597,7 +597,7 @@ ReturnCode_t CPeripheryDevice::TurnOffRemoteAlarm()
 ReturnCode_t CPeripheryDevice::GetLocalAlarmStatusAsync()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetLocalAlarmStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetLocalAlarmStatusTime) >= CHECK_SENSOR_TIME) // check if 1000 msec has passed since last read
     {
         m_LastGetLocalAlarmStatusTime = Now;
         if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS])
@@ -622,7 +622,7 @@ ReturnCode_t CPeripheryDevice::GetLocalAlarmStatusAsync()
 ReturnCode_t CPeripheryDevice::GetRemoteAlarmStatusAsync()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetRemoteAlarmStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetRemoteAlarmStatusTime) >= CHECK_SENSOR_TIME) // check if 1000 msec has passed since last read
     {
         m_LastGetRemoteAlarmStatusTime = Now;
         if(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS])
@@ -709,7 +709,7 @@ quint16 CPeripheryDevice::GetRecentRemoteAlarmStatus()
     // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint16 RetValue;
-    if((Now - m_LastGetRemoteAlarmStatusTime) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetRemoteAlarmStatusTime) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_TargetDIInputValues[PER_REMOTE_ALARM_STATUS];
     }
@@ -732,7 +732,7 @@ quint16 CPeripheryDevice::GetRecentLocalAlarmStatus()
     // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint16 RetValue;
-    if((Now - m_LastGetLocalAlarmStatusTime) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetLocalAlarmStatusTime) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_TargetDIInputValues[PER_LOCAL_ALARM_STATUS];
     }

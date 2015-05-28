@@ -11,7 +11,9 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME (400) // in msecs
+#define CHECK_SENSOR_TIME  (800) // in msecs
+#define CHECK_CURRENT_TIME (900) // in msecs
+#define CHECK_LID_TIME     (700) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
@@ -559,7 +561,7 @@ qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
    // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue;
-    if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_CurrentTemperatures[Type][Index];
     }
@@ -589,7 +591,7 @@ quint32 COvenDevice::GetRecentCurrent(OVENTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint32 RetValue;
-    if((Now - m_LastGetTCCurrentTime[Type]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTCCurrentTime[Type]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_TCHardwareStatus[Type].Current;
     }
@@ -937,7 +939,7 @@ qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue = m_CurrentTemperatures[Type][Index];
-    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
@@ -977,7 +979,7 @@ qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
 ReturnCode_t COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         m_LastGetTempTime[Type][Index] = Now;
         return   m_pTempCtrls[Type]->ReqActTemperature(Index);
@@ -988,7 +990,7 @@ ReturnCode_t COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 In
 ReturnCode_t COvenDevice::GetTemperatureControlStatusAsync(OVENTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetTempCtrlStatus[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempCtrlStatus[Type]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         m_LastGetTempCtrlStatus[Type] = Now;
         return   m_pTempCtrls[Type]->ReqStatus();
@@ -1142,7 +1144,7 @@ quint16 COvenDevice::GetLidStatus()
 ReturnCode_t COvenDevice::GetLidStatusAsync()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetLidStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetLidStatusTime) >= CHECK_LID_TIME) // check if 700 msec has passed since last read
     {
         m_LastGetLidStatusTime = Now;
         if(m_pLidDigitalInput)
@@ -1197,7 +1199,7 @@ quint16 COvenDevice::GetRecentOvenLidStatus()
     // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint16 RetValue;
-    if((Now - m_LastGetLidStatusTime) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetLidStatusTime) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_LidStatus;
     }
@@ -1220,7 +1222,7 @@ quint16 COvenDevice::GetRecentOvenLidStatus()
 ReturnCode_t COvenDevice::GetHeaterCurrentAsync(OVENTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME && m_pTempCtrls[Type] != NULL)
+    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_CURRENT_TIME && m_pTempCtrls[Type] != NULL)
     {
         m_LastGetTCCurrentTime[Type] = Now;
         return m_pTempCtrls[Type]->GetHardwareStatus();
@@ -1241,7 +1243,7 @@ quint8 COvenDevice::GetHeaterSwitchType()
     quint8 RetValue = UNDEFINED_1_BYTE;
     if(m_pTempCtrls[OVEN_TOP] != NULL)
     {
-        if((Now - m_LastGetTCCurrentTime[OVEN_TOP]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+        if((Now - m_LastGetTCCurrentTime[OVEN_TOP]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
         {
             ReturnCode_t retCode = m_pTempCtrls[OVEN_TOP]->GetHardwareStatus();
             if (DCL_ERR_FCT_CALL_SUCCESS == retCode )

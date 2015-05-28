@@ -10,7 +10,8 @@
 namespace DeviceControl
 {
 
-#define CHECK_SENSOR_TIME (400) // in msecs
+#define CHECK_SENSOR_TIME  (800) // in msecs
+#define CHECK_CURRENT_TIME (900) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
@@ -597,7 +598,7 @@ qreal CRotaryValveDevice::GetTemperature(quint32 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue = m_CurrentTemperature[Index];
-    if((Now - m_LastGetTempTime[Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         ReturnCode_t retCode;
         if(m_pTempCtrl)
@@ -649,7 +650,7 @@ ReturnCode_t CRotaryValveDevice::GetTemperatureAsync(quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
-    if((Now - m_LastGetTempTime[Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTempTime[Index]) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
     {
         m_LastGetTempTime[Index] = Now;
         if(m_pTempCtrl)
@@ -678,7 +679,7 @@ qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
     //QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue = UNDEFINED_4_BYTE;
-    if((Now - m_LastGetTempTime[Index]) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTempTime[Index]) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_CurrentTemperature[Index];
     }
@@ -701,7 +702,7 @@ quint32 CRotaryValveDevice::GetRecentCurrent()
     //QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint32 RetValue = UNDEFINED_4_BYTE;
-    if((Now - m_LastGetTCCurrentTime) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTCCurrentTime) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_TCHardwareStatus.Current;
     }
@@ -712,7 +713,7 @@ quint8 CRotaryValveDevice::GetRecentHeaterSwitchType()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint8 RetValue = UNDEFINED_1_BYTE;
-    if((Now - m_LastGetTCCurrentTime) <= 500) // check if 500 msec has passed since last read
+    if((Now - m_LastGetTCCurrentTime) <= 1000) // check if 1000 msec has passed since last read
     {
         RetValue = m_TCHardwareStatus.HeaterSwitchType;
     }
@@ -2453,7 +2454,7 @@ void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t Re
 ReturnCode_t CRotaryValveDevice::GetHeaterCurrentAsync(void)
 {
     qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if((now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME && m_pTempCtrl != NULL)
+    if((now - m_LastGetTCCurrentTime) >= CHECK_CURRENT_TIME && m_pTempCtrl != NULL)
     {
         m_LastGetTCCurrentTime = now;
         return m_pTempCtrl->GetHardwareStatus();
@@ -2474,7 +2475,7 @@ quint8 CRotaryValveDevice::GetHeaterSwitchType(void)
     quint8 RetValue = UNDEFINED_1_BYTE;
     if(m_pTempCtrl != NULL)
     {
-        if((Now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+        if((Now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME) // check if 800 msec has passed since last read
         {
             ReturnCode_t retCode = m_pTempCtrl->GetHardwareStatus();
             if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
