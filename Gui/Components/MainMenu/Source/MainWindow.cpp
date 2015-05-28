@@ -72,8 +72,6 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :QMainWindow(p_Parent), mp_Ui(new Ui
     (void) QObject::connect(mp_Ui->TabWidget, SIGNAL(currentChanged(int)), this, SLOT(OnCurrentTabChanged(int)));
 
     mp_Ui->TabWidget->clear();
-    mp_Ui->statusLabelErr->setHidden(true);
-    mp_Ui->statusLabelWarn->setHidden(true);
     installEventFilter(this);
     mp_Ui->statusLabelErr->installEventFilter(this);
     mp_Ui->statusLabelWarn->installEventFilter(this);
@@ -402,11 +400,11 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
         }
         break;
     case Warning:
-        mp_Ui->statusLabelWarn->hide();
+        mp_Ui->statusLabelWarn->setPixmap(QPixmap());
         result = true;
         break;
     case Error:
-        mp_Ui->statusLabelErr->hide();
+        mp_Ui->statusLabelErr->setPixmap(QPixmap());
         result = true;
         break;
     default:
