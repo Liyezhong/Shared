@@ -281,12 +281,12 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             emit UserSettingsChanged(LanguageChanged);
 
             (void)SettingsDataStream.device()->reset();
-            SendAckAndUpdateGUI(Ref, AckCommandChannel, Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(5000, SettingsDataStream)));
+            SendAckAndUpdateGUI(Ref, AckCommandChannel, Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(30000, SettingsDataStream)));
             // if the another process is availble other than colorado (other process means it is Sepia)
             if (m_ConnToOtherProcess) {
                 //send usersettings changed command to sepia
                 (void)mp_MasterThreadController->SendCommand(
-                            Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(5000, SettingsDataStream)),
+                            Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(30000, SettingsDataStream)),
                             mp_MasterThreadController->GetCommandChannel(5));
             }
 
