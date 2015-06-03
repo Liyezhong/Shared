@@ -2046,7 +2046,7 @@ DCLEventLoop* DeviceProcessing::CreateSyncCall(SyncCmdType_t CmdType)
     DCLEventLoop* event = new DCLEventLoop();
     event->SetCmdType(CmdType);
 
-    //QMutexLocker Locker(&m_EventLoopMutex);
+    QMutexLocker Locker(&m_EventLoopMutex);
     m_EventLoopsForSyncCall.push_back(event);
     return event;
 }
@@ -2060,7 +2060,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(DCLEventLoop* event)
         ret = (ReturnCode_t)(event->exec());
     }
 
-    //QMutexLocker Locker(&m_EventLoopMutex);
+    QMutexLocker Locker(&m_EventLoopMutex);
     for (QVector<DCLEventLoop*>::iterator iter = m_EventLoopsForSyncCall.begin(); iter!= m_EventLoopsForSyncCall.end(); ++iter)
     {
         if (*iter == event)
@@ -2090,7 +2090,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
     m_EventLoopsForSyncCall.push_back(event);
     ReturnCode_t ret = (ReturnCode_t)(event->exec());
 
-    //QMutexLocker Locker(&m_EventLoopMutex);
+    QMutexLocker Locker(&m_EventLoopMutex);
     for (QVector<DCLEventLoop*>::iterator iter = m_EventLoopsForSyncCall.begin(); iter!= m_EventLoopsForSyncCall.end(); ++iter)
     {
         if (*iter == event)
@@ -2113,7 +2113,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
 /****************************************************************************/
 void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, ReturnCode_t Value)
 {
-    //QMutexLocker Locker(&m_EventLoopMutex);
+    QMutexLocker Locker(&m_EventLoopMutex);
     for (int i =0; i<m_EventLoopsForSyncCall.size(); ++i)
     {
         if (m_EventLoopsForSyncCall[i] == NULL)
@@ -2144,7 +2144,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
     m_EventLoopsForSyncCall.push_back(event);
     ReturnCode_t ret = (ReturnCode_t)(event->exec());
 
-    //QMutexLocker Locker(&m_EventLoopMutex);
+    QMutexLocker Locker(&m_EventLoopMutex);
     for (QVector<DCLEventLoop*>::iterator iter = m_EventLoopsForSyncCall.begin(); iter!= m_EventLoopsForSyncCall.end(); ++iter)
     {
         if (*iter == event)
