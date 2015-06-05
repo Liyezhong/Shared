@@ -248,7 +248,12 @@ Error_t halStorageWrite (
         }    
         switch (halStorageDescriptors[Index].Class) {
             case MEM_CLASS_FRAM:
+                #ifdef ASB_FCT
+                return (Count);
+                #else   
                 return (halEepromWrite (Address+Offset, Buffer, Count));
+                #endif
+                
 
             case MEM_CLASS_FLASH:
                 return (halFlashWrite (Address, Buffer, Count));

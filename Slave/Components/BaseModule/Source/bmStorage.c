@@ -810,6 +810,30 @@ Error_t bmFormatStorage (UInt16 PartitionCount) {
     return (bmReadPartitionTable());
 }
 
+#ifdef ASB_FCT
+
+/*****************************************************************************/
+/*!
+ *  \brief   Erase memory
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+Error_t bmEraseStorage (void) {
+
+    Error_t Status;
+
+    if (WriteProtected) {
+        return (E_STORAGE_PROTECTED);
+    }
+
+    if ((Status = halStorageErase(Device, 0, PARTITION_DESCRIPTOR_SIZE)) < 0) {
+        return (Status);
+    }
+
+    return 0;
+}
+#endif
 
 /*****************************************************************************/
 /*!
@@ -1083,18 +1107,26 @@ static Error_t bmWritePartitionChecksum (Handle_t Handle, UInt16 CheckSum) {
  ****************************************************************************/
 
 Error_t bmInitializeStorage (UInt16 PartTableSize) {
-
+    #ifndef ASB_FCT
     Error_t Status;
+    #endif
 
     Device = halStorageOpen (HAL_STORAGE_FRAM, HAL_OPEN_RW | HAL_OPEN_ERASE);
     if (Device < 0) {
         return (Device);
     }
     if (bmReadPartitionTable() < 0) {
+    #ifndef ASB_FCT
         if ((Status = bmFormatStorage(PartTableSize)) < 0) {
             return (Status);
         }
+    #endif
     }
+
+#ifdef ASB_FCT
+    bmEraseStorage();
+#endif
+
     // select checksum update mode (TRUE: on write, FALSE: on close)
     UpdateChecksumOnWrite = TRUE;
 

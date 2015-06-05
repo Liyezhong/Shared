@@ -1071,7 +1071,23 @@ Error_t aoInitializeModule (UInt16 ModuleID, UInt16 Instances) {
 
         aoDataTable[i].Options = bmGetBoardOptions (ModuleID, i, OPTION_LIFETIME_DATA);
         aoDataTable[i].Channel = bmGetChannel (bmGetTaskID(ModuleID, i));
+#ifdef ASB_FCT
+        if (aoDataTable[i].Options & OPTION_LIFETIME_DATA) {
+            aoDataTable[i].Memory = bmOpenPermStorage (ModuleID, i, AO_PARAM_TOTAL_SIZE);
+            if (aoDataTable[i].Memory < NO_ERROR) {
+                return (aoDataTable[i].Memory);
+            }
+        }
 
+        aoResetInstanceData(i);
+
+        if (aoDataTable[i].Options & OPTION_LIFETIME_DATA) {
+            Status = aoVerifyPartition(&aoDataTable[i]);
+            if (Status < NO_ERROR) {
+                return (Status);
+            }
+        }
+#else
         aoDataTable[i].Memory = bmOpenPermStorage (ModuleID, i, AO_PARAM_TOTAL_SIZE);
         if (aoDataTable[i].Memory < NO_ERROR) {
             return (aoDataTable[i].Memory);
@@ -1083,6 +1099,7 @@ Error_t aoInitializeModule (UInt16 ModuleID, UInt16 Instances) {
         if (Status < NO_ERROR) {
             return (Status);
         }
+#endif
     }
     aoInstanceCount = Instances;
     aoModuleID = ModuleID;

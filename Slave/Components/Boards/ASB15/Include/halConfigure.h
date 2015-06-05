@@ -52,7 +52,7 @@
 // Device ID mapping (function-module to application specific)
 //****************************************************************************/
 
-#ifdef FCT_ASB_15
+#ifdef ASB_FCT
 //Local alarm -- PB9
 #define HAL_LOCAL_ALARM_CONTROL                 HAL_DIGITAL_OUTPUT_0
 //Vacuum Pump control -- PB12
@@ -102,6 +102,8 @@
 #define HAL_PUMP_VALVE_SENSOR_CURRENT           HAL_ANALOG_INPUT_6
 //Exhaust fan sensor -- PA0(read current)
 #define HAL_EXHAUSTFAN_SENSOR_CURRENT           HAL_ANALOG_INPUT_7
+//24V -- PC4
+#define HAL_UNDER_VOLTAGE_DETECTION             HAL_ANALOG_INPUT_8
 
 
 #else

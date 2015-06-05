@@ -83,7 +83,7 @@ static const UInt32 TestOptionList[] = {
         
     // Function modules board options
     //MODULE_ID_TEMPERATURE, 4, 0x12012, 0x12012, 0x12012, 0x12012
-#ifndef FCT_ASB_15    
+#ifndef ASB_FCT    
     MODULE_ID_TEMPERATURE, 3, 0x11041011, 0x01041011, 0x01041011,
     
 #ifdef ASB15_VER_A
@@ -96,7 +96,7 @@ static const UInt32 TestOptionList[] = {
 
     MODULE_ID_PRESSURE, 1, 0x2111
 #else
-    MODULE_ID_DIGITAL_OUT, 11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    MODULE_ID_DIGITAL_OUT, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 #endif
     
 
@@ -124,7 +124,7 @@ static Error_t InitTestBoardInfoBlock (void);
  ****************************************************************************/
 
 static const bmModuleParameters_t ModuleInitTable[] = {
-#ifndef FCT_ASB_15
+#ifndef ASB_FCT
     { MODULE_ID_PRESSURE,    1, pressInitializeModule },
     { MODULE_ID_TEMPERATURE, 3, tempInitializeModule },
 #ifdef ASB15_VER_A
@@ -138,7 +138,7 @@ static const bmModuleParameters_t ModuleInitTable[] = {
 #else
     { MODULE_ID_DIGITAL_OUT, 11, doInitializeModule },
     { MODULE_ID_DIGITAL_IN,   4, diInitializeModule },
-    { MODULE_ID_ANALOG_IN,    8, aiInitializeModule } 
+    { MODULE_ID_ANALOG_IN,    9, aiInitializeModule } 
 #endif
 };
 static const int NumberOfModules = ELEMENTS(ModuleInitTable);

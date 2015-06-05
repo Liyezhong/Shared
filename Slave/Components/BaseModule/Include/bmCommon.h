@@ -32,7 +32,7 @@
 #define INFOBLOCK_SIGNATURE      0x91827364 //!< Signature of info block
 
 /* basemodule's software version informations */
-#ifdef FCT_ASB_15
+#ifdef ASB_FCT
 #define SOFTWARE_VERSION         0xFFFF     //!< Software version number
 #define SOFTWARE_CREATION_YEAR   2015       //!< Software creation date (year)
 #define SOFTWARE_CREATION_MONTH  4          //!< Software creation date (month)

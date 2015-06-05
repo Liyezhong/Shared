@@ -1243,7 +1243,25 @@ Error_t doInitializeModule (UInt16 ModuleID, UInt16 Instances) {
 
         Data->Channel = bmGetChannel (bmGetTaskID(ModuleID, i));
         Data->Options = bmGetBoardOptions (ModuleID, i, DO_OPTION_LIFETIME_DATA);
+#ifdef ASB_FCT
+        if (Data->Options & DO_OPTION_LIFETIME_DATA) {
+            Data->Memory  = bmOpenPermStorage (ModuleID, i, DO_PARAM_TOTAL_SIZE); 
+            if (Data->Memory < NO_ERROR) {
+                return (Data->Memory);
+            }
+        }
+        
+        dbgPrint("DO size:%d\n", DO_PARAM_TOTAL_SIZE);
 
+        Data->ModuleState = MODULE_STATE_READY;
+
+        if (Data->Options & DO_OPTION_LIFETIME_DATA) {
+            Status = doVerifyPartition(Data);
+            if (Status < NO_ERROR) {
+                return (Status);
+            }
+        }
+#else
         Data->Memory  = bmOpenPermStorage (ModuleID, i, DO_PARAM_TOTAL_SIZE); 
         if (Data->Memory < NO_ERROR) {
             return (Data->Memory);
@@ -1257,6 +1275,7 @@ Error_t doInitializeModule (UInt16 ModuleID, UInt16 Instances) {
         if (Status < NO_ERROR) {
             return (Status);
         }
+#endif
     }
     doModuleID = ModuleID;
     doInstanceCount = Instances;
