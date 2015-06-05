@@ -72,14 +72,6 @@ signals:
 
     /****************************************************************************/
     /**
-     * \brief This signal is emitted when User changes DI water type to Tap water and
-     *              vice versa in Bathlayout screen.
-     * \iparam TapWaterType = true if Water Station type is changed to Tap Water
-     */
-    /****************************************************************************/
-    void UserSettingsWaterTypeChanged(const bool TapWaterType);
-    /****************************************************************************/
-    /**
      * \brief This signal is emitted when User resets the life time of ActiveCarbonFilter
      *
      */

@@ -124,15 +124,6 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                 emit ResetActiveCarbonFilterLifeTime();
             }
 
-            // raise the event if the oven temperature is changed
-            if (TempSettings.GetValue("Oven_Temp") != Settings.GetValue("Oven_Temp")) {
-                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_TEMP_CHANGED,
-                                                           Global::FmtArgs() << Settings.GetValue("Oven_Temp"));
-            }
-//            // raise the event if the oven temperature is changed
-//            if (TempSettings.GetValue("Leica_OvenTemp") != Settings.GetValue("Leica_OvenTemp")) {
-//                OvenTemperatureValue = Settings.GetValue("Leica_OvenTemp");
-//            }
             // raise the event if the network settings is changed
             if (TempSettings.GetProxyIPAddress() != Settings.GetProxyIPAddress() ||
                     TempSettings.GetProxyIPPort() != Settings.GetProxyIPPort() ||
@@ -146,12 +137,6 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
 
             if (TempSettings.GetRemoteCare() != Settings.GetRemoteCare())
                 (const_cast<RemoteCare::RemoteCareManager*>(mp_MasterThreadController->GetRemoteCareManager()))->SetRemoteCareStatus(Settings.GetRemoteCare() == Global::ONOFFSTATE_ON ? true : false);
-
-            // raise the event if the agitation speed is changed
-            if (TempSettings.GetValue("Agitation_Speed") != Settings.GetValue("Agitation_Speed")) {
-                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_AGITATION_SPEED_CHANGED,
-                                                           Global::FmtArgs() << Settings.GetValue("Agitation_Speed"));
-            }
 
             // raise the event if the RMS state is changed
             if (TempSettings.GetValue("RMS_PROCESSINGMODE") != Settings.GetValue("RMS_PROCESSINGMODE")) {
@@ -190,40 +175,6 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF);
                 }
                 Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_CLEANING_RMS_STATE_CHANGED,
-                                                           Global::FmtArgs() << Value);
-            }
-
-            // raise the event if the water type is changed
-            if (TempSettings.GetValue("Water_Type") != Settings.GetValue("Water_Type")) {
-                QString Value = Settings.GetValue("Water_Type");
-                if (Value.compare("Tap", Qt::CaseInsensitive) == 0) {
-                    Value = Global::UITranslator::TranslatorInstance().Translate
-                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED_TAP);
-
-                    emit UserSettingsWaterTypeChanged(true);
-                }
-                else {
-                    Value = Global::UITranslator::TranslatorInstance().Translate
-                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED_DISTILLED);
-
-                    emit UserSettingsWaterTypeChanged(false);
-                }
-                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED,
-                                                           Global::FmtArgs() << Value);
-            }
-
-            // raise the event if the oven start mode is changed
-            if (TempSettings.GetValue("Oven_Startmode") != Settings.GetValue("Oven_Startmode")) {
-                QString Value = Settings.GetValue("Oven_Startmode");
-                if (Value.compare("AfterStartup", Qt::CaseInsensitive) == 0) {
-                    Value = Global::UITranslator::TranslatorInstance().Translate
-                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED_PERMANENT);
-                }
-                else {
-                    Value = Global::UITranslator::TranslatorInstance().Translate
-                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED_PROGSTART);
-                }
-                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED,
                                                            Global::FmtArgs() << Value);
             }
 
@@ -294,8 +245,6 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             if(ProxySettingsChanged) {
                 (const_cast<RemoteCare::RemoteCareManager*>(mp_MasterThreadController->GetRemoteCareManager()))->SendNotifyReconnectToRemoteCare();
             }
-
-            qDebug()<<"\n\n User Settings Update Success";
         }
 
         return;
