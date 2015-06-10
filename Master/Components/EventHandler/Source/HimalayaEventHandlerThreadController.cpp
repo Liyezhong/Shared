@@ -109,11 +109,6 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
 {
     quint32 EventID = Event;
 
-    if (!Active) {
-        m_ActiveEvents.remove(EventKey);
-        return ;
-    }
-
     if (EventID == SWUpdate::EVENT_SW_UPDATE_SUCCESS || EventID == SWUpdate::EVENT_SW_UPDATE_NOT_PERFORMED ||\
         EventID == SWUpdate::EVENT_SW_UPDATE_FAILED) {
         if (!m_GuiAvailable) {
@@ -146,6 +141,28 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
     quint32 NextStepID = 0;
 
     const XMLEvent* pEvent = NULL;
+
+    if (!Active) {
+        QHashIterator<quint32,EventRuntimeInfo_t> i(m_ActiveEvents);
+        while (i.hasNext()) {
+            i.next();
+            const EventRuntimeInfo_t& EventInfo = i.value();
+            if(EventInfo.EventID == Event)
+            {
+                NetCommands::EventReportDataStruct EventReportData;
+                EventReportData.EventStatus = false;
+                EventReportData.EventType = EventInfo.Event->GetErrorType();
+                EventReportData.ID = (((quint64)(EventInfo.Event->GetErrorId())) << 32) + i.key();
+                EventReportData.EventKey = i.key();
+                if (m_GuiAvailable) {
+                    Global::tRefType Ref = GetNewCommandRef();
+                    SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+                }
+                m_ActiveEvents.remove(i.key());
+            }
+        }
+        return;
+    }
     if(!m_ActiveEvents.contains(EventKey)) { // first coming
         pEvent = m_EventManager.GetEvent(EventID);
         if(pEvent) {
