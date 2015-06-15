@@ -65,7 +65,7 @@ CFileSelection::CFileSelection(QWidget *p_Parent) :
     mp_Ui->btnOk->setEnabled(false);
 
     CONNECTSIGNALSLOTGUI(mp_Ui->btnCancel, clicked(), this, CancelButtonClicked());
-    CONNECTSIGNALSLOTGUI(mp_TableWidget, pressed(QModelIndex), this, ItemActivated(QModelIndex));
+    CONNECTSIGNALSLOTGUI(mp_TableWidget, clicked(QModelIndex), this, ItemActivated(QModelIndex));
     CONNECTSIGNALSLOTGUI(mp_Ui->btnOk, clicked(), this, OKButtonClicked());
     CONNECTSIGNALSLOTGUI(this, DialogLangaugeChanged(), this, RetranslateUI());
 
