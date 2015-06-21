@@ -85,7 +85,7 @@ bool CInfoTemperatureControl::GetHeaterOperatingTime(QEvent *p_Event)
     ReturnCode_t ReturnCode = mp_TemperatureControl->GetHeaterOperatingTime(0);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:E1";
-        emit ReportError(500070610);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR10);
         return false;
     }
     //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:End";
@@ -111,18 +111,18 @@ bool CInfoTemperatureControl::Finished(QEvent *p_Event)
     ReturnCode = CInfoTemperatureControlTransition::GetEventValue(p_Event, 1);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E2";
-        emit ReportError(500070611);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR11);
         return false;
     }
     if (!CInfoTemperatureControlTransition::GetEventValue(p_Event, 3, OperatingTime)) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E3";
-        emit ReportError(500070612);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR12);
         return false;
     }
 
     if (!mp_SubModule->UpdateParameterInfo("SoftwareVersion", Version)) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E4";
-        emit ReportError(500070613);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR13);
         return false;
     }
 
@@ -135,14 +135,14 @@ bool CInfoTemperatureControl::Finished(QEvent *p_Event)
 
     if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperatingTime + history_OperationTime))) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E5";
-        emit ReportError(500070614);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR14);
         return false;
     }
 
     quint32 lifeCycle = mp_TemperatureControl->GetLifeCycle();
     if (!mp_SubModule->UpdateParameterInfo("OperationCycles", QString().setNum(lifeCycle))) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E6";
-        emit ReportError(500070615);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR15);
         return false;
     }
 

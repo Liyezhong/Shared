@@ -91,7 +91,7 @@ bool CInfoPressureControl::RequestPumpLifeTimeData(QEvent *p_Event)
     ReturnCode_t ReturnCode = mp_PressureControl->GetPumpOperatingTime(0);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:E1";
-        emit ReportError(500070601);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR1);
         return false;
     }
     //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:End";
@@ -118,18 +118,18 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     ReturnCode = CInfoPressureControlTransition::GetEventValue(p_Event, 1);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoPressureControl,E2";
-        emit ReportError(500070602);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR2);
         return false;
     }
     if (!CInfoPressureControlTransition::GetEventValue(p_Event, 3, pumpOperationTime)) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoPressureControl,E3";
-        emit ReportError(500070603);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR3);
         return false;
     }
 
     if (!mp_SubModule->UpdateParameterInfo("SoftwareVersion", Version)) {
         //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoPressureControl,E4";
-        emit ReportError(500070604);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR4);
         return false;
     }
 
@@ -141,17 +141,17 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
 
     if (!mp_SubModule->UpdateParameterInfo("PumpOperationTime", QString().setNum(pumpOperationTime + history_Pump_OperationTime))) {
         //FILE_LOG_L(laFCT, llDEBUG) << " lifeCycle:CInfoPressureControl,E5";
-        emit ReportError(500070605);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR5);
         return false;
     }
     if (!mp_SubModule->UpdateParameterInfo("Valve1OperationCycle", QString().setNum(mp_PressureControl->GetValveLifeCycle(0)))) {
         //FILE_LOG_L(laFCT, llDEBUG) << " lifeCycle:CInfoPressureControl,E6";
-        emit ReportError(500070606);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR6);
         return false;
     }
     if (!mp_SubModule->UpdateParameterInfo("Valve2OperationCycle", QString().setNum(mp_PressureControl->GetValveLifeCycle(1)))) {
         //FILE_LOG_L(laFCT, llDEBUG) << " lifeCycle:CInfoPressureControl,E7";
-        emit ReportError(500070607);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR7);
         return false;
     }
 
@@ -172,13 +172,13 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
 
     if (!mp_SubModule->UpdateParameterInfo("ActiveCarbonFilterLifeTime", QString().setNum(mp_PressureControl->GetActiveCarbonFilterLifeTime()))) {
         //FILE_LOG_L(laFCT, llDEBUG) << " lifeCycle:CInfoPressureControl,E8";
-        emit ReportError(500070608);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR8);
         return false;
     }
 
     if (!mp_SubModule->UpdateParameterInfo("ExhaustFanLifeTime", QString().setNum(mp_PressureControl->GetExhaustFanLifeTime()))) {
         //FILE_LOG_L(laFCT, llDEBUG) << " lifeCycle:CInfoPressureControl,E9";
-        emit ReportError(500070609);
+        emit ReportError(DCL_ERR_DEV_INTER_INTER_LIFE_CYCLE_ERROR9);
         return false;
     }
 
