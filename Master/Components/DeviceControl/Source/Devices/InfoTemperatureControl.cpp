@@ -27,6 +27,7 @@
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include <QFinalState>
+#include "DeviceControl/Include/Global/dcl_log.h"
 
 namespace DeviceControl
 {
@@ -57,6 +58,7 @@ CInfoTemperatureControl::CInfoTemperatureControl(CTemperatureControl *p_Temperat
         p_Init, SIGNAL(entered()),
         *this, &CInfoTemperatureControl::GetHeaterOperatingTime,
         p_GetHeaterOperatingTime));
+
     p_GetHeaterOperatingTime->addTransition(new CInfoTemperatureControlTransition(
         mp_TemperatureControl, SIGNAL(ReportHeaterOperatingTime(quint32, ReturnCode_t, quint8, quint32)),
         *this, &CInfoTemperatureControl::Finished,
@@ -79,13 +81,14 @@ CInfoTemperatureControl::CInfoTemperatureControl(CTemperatureControl *p_Temperat
 bool CInfoTemperatureControl::GetHeaterOperatingTime(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
-
+    //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:Begin";
     ReturnCode_t ReturnCode = mp_TemperatureControl->GetHeaterOperatingTime(0);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
-        emit ReportError(ReturnCode);
+        //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:E1";
+        emit ReportError(500070610);
         return false;
     }
-
+    //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:End";
     return true;
 }
 
@@ -100,22 +103,26 @@ bool CInfoTemperatureControl::GetHeaterOperatingTime(QEvent *p_Event)
 /****************************************************************************/
 bool CInfoTemperatureControl::Finished(QEvent *p_Event)
 {
+    //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl:Begin";
     ReturnCode_t ReturnCode;
     quint32 OperatingTime;
     QString Version = QString().setNum(mp_TemperatureControl->GetBaseModule()->GetModuleSWVersion(mp_TemperatureControl->GetType()));
 
     ReturnCode = CInfoTemperatureControlTransition::GetEventValue(p_Event, 1);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
-        emit ReportError(ReturnCode);
+        //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E2";
+        emit ReportError(500070611);
         return false;
     }
     if (!CInfoTemperatureControlTransition::GetEventValue(p_Event, 3, OperatingTime)) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
+        //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E3";
+        emit ReportError(500070612);
         return false;
     }
 
     if (!mp_SubModule->UpdateParameterInfo("SoftwareVersion", Version)) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
+        //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E4";
+        emit ReportError(500070613);
         return false;
     }
 
@@ -127,25 +134,31 @@ bool CInfoTemperatureControl::Finished(QEvent *p_Event)
     }
 
     if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperatingTime + history_OperationTime))) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
+        //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E5";
+        emit ReportError(500070614);
         return false;
     }
 
     quint32 lifeCycle = mp_TemperatureControl->GetLifeCycle();
     if (!mp_SubModule->UpdateParameterInfo("OperationCycles", QString().setNum(lifeCycle))) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
+        //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl,E6";
+        emit ReportError(500070615);
         return false;
     }
 
 
     if (!pPartLifeCycleRecord)
+    {
+
         return true;
+    }
 
     QString paramName = mp_SubModule->GetSubModuleName() + "_LifeCycle";
     QString strLifeTimeNew = QString().setNum(mp_TemperatureControl->GetLifeCycle());
     QMap<QString, QString>::const_iterator iter = pPartLifeCycleRecord->m_ParamMap.find(paramName);
     if (iter != pPartLifeCycleRecord->m_ParamMap.end())
         pPartLifeCycleRecord->m_ParamMap[paramName] = strLifeTimeNew;
+     //FILE_LOG_L(laFCT, llDEBUG) << "lifeCycle:CInfoTemperatureControl::Finished() end";
     return true;
 }
 
