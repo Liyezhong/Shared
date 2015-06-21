@@ -72,11 +72,11 @@ StateHandler::StateHandler()
     mp_InitState->addTransition(this, SIGNAL(initFailed()), mp_InitFailedState);
     mp_busyState->addTransition(this, SIGNAL(enterIdleState()), mp_idleState);
     mp_idleState->addTransition(this, SIGNAL(enterBusyState()), mp_busyState);
-    mp_errorState->addTransition(this, SIGNAL(enterBusyState()), mp_busyState);
     mp_idleState->addTransition(this, SIGNAL(enterInitState()), mp_InitState);
 
     mp_errorState->addTransition(this, SIGNAL(enterNormalState()), mp_normalState);
     mp_normalState->addTransition(this, SIGNAL(enterErrorState()), mp_errorState);
+    mp_errorState->addTransition(this, SIGNAL(enterBusyState()), mp_normalState);
 
     m_operationMachine.setInitialState(mp_DefaultState);
     m_availabilityMachine.setInitialState(mp_normalState);

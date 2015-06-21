@@ -32,7 +32,8 @@ enum ProcessStateType {
     PowerFailureState,                                        ///<  state for power failure scenario
     IdleState,                                                ///<  Idle state
     BusyState,                                                ///<  Busy state
-    ErrorState
+    ErrorState,
+    NormalState
 };
 
 /****************************************************************************/
