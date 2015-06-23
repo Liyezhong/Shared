@@ -589,10 +589,12 @@ void RemoteCareManager::SWUpdateStatus(bool Status)
         SendNotifyDataItem(RC_DATAITEM_SET_UPDATE_AVAILABLE, RDI_DataGood, "0");
     }
     else {
-        // SW update is success, inform remote care
+        // SW update is failed, inform remote care
         SendNotifyDataItem(RC_DATAITEM_ENABLE_SOFTWARE_UPDATE, RDI_DataGood, "0");
         SendNotifyDataItem(RC_DATAITEM_SET_DOWNLOAD_FINISHED, RDI_DataGood, "0");
         SendNotifyDataItem(RC_DATAITEM_SET_UPDATE_AVAILABLE, RDI_DataGood, "1");
+
+        emit SendRCCmdToGui(Global::CommandShPtr_t(new CmdRCSoftwareUpdate(15000, SWUpdate_UpdateFailed)));
     }
 }
 

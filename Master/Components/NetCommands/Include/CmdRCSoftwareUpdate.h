@@ -37,6 +37,7 @@ const QString   SWUpdate_NotAvailable   = "NotAvailable";       //!< no new soft
 const QString   SWUpdate_DownloadSuccess    = "DownloadSuccess";       //!< Downloading new software failed
 const QString   SWUpdate_DownloadFailed = "DownloadFailed";       //!< Downloading new software failed
 const QString   SWUpdate_StartDownload  = "StartDownload";       //!< User clicked on RC software update button
+const QString   SWUpdate_UpdateFailed  = "UpdateFailed";       //!< Remote care Update failed
 
 /****************************************************************************/
 /*!
