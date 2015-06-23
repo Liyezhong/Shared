@@ -28,6 +28,7 @@
 #include "ui_DateTime.h"
 #include <QDebug>
 #include <QPainter>
+#include <MainMenu/Include/MessageDlg.h>
 
 //lint -e1536
 
@@ -212,6 +213,19 @@ void CDateTime::CollectData(bool Send)
     m_DateTime.setDate(QDate(mp_YearWheel->GetCurrentData().toInt(),
         mp_MonthWheel->GetCurrentData().toInt(), mp_DayWheel->GetCurrentData().toInt()));
     m_DateTime.setTime(QTime(mp_HourWheel->GetCurrentData().toInt(), mp_MinWheel->GetCurrentData().toInt()));
+
+    if (!m_DateTime.isValid()) {
+        MainMenu::CMessageDlg* p_MsgDlg = new MainMenu::CMessageDlg(this);
+        p_MsgDlg->SetIcon(QMessageBox::Critical);
+        p_MsgDlg->HideButtonsOneAndTwo();
+        p_MsgDlg->SetButtonText(3, QApplication::translate("CDateTime", "Ok", 0, QApplication::UnicodeUTF8));
+        p_MsgDlg->SetTitle(QApplication::translate("CDateTime", "Error", 0, QApplication::UnicodeUTF8));
+        p_MsgDlg->SetText(QApplication::translate("CDateTime", "Invalid Date", 0, QApplication::UnicodeUTF8));
+        (void)p_MsgDlg->exec();
+        delete p_MsgDlg;
+        p_MsgDlg = NULL;
+        return;
+    }
 
     if (Send == true) {
         Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_DATETIME_UPDATED);
