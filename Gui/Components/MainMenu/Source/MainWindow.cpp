@@ -75,6 +75,8 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :QMainWindow(p_Parent), mp_Ui(new Ui
     installEventFilter(this);
     mp_Ui->statusLabelErr->installEventFilter(this);
     mp_Ui->statusLabelWarn->installEventFilter(this);
+    mp_Ui->statusLabelWarn->setEnabled(false);
+    mp_Ui->statusLabelErr->setEnabled(false);
     (void) UnsetStatusIcons(RemoteCare);
     if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
         QFont Font("Sans");
@@ -322,6 +324,7 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
         break;
     case Error:
         p_Label = mp_Ui->statusLabelErr;
+        p_Label->setEnabled(true);
         p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Error_small.png").
                                    arg(Application::CLeicaStyle::GetDeviceImagesPath())));
         p_Label->show();
@@ -330,6 +333,7 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
         break;
     case Warning:
         p_Label = mp_Ui->statusLabelWarn;
+        p_Label->setEnabled(true);
         p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Warning_small.png").
                                    arg(Application::CLeicaStyle::GetDeviceImagesPath())));
         p_Label->show();
@@ -401,10 +405,12 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
         break;
     case Warning:
         mp_Ui->statusLabelWarn->setPixmap(QPixmap());
+        mp_Ui->statusLabelWarn->setEnabled(false);
         result = true;
         break;
     case Error:
         mp_Ui->statusLabelErr->setPixmap(QPixmap());
+        mp_Ui->statusLabelErr->setEnabled(false);
         result = true;
         break;
     default:
@@ -484,7 +490,7 @@ bool CMainWindow::eventFilter(QObject *Obj, QEvent *p_Event)
 
         if (Obj == static_cast<QObject*>(mp_Ui->statusLabelErr)) {
             qDebug() << "mp_Ui->statusLabelErr->isHidden()" << mp_Ui->statusLabelErr->isHidden()<<mp_Ui->statusLabelErr->isVisible();
-            if(!(mp_Ui->statusLabelErr->isHidden())) {
+            if(mp_Ui->statusLabelErr->isEnabled()) {
                 emit ShowErrorMsgDlg();
                 qDebug()<< "Clicked on Error status label";
             }
@@ -492,7 +498,7 @@ bool CMainWindow::eventFilter(QObject *Obj, QEvent *p_Event)
         }
         else if(Obj == static_cast<QObject*>(mp_Ui->statusLabelWarn)) {
             qDebug() <<"mp_Ui->statusLabelWarn->isHidden()" << mp_Ui->statusLabelWarn->isHidden()<<mp_Ui->statusLabelWarn->isVisible();
-            if(!(mp_Ui->statusLabelWarn->isHidden())) {
+            if (mp_Ui->statusLabelWarn->isEnabled()) {
                 emit ShowWarningMsgDlg();
                 qDebug()<< "Clicked on Warning status label";
             }
