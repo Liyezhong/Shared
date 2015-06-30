@@ -48,7 +48,7 @@ public:
     void SetPlainText(QString Text);
     void AppendText(QString Text);
     void SetNintyPercentScroll(bool Status);
-
+    void EnableTable(bool enable);
 
 private:
     Ui::CTextDialog *mp_Ui; //!< User interface

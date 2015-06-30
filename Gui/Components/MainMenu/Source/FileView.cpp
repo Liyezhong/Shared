@@ -167,6 +167,7 @@ void CFileView::DayRunLogFileContent(const QDataStream &DataStream)
     mp_Dialog->SetCaption(m_Model.itemFromIndex(mp_TableWidget->currentIndex())->text() + " ");
     mp_Dialog->setModal(true);
     mp_Dialog->show();
+    mp_Dialog->EnableTable(false);
     int Counter = 0;
     mp_Dialog->SetPlainText(Text.mid(Counter, 5000));
     Counter += 5000;
@@ -181,9 +182,10 @@ void CFileView::DayRunLogFileContent(const QDataStream &DataStream)
         Counter += 10000;
 
     } while(Counter < Text.count());
-
+    mp_Dialog->EnableTable(true);
     // hide the wait dialog
     emit HideDialog();
+
 
 }
 

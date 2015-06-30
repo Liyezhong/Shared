@@ -166,4 +166,9 @@ void CTextDialog::SetNintyPercentScroll(bool Status)
     mp_Ui->widget->SetNintyPercentScroll(Status);
 }
 
+void CTextDialog::EnableTable(bool enable)
+{
+    mp_Ui->widget->setEnabled(enable);
+}
+
 } // end namespace MainMenu
