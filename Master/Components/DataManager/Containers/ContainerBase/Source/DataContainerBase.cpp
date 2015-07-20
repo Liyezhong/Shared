@@ -25,6 +25,7 @@
 #include <Global/Include/Utils.h>
 #include <Global/Include/SystemPaths.h>
 #include <unistd.h> //for fsync
+#include <QUuid>
 //lint -e1536
 //lint -e593
 
@@ -88,15 +89,17 @@ bool CDataContainerBase::Write()
         qDebug() << "File is not read";
         return false;
     }
+
+    QString tempfile = QUuid::createUuid().toString();
     try {
-        QFile File(TEMP_CONTAINER_XMLFILE);
+        QFile File(tempfile);
         if (!File.open(QFile::WriteOnly | QFile::Text | QFile::Truncate)) {
-            qDebug() << "open file failed in Write: " << TEMP_CONTAINER_XMLFILE;
+            qDebug() << "open file failed in Write: " << tempfile;
             return false;
         }
 
         if (!SerializeContent(File, false)) {
-            qDebug() << "### CDataContainerBase::Write failed for file: " << TEMP_CONTAINER_XMLFILE;
+            qDebug() << "### CDataContainerBase::Write failed for file: " << tempfile;
             File.close();
             return false;
         }
@@ -112,8 +115,8 @@ bool CDataContainerBase::Write()
         fsync(File.handle());
         File.close();
 
-        if (!QFile::rename(TEMP_CONTAINER_XMLFILE, GetFilename())) {
-            qDebug() << "File renamed failed in Write: " << TEMP_CONTAINER_XMLFILE;
+        if (!QFile::rename(tempfile, GetFilename())) {
+            qDebug() << "File renamed failed in Write: " << tempfile;
             return false;
         }
         const QString MD5sumGenerator = QString("%1%2 %3").arg(Global::SystemPaths::Instance().GetScriptsPath()).
