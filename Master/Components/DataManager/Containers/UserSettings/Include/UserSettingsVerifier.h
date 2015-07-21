@@ -31,7 +31,7 @@
 namespace DataManager {
 
 const int MIN_SOUND_NUMBER    = 1; ///< Minimum value for the sound
-const int MIN_SOUND_LEVEL     = 2; ///< Minimum value for the sound level
+const int MIN_SOUND_LEVEL     = 0; ///< Minimum value for the sound level
 const int MAX_SOUND_NUMBER    = 6; ///< Maximum value for the sound
 const int MAX_SOUND_LEVEL     = 9; ///< Maximum value for the sound level
 const int MIN_PROXY_IP_PORT   = 1; ///< Minimum value of IP Port
