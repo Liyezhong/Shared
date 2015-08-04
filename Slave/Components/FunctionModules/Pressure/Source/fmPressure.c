@@ -913,8 +913,8 @@ static Error_t pressRegulation (InstanceData_t *Data, UInt16 Instance)
  *      - Regulation active bit (1 = on, 0 = off)
  *      - Start auto tuning bit
  *      - Regulation phase bit (1 = hold, 0 = pumping)
- *      - Desired pressure (in KPa)
- *      - Pressure tolerance (in KPa)
+ *      - Desired pressure (in 0.01kPa)
+ *      - Pressure tolerance (in kPa)
  *      - Sampling time (in miliseconds)
  *      - Auto tuning duration (in seconds)
  *
@@ -1382,8 +1382,8 @@ static Error_t pressSetCalibration (UInt16 Channel, CanMessage_t* Message)
  *      - Regulation active bit (1 = on, 0 = off)
  *      - Regulation phase bit (1 = hold, 0 = pumping)
  *      - Start auto tuning bit
- *      - Desired pressure (in 0.1 KPa)
- *      - Pressure tolerance (in 0.1 KPa)
+ *      - Desired pressure (in kPa)
+ *      - Pressure tolerance (in kPa)
  *      - Sampling time (in milliseconds)
  *      - Auto tuning duration (in seconds)
  *
