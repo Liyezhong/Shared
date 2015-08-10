@@ -55,7 +55,7 @@ CLogViewer::CLogViewer(QString LogFileName, QString LogFilePath, QWidget *p_Pare
     QDir Directory(m_LogFilePath);
     Directory.setFilter(QDir::Files);
     Directory.setSorting(QDir::Time);
-    QFileInfoList List = Directory.entryInfoList();
+    QFileInfoList List = Directory.entryInfoList(QDir::NoFilter, QDir::Time);
     for (int i = 0; i < List.size(); i++) {
         QFileInfo fileInfo = List.at(i);
         QString FileName = fileInfo.fileName();
@@ -176,7 +176,7 @@ void CLogViewer::UpdateLogFileTableEntries()
     QDir Directory(m_LogFilePath);
     Directory.setFilter(QDir::Files);
     Directory.setSorting(QDir::Time);
-    QFileInfoList List = Directory.entryInfoList();
+    QFileInfoList List = Directory.entryInfoList(QDir::NoFilter, QDir::Time);
     for (int i = 0; i < List.size(); i++) {
         QFileInfo fileInfo = List.at(i);
         QString FileName = fileInfo.fileName();
