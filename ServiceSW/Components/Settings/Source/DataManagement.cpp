@@ -60,6 +60,14 @@ CDataManagement::CDataManagement(QWidget *p_Parent) : QWidget(p_Parent),
 CDataManagement::~CDataManagement()
 {
     try {
+        if (mp_WaitDialog) {
+            delete mp_WaitDialog;
+            mp_WaitDialog = NULL;
+        }
+        if (mp_MessageDlg) {
+            delete mp_MessageDlg;
+            mp_MessageDlg = NULL;
+        }
 //        delete mp_MainWindow;
         delete mp_Ui;        
     }
@@ -109,7 +117,7 @@ void CDataManagement::ExportFiles()
     mp_WaitDialog->SetText(QApplication::translate("ServiceUpdates::CDataManagement","Exporting service data...",
                                                    0, QApplication::UnicodeUTF8));
     mp_WaitDialog->show();
-    mp_WaitDialog->setModal(false);
+
     mp_WaitDialog->HideAbort();
 }
 
@@ -135,7 +143,7 @@ void CDataManagement::ImportFiles()
     mp_WaitDialog->SetText(QApplication::translate("ServiceUpdates::CDataManagement", "Importing service data...",
                                                    0, QApplication::UnicodeUTF8));
     mp_WaitDialog->show();
-    mp_WaitDialog->setModal(false);
+
     mp_WaitDialog->HideAbort();
 }
 
@@ -152,6 +160,10 @@ void CDataManagement::ImportExportFinished(int ExitCode, bool IsImport)
     QString MessageInfo("Data Import/Export failed.");
 
     (void) mp_WaitDialog->close();
+    if (mp_MessageDlg) {
+        delete mp_MessageDlg;
+        mp_MessageDlg = NULL;
+    }
     mp_MessageDlg = new MainMenu::CMessageDlg(this);
     mp_MessageDlg->setModal(true);
     mp_MessageDlg->SetIcon(QMessageBox::Critical);
@@ -298,7 +310,6 @@ void CDataManagement::ImportExportFinished(int ExitCode, bool IsImport)
 /****************************************************************************/
 void CDataManagement::FileSelectionForImport(QStringList FileList)
 {
-    (void) mp_WaitDialog->close();
     MainMenu::CFileSelection FileSelection;
 
     CONNECTSIGNALSIGNALGUI(&FileSelection, SelectedFileList(QStringList), this, SelectedImportFileList(QStringList));

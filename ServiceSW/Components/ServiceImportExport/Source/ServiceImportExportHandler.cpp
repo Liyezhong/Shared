@@ -630,6 +630,7 @@ void CServiceImportExportHandler::DoCleanUpObjects() {
 
 // Import
 /****************************************************************************/
+#if 0
 void CServiceImportExportHandler::StartImportingFiles(const QStringList FileList) {
 
     QStringList ImportTypeList;
@@ -689,7 +690,7 @@ void CServiceImportExportHandler::StartImportingFiles(const QStringList FileList
         m_IsSelectionRequested = false;
     }
 }
-
+#endif
 
 /****************************************************************************/
 bool CServiceImportExportHandler::ImportArchiveFiles(const QString &ImportType, QString FileName) {
@@ -741,7 +742,6 @@ bool CServiceImportExportHandler::ImportArchiveFiles(const QString &ImportType, 
         m_EventRaised = true;
         IsImported = false;
     }
-    qDebug() << QDir::currentPath();
 
     if (IsImported) {
         // check the type of Import, for the language file we cannot predict how many files can be present
@@ -807,12 +807,15 @@ bool CServiceImportExportHandler::WriteFilesAndImportData(const QString &TypeOfI
                     }
                 }
             }
-
+#if 0
             if ((CreateAndUpdateContainers(TypeOfImport, QString(Global::SystemPaths::Instance().GetTempPath()
                                                                  + QDir::separator() + DIRECTORY_IMPORT)))) {
                 // if everything is success then return code is positive
                 return true;
             }
+#else
+            return true;
+#endif
         }
     }
     else {
@@ -950,6 +953,61 @@ bool CServiceImportExportHandler::UpdateFolderWithFiles(QStringList FileList, QS
         }
     }
     return true;
+}
+
+/****************************************************************************/
+void CServiceImportExportHandler::StartImportingFiles(const QStringList FileList) {
+
+    QStringList ImportTypeList;
+    QString TypeOfImport;
+    bool ErrorFlag = false;
+
+    if(FileList.empty())
+    {
+        emit ThreadFinished(m_EventCode, true,true);
+        return;
+    }
+    ImportTypeList.clear();
+
+    // multiple files can be imported. At max three files can be imported.
+    for (qint32 Counter = 0; Counter < FileList.count(); Counter++) {
+        if (!ImportArchiveFiles(TypeOfImport, FileList.value(Counter))) {
+            ErrorFlag = true;
+            break;
+        }
+        ImportTypeList.append(TypeOfImport);
+    }
+
+
+    if(!ErrorFlag){
+        ErrorFlag = ! WriteFilesInSettingsFolder();
+    }
+    if (ErrorFlag) {
+        if (!ImportTypeList.contains(TYPEOFIMPORT_SERVICE)) {
+            (void)UpdateSettingsWithRollbackFolder();
+            ImportTypeList.clear();
+        }
+    }
+
+    // update the rollback checksum value
+    QProcess Md5sumProcess;
+    Md5sumProcess.start(Global::SystemPaths::Instance().GetScriptsPath()
+                        + QString("/EBox-Utils.sh") , QStringList() <<
+                        QString("update_md5sum_for_settings service"));
+    (void)Md5sumProcess.waitForFinished();
+    // update the rollback directory also
+    Md5sumProcess.start(Global::SystemPaths::Instance().GetScriptsPath()
+                        + QString("/EBox-Utils.sh") , QStringList() <<
+                        QString("update_settings_to_rollback"));
+    (void)Md5sumProcess.waitForFinished();
+
+
+    (void)QProcess::startDetached("sync &");
+    // emit the thread finished flag
+    if(m_IsSelectionRequested) {
+        emit ThreadFinished(m_EventCode, true,false);
+        m_IsSelectionRequested = false;
+    }
 }
 
 }   // end of namespace ImportExport
