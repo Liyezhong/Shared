@@ -2395,7 +2395,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
         qreal targetPressure = 0.0;
         if(m_EnableLowerPressure)
         {
-            targetPressure = 15.0;
+            targetPressure = 12.0;
             retCode = m_pAirLiquid->SealingCheckPressure();
         }
         else
