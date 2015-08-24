@@ -318,7 +318,9 @@ void CDataManagement::FileSelectionForImport(QStringList FileList)
     FileSelection.SetFileList(FileList);
     FileSelection.setModal(true);
     FileSelection.SetFileSelectionPanelSize(870, 400);
-    (void) FileSelection.exec();
+    if(FileSelection.exec() == QDialog::Rejected) {
+        (void) mp_WaitDialog->close();
+    }
 }
 
 /****************************************************************************/
