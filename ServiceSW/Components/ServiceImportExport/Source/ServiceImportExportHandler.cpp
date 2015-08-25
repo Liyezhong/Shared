@@ -205,7 +205,7 @@ void CServiceImportExportHandler::StartImportExportProcess() {
         if (ErrorInExecution) {
             // if the event is not raised then display an error due to any reason
             if (!m_EventRaised) {
-                Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_FAILED, true);
+                //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_FAILED, true);
                 m_EventCode = EVENT_SERVICE_EXPORT_FAILED;
             }
             // emit the thread finished flag - with error code
@@ -228,7 +228,7 @@ void CServiceImportExportHandler::StartImportExportProcess() {
             switch(DirFileNames.count()) {
             case 0:
                 m_EventRaised = true;
-                Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT);
+                //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT);
                 m_EventCode = EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT;
                 IsImported = false;
                 break;
@@ -251,7 +251,7 @@ void CServiceImportExportHandler::StartImportExportProcess() {
             if (!IsImported) {
                 // if the event is not raised then display an error due to any reason
                 if (!m_EventRaised) {
-                    Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_FAILED, true);
+                    //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_FAILED, true);
                     m_EventCode = EVENT_SERVICE_IMPORT_FAILED;
                 }
             }
@@ -278,12 +278,12 @@ bool CServiceImportExportHandler::MountDevice(bool IsImport) {
         m_EventRaised = true;
         if (m_OperationName.contains(COMMAND_NAME_IMPORT)) {
             // log the event code
-            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB);
+            //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB);
             m_EventCode = EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB;
         }
         else {
             // log the event code
-            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORTEXPORT_EXPORT_NO_USB);
+            //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORTEXPORT_EXPORT_NO_USB);
             m_EventCode = EVENT_SERVICE_IMPORTEXPORT_EXPORT_NO_USB;
         }
         break;
@@ -291,7 +291,7 @@ bool CServiceImportExportHandler::MountDevice(bool IsImport) {
     case 3:
         if (IsImport) {
             m_EventRaised = true;
-            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT);
+            //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT);
             m_EventCode = EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT;
         }
         break;
@@ -431,7 +431,7 @@ bool CServiceImportExportHandler::DoPretasks() {
             }
         }
         else {
-            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_DIRECTORY_CREATION_FAILED, true);
+            //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_DIRECTORY_CREATION_FAILED, true);
             m_EventCode = EVENT_SERVICE_EXPORT_DIRECTORY_CREATION_FAILED;
             m_EventRaised = true;
             return false;
@@ -475,7 +475,7 @@ bool CServiceImportExportHandler::WriteTempExportConfigurationAndFiles() {
         // copy all the files in a temporary directory
         if (!CopyConfigurationFiles(mp_ExportConfiguration->GetServiceConfiguration().GetServiceConfigurationList(),
                                     m_TempExportConfiguration.GetSourceDir())) {
-            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_FILES_NOT_COPIED, true);
+            //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_FILES_NOT_COPIED, true);
             m_EventCode = EVENT_SERVICE_EXPORT_FILES_NOT_COPIED;
             m_EventRaised = true;
             return false;
@@ -484,12 +484,14 @@ bool CServiceImportExportHandler::WriteTempExportConfigurationAndFiles() {
 
         // write the Export configuration file
         if (!m_TempExportConfiguration.Write(m_TempExportConfiguration.GetSourceDir() + QDir::separator() + FILENAME_TEMPEXPORTCONFIG)) {
-            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_UNABLE_TO_CREATE_FILE_TEMP_EXPORTCONFIGURATION, true);
+            //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_UNABLE_TO_CREATE_FILE_TEMP_EXPORTCONFIGURATION, true);
             m_EventCode = EVENT_SERVICE_EXPORT_UNABLE_TO_CREATE_FILE_TEMP_EXPORTCONFIGURATION;
             m_EventRaised = true;
             return false;
         }
     }
+
+    m_EventCode = EVENT_SERVICE_EXPORT_SUCCESS;
     return true;
 }
 
@@ -737,7 +739,7 @@ bool CServiceImportExportHandler::ImportArchiveFiles(const QString &ImportType, 
         }
     }
     else {
-        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_ARCHIVE_FILE_FORMAT_NOT_PROPER, true);
+        //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_ARCHIVE_FILE_FORMAT_NOT_PROPER, true);
         m_EventCode = EVENT_SERVICE_IMPORT_ARCHIVE_FILE_FORMAT_NOT_PROPER;
         m_EventRaised = true;
         IsImported = false;
@@ -819,7 +821,7 @@ bool CServiceImportExportHandler::WriteFilesAndImportData(const QString &TypeOfI
         }
     }
     else {
-        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_REQUIRED_FILES_NOT_AVAILABLE, true);
+        //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_REQUIRED_FILES_NOT_AVAILABLE, true);
         m_EventCode = EVENT_SERVICE_IMPORT_REQUIRED_FILES_NOT_AVAILABLE;
         m_EventRaised = true;
     }
@@ -850,7 +852,7 @@ bool CServiceImportExportHandler::CreateAndUpdateContainers(const QString TypeOf
                                        + QDir::separator() + DIRECTORY_SETTINGS + QDir::separator(),
                                        Global::SystemPaths::Instance().GetSettingsPath()
                                        + QDir::separator())) {
-                Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED, true);
+                //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED, true);
                 m_EventCode = EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED;
                 m_EventRaised = true;
                 return false;
@@ -911,7 +913,7 @@ bool CServiceImportExportHandler::UpdateSettingsWithRollbackFolder() {
     if (!UpdateFolderWithFiles(FileList, Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator(),
                                Global::SystemPaths::Instance().GetRollbackPath() + QDir::separator()
                                + DIRECTORY_SETTINGS + QDir::separator())) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_ROLLBACK_FAILED, true);
+        //Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_ROLLBACK_FAILED, true);
         m_EventCode = EVENT_SERVICE_IMPORT_ROLLBACK_FAILED;
         m_EventRaised = true;
         return false;

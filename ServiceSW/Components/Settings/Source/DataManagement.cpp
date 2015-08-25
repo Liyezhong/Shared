@@ -278,18 +278,32 @@ void CDataManagement::ImportExportFinished(int ExitCode, bool IsImport)
         MessageInfo = QString("Data Import completed successfully.");
         mp_MessageDlg->SetIcon(QMessageBox::Information);
         break;
-    default:
+    case 0:
         if (IsImport) {
-            if (ExitCode != 0) {
-                DialogTitle = QString("Data Import");
-                MessageInfo = QString("Data Import Failed.");
-                mp_MessageDlg->SetIcon(QMessageBox::Critical);
-            } else {
-                DialogTitle = QString("Data Import");
-                MessageInfo = QString("Data Import completed successfully.");
-                mp_MessageDlg->SetIcon(QMessageBox::Information);
-            }
+            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_SUCCESS);
+            DialogTitle = QString("Data Import");
+            MessageInfo = QString("Data Import completed successfully.");
         }
+        else {
+            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_SUCCESS);
+            DialogTitle = QString("Data Export");
+            MessageInfo = QString("Data Export completed successfully.");
+        }
+        mp_MessageDlg->SetIcon(QMessageBox::Information);
+
+        break;
+    default:
+        if (IsImport) {            
+            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_FAILED);
+            DialogTitle = QString("Data Import");
+            MessageInfo = QString("Data Import Failed.");
+        }
+        else {
+            Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_FAILED);
+            DialogTitle = QString("Data Export");
+            MessageInfo = QString("Data Export Failed.");
+        }
+        mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
     }
 
