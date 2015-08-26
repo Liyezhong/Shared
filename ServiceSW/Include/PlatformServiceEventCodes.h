@@ -87,5 +87,7 @@ const quint32 EVENT_SERVICE_IPADDRESS_UPDATED                                   
 
 const quint32 EVENT_SERVICE_DATETIME_UPDATED                                        = EVENT_GROUP_PLATFORMSERVICE_MAIN + 0x001D;
 
+const quint32 EVENT_SERVICE_IMPORT_CANCEL                                           = EVENT_GROUP_PLATFORMSERVICE_MAIN + 0x001E;
+
 
 #endif // namespace PLATFORMSERVICEEVENTCODES_H

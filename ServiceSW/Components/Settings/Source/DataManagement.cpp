@@ -333,6 +333,7 @@ void CDataManagement::FileSelectionForImport(QStringList FileList)
     FileSelection.setModal(true);
     FileSelection.SetFileSelectionPanelSize(870, 400);
     if(FileSelection.exec() == QDialog::Rejected) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_CANCEL);
         (void) mp_WaitDialog->close();
     }
 }
