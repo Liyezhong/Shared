@@ -231,8 +231,8 @@ void CUSBKeyValidator::HideKeyBoard()
 void CUSBKeyValidator::OnESCClicked()
 {
     // Disconnect signals and slots connected to keyboard.
-    //    DisconnectKeyBoardSignalSlots();
-    //    mp_KeyBoardWidget->hide();
+    DisconnectKeyBoardSignalSlots();
+    mp_KeyBoardWidget->hide();
     mp_KeyBoardWidget->SetPasswordMode(true);
     mp_KeyBoardWidget->SetValidation(true);
     mp_KeyBoardWidget->SetMinCharLength(4);
