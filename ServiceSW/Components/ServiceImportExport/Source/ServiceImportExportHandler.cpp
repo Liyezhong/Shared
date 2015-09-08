@@ -777,6 +777,7 @@ bool CServiceImportExportHandler::AddFilesForImportType(const QString &TypeOfImp
 /****************************************************************************/
 bool CServiceImportExportHandler::WriteFilesAndImportData(const QString &TypeOfImport, const QStringList &FileList,
                                                           const EncryptionDecryption::RAMFile &RamFile) {
+    Q_UNUSED(TypeOfImport);
     bool RequiredFilesImported = false;
     EncryptionDecryption::RAMFile RFile = const_cast<EncryptionDecryption::RAMFile&>(RamFile);
     // check the type of Import
