@@ -173,7 +173,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
     mp_UserSettings = p_DataContainer->SettingsInterface->GetUserSettings();
     CHECKPTR(mp_UserSettings);
     // read event strings. language and fallback language is English
-    ReadEventTranslations(QLocale::English, QLocale::English);
+//    ReadEventTranslations(QLocale::English, QLocale::English);
     if (mp_UserSettings) {
         // read ui strings. language is user language and fallback language is English
         ReadUITranslations(mp_UserSettings->GetLanguage(), QLocale::English);
@@ -765,35 +765,42 @@ void MasterThreadController::ReadEventTranslations(QLocale::Language Language, Q
     // cleanup translator strings. For event strings.
     Global::EventTranslator::TranslatorInstance().Reset();
 
-    // read strings
-    DataManager::XmlConfigFileStrings TranslatorDataFile;
+    // read all the languages which are available in the translations directory
+    QDir TheDir(Global::SystemPaths::Instance().GetTranslationsPath());
+    QStringList FileNames = TheDir.entryList(QStringList("EventStrings_*.xml"));
+
     // Create list of used languages. Language and FallbackLanguage can be the same, since we are
     // working wit a QSet
     QSet<QLocale::Language> LanguageList;
     LanguageList << Language << FallbackLanguage;
 
-    // try to read the file
-    try {
-        TranslatorDataFile.ReadStrings(StringsFileName, LanguageList);
+    for (int Counter = 0; Counter < FileNames.size(); ++Counter)
+    {
+        // get locale extracted by filename
+        QString Locale;
+        Locale = FileNames[Counter];                  // "Colorado_de.qm"
+        Locale.truncate(Locale.lastIndexOf('.'));   // "Colorado_de"
+        Locale.remove(0, Locale.indexOf('_') + 1);   // "de"
+        LanguageList << QLocale(Locale).language();
     }
-    CATCHALL();
 
-    // check if there is still a language in LanguageList
-    if(!LanguageList.isEmpty()) {
-        // Uh oh... some languages could not be read.
-        // send some error messages.
-        for(QSet<QLocale::Language>::const_iterator it = LanguageList.constBegin(); it != LanguageList.constEnd(); ++it) {
-            //            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, DataManager::EVENT_DM_ERROR_LANG_NOT_FOUND, Global::LanguageToString(*it)
-            //                      , Global::NO_NUMERIC_DATA, false);
-            Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_ERROR_LANG_NOT_FOUND,
-                                                       Global::FmtArgs() << Global::LanguageToString(*it));
+    // try to read the files
+    for(QSet<QLocale::Language>::const_iterator itl = LanguageList.constBegin(); itl != LanguageList.constEnd(); ++itl) {
+
+        QString FileName = Global::SystemPaths::Instance().GetTranslationsPath() + "/EventStrings_" +
+                Global::LanguageToLanguageCode(*itl) + ".xml";
+        try {
+            // read strings for specified language
+            DataManager::XmlConfigFileStrings TranslatorDataFile;
+            TranslatorDataFile.ReadStrings(FileName, QSet<QLocale::Language>() << *itl);
+            // now configure translator with read languages.
+            for(Global::tTranslations::const_iterator itt = TranslatorDataFile.Data().constBegin();
+                itt != TranslatorDataFile.Data().constEnd(); ++itt) {
+                // Set language data. No default no fallback.
+                Global::EventTranslator::TranslatorInstance().SetLanguageData(itt.key(), itt.value(), false, false);
+            }
         }
-    }
-    // now configure translator with read languages.
-    for(Global::tTranslations::const_iterator it = TranslatorDataFile.Data().constBegin();
-        it != TranslatorDataFile.Data().constEnd(); ++it) {
-        // Set language data. No default no fallback.
-        Global::EventTranslator::TranslatorInstance().SetLanguageData(it.key(), it.value(), false, false);
+        CATCHALL();
     }
     // set default language
     Global::EventTranslator::TranslatorInstance().SetDefaultLanguage(Language);
