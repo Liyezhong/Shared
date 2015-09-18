@@ -172,10 +172,10 @@ void MasterThreadController::CreateAndInitializeObjects() {
     CHECKPTR(p_DataContainer->SettingsInterface);
     mp_UserSettings = p_DataContainer->SettingsInterface->GetUserSettings();
     CHECKPTR(mp_UserSettings);
-    // read event strings. language and fallback language is English
-//    ReadEventTranslations(QLocale::English, QLocale::English);
     if (mp_UserSettings) {
+        // read event strings. language and fallback language is English
         // read ui strings. language is user language and fallback language is English
+        ReadEventTranslations(mp_UserSettings->GetLanguage(), QLocale::English);
         ReadUITranslations(mp_UserSettings->GetLanguage(), QLocale::English);
 
         Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_ERROR, mp_UserSettings->GetSoundNumberError());
@@ -760,8 +760,6 @@ void MasterThreadController::SendAcknowledgeNOK(Global::tRefType Ref, CommandCha
 
 /****************************************************************************/
 void MasterThreadController::ReadEventTranslations(QLocale::Language Language, QLocale::Language FallbackLanguage) const {
-    const QString StringsFileName = Global::SystemPaths::Instance().GetTranslationsPath()
-            + "/EventStrings_" + Global::LanguageToLanguageCode(Language) + ".xml";
     // cleanup translator strings. For event strings.
     Global::EventTranslator::TranslatorInstance().Reset();
 
@@ -778,9 +776,9 @@ void MasterThreadController::ReadEventTranslations(QLocale::Language Language, Q
     {
         // get locale extracted by filename
         QString Locale;
-        Locale = FileNames[Counter];                  // "Colorado_de.qm"
-        Locale.truncate(Locale.lastIndexOf('.'));   // "Colorado_de"
-        Locale.remove(0, Locale.indexOf('_') + 1);   // "de"
+        Locale = FileNames[Counter];
+        Locale.truncate(Locale.lastIndexOf('.'));
+        Locale.remove(0, Locale.indexOf('_') + 1);
         LanguageList << QLocale(Locale).language();
     }
 
@@ -815,7 +813,7 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
 
     // read all the languages which are available in the translations directory
     QDir TheDir(Global::SystemPaths::Instance().GetTranslationsPath());
-    QStringList FileNames = TheDir.entryList(QStringList("*.qm"));
+    QStringList FileNames = TheDir.entryList(QStringList("EventStrings_*.xml"));
 
     // Create list of used languages. Language and FallbackLanguage can be the same, since we are
     // working wit a QSet
@@ -827,9 +825,9 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
     {
         // get locale extracted by filename
         QString Locale;
-        Locale = FileNames[Counter];                  // "Colorado_de.qm"
-        Locale.truncate(Locale.lastIndexOf('.'));   // "Colorado_de"
-        Locale.remove(0, Locale.indexOf('_') + 1);   // "de"
+        Locale = FileNames[Counter];
+        Locale.truncate(Locale.lastIndexOf('.'));
+        Locale.remove(0, Locale.indexOf('_') + 1);
         LanguageList << QLocale(Locale).language();
     }
 
