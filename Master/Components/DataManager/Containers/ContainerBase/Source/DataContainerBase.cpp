@@ -66,6 +66,9 @@ bool CDataContainerBase::Write(QString Filename)
 		(void)fsync(File.handle());
         File.close();
         //flush data
+        const QString MD5sumGenerator = QString("%1%2 %3").arg(Global::SystemPaths::Instance().GetScriptsPath()).
+                arg(QString("/EBox-Utils.sh update_md5sum_for_file_in_settings")).arg(GetFilename());
+        (void)system(MD5sumGenerator.toStdString().c_str());
 
         return true;
     }
