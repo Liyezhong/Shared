@@ -119,7 +119,6 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
     // read entire file
     while (!LogFile.atEnd()) {
         QString ReadData = LogFile.readLine();
-
         if (ReadData.contains(STRING_SEMICOLON)) {
             if (ReadData.split(DELIMITER_SEMICOLON).count() > EVENTSTRING_USERLOG) {
                 if (QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_USERLOG)).compare(FLAG_VALUE) == 0) {
@@ -148,7 +147,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                     }
 
                     // translate the data
-                    QString EventData = Global::UITranslator::TranslatorInstance().Translate
+                    QString EventData = Global::EventTranslator::TranslatorInstance().Translate
                             (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_STRINGID)).toInt(),
                                                         TranslateStringList), UseAlternateText);
 
@@ -176,8 +175,8 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                     }
 
                     // translate the event type
-                    QString EventType = ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTTYPE);
-                    TranslateEventType(EventType);
+                    QString EventType = Global::EventTranslator::TranslatorInstance().Translate
+                                                (ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTTYPE).split(":").value(1).toUInt());
 
                     // join the required data
                     ReadData = QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_TIMESTAMP))
@@ -225,9 +224,9 @@ void DayLogFileInformation::TranslateTheParameters(const quint32 EventID,
     // take which arguments needs to be translated
     switch(EventID) {
         case Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CHANGED:
-            EventTranslatorValues << Global::UITranslator::TranslatorInstance().
+            EventTranslatorValues << Global::EventTranslator::TranslatorInstance().
                                      Translate(Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_ON);
-            EventTranslatorValues << Global::UITranslator::TranslatorInstance().
+            EventTranslatorValues << Global::EventTranslator::TranslatorInstance().
                                      Translate(Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF);
 
             EventValues << Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_ON
@@ -235,9 +234,9 @@ void DayLogFileInformation::TranslateTheParameters(const quint32 EventID,
 
             break;
         case Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED:
-            EventTranslatorValues << Global::UITranslator::TranslatorInstance().
+            EventTranslatorValues << Global::EventTranslator::TranslatorInstance().
                                      Translate(Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED_DISTILLED);
-            EventTranslatorValues << Global::UITranslator::TranslatorInstance().
+            EventTranslatorValues << Global::EventTranslator::TranslatorInstance().
                                      Translate(Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED_TAP);
 
             EventValues << Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED_DISTILLED
@@ -247,9 +246,9 @@ void DayLogFileInformation::TranslateTheParameters(const quint32 EventID,
         case Global::EVENT_GLOBAL_USER_ACTIVITY_REAGENT_HC_MODE:
         case Global::EVENT_GLOBAL_USER_ACTIVITY_REAGENT_HC_TEMPERATURE:
         case Global::EVENT_GLOBAL_USER_ACTIVITY_REAGENT_HC:
-            EventTranslatorValues << Global::UITranslator::TranslatorInstance().
+            EventTranslatorValues << Global::EventTranslator::TranslatorInstance().
                                      Translate(Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED_PERMANENT);
-            EventTranslatorValues << Global::UITranslator::TranslatorInstance().
+            EventTranslatorValues << Global::EventTranslator::TranslatorInstance().
                                      Translate(Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED_PROGSTART);
 
             EventValues << Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED_PERMANENT
@@ -324,7 +323,7 @@ void DayLogFileInformation::TranslateEventType(const QString &TranslatedString) 
     // check the event type exist in the list- if it available then translate it
     if (EventTypeList.contains(TranslatedString)) {
         qint32 Index = EventTypeList.indexOf(TranslatedString);
-        EventType = Global::UITranslator::TranslatorInstance().Translate(EventTypeIDList.value(Index));
+        EventType = Global::EventTranslator::TranslatorInstance().Translate(EventTypeIDList.value(Index));
         QString Value = "\"" + QString::number(EventTypeIDList.value(Index)) +"\":";
         // did not find the event type in the translator
         if (EventType.isEmpty() || EventType.contains(TRANSLATE_RETURN_VALUE_1) ||

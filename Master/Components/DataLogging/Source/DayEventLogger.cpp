@@ -113,7 +113,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
         case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
         default:                            break;
     }
-    QString TrEventType = Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType);
+    QString TrEventType =QString("%1:%2").arg(Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType)).arg(IDStrEvtType);
 
     const Global::AlternateEventStringUsage AltStringUsage = Entry.GetAltStringUsageType();
     bool UseAltEventString = false;
