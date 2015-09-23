@@ -29,6 +29,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QPixmap>
+#include <QApplication>
 
 namespace MainMenu {
 
@@ -201,9 +202,11 @@ QVariant CFileSelectionModel::headerData(int Section, Qt::Orientation Orientatio
     if (Role == (int)Qt::DisplayRole && Orientation == Qt::Horizontal) {
         switch (Section) {
         case 0:
-            return tr("Use");
+            return QApplication::translate("CFileSelectionModel",
+                               "Use", 0, QApplication::UnicodeUTF8);
         case 1:
-            return tr("File Name");
+            return QApplication::translate("CFileSelectionModel",
+                               "File Name", 0, QApplication::UnicodeUTF8);
         }
     }
     return QVariant();

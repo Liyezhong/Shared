@@ -227,10 +227,6 @@ void CFileSelection::RetranslateUI()
 {
     MainMenu::CDialogFrame::SetDialogTitle(QApplication::translate("MainMenu::CFileSelection", "Import Files",
                                                                    0, QApplication::UnicodeUTF8));
-    (void) m_Model.setHeaderData(0, Qt::Horizontal, QApplication::translate("MainMenu::CFileSelection", "Use",
-                                                                                         0, QApplication::UnicodeUTF8));
-    (void) m_Model.setHeaderData(1, Qt::Horizontal, QApplication::translate("MainMenu::CFileSelection", "File Name",
-                                                                                         0, QApplication::UnicodeUTF8));
 }
 
 
