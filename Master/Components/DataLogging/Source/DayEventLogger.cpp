@@ -113,7 +113,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
         case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
         default:                            break;
     }
-    QString TrEventType =QString("%1:%2").arg(Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType)).arg(IDStrEvtType);
+    QString TrEventType =QString("%1:%2").arg(Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,IDStrEvtType)).arg(IDStrEvtType);
 
     const Global::AlternateEventStringUsage AltStringUsage = Entry.GetAltStringUsageType();
     bool UseAltEventString = false;
@@ -125,7 +125,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
             UseAltEventString = true;
     }
     // translate message
-    QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetStringID(), Entry.GetString()),
+    QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::TranslatableString(Entry.GetStringID(), Entry.GetString()),
                                                                                       UseAltEventString);
 
     if (TrEventMessage.length() == 0)
@@ -146,7 +146,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
     }
     if (!Entry.IsEventActive())
     {
-        TrEventMessage = Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_RESOLVED) + TrEventMessage;
+        TrEventMessage = Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_RESOLVED) + TrEventMessage;
     }
 
     QString AcknowledgeString = "";
@@ -176,9 +176,9 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
             break;
         }
 
-        TrEventMessage = Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED)
+        TrEventMessage = Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED)
                 + " "
-                + Global::EventTranslator::TranslatorInstance().Translate(ButtonEventName)
+                + Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,ButtonEventName)
                 + ": "
                 + TrEventMessage;
     }

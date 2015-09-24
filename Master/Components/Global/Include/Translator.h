@@ -88,39 +88,7 @@ private:
      */
     /****************************************************************************/
     void InsertArguments(QString &rString, const QStringList &ArgumentList, const bool ChopArguments) const;
-    /****************************************************************************/
-    /**
-     * \brief Translate.
-     *
-     * Translation is done with followig steps:
-     * - check if language exists
-     *   - if not:
-     *     - if language is fallback language or fallback language not set
-     *       - use predefined minimal strings
-     *       - append arguments as string
-     *     - else
-     *       - translate into fallback language
-     *   - if yes
-     *     - try to get strings for StringID
-     *       - if it fails
-     *         - try to get strings for UNKNOWN_STRING_ID
-     *           - if this fails
-     *             - use predefined minimal strings
-     *             - append arguments as string
-     *           - if it succeeds
-     *             - insert arguments
-     *       - if it succeeds
-     *         - insert arguments
-     *
-     * \iparam   TheLanguage     Language to translate into.
-     * \iparam   String          String to translate.
-     * \iparam   ChopArguments   true indicates chop arguments
-     * \iparam   UseAlternateString   true indicates alternate string to be used
-     * \return                      The translation.
-     */
-    /****************************************************************************/
-    QString TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString = false,
-                                const bool ChopArguments = false) const;
+
 protected:
 public:
     /****************************************************************************/
@@ -221,6 +189,39 @@ public:
      */
     /****************************************************************************/
     QString Translate(const TranslatableString &String, const bool UseAlternateString = false, const bool ChopArguments = false) const;
+    /****************************************************************************/
+    /**
+     * \brief Translate.
+     *
+     * Translation is done with followig steps:
+     * - check if language exists
+     *   - if not:
+     *     - if language is fallback language or fallback language not set
+     *       - use predefined minimal strings
+     *       - append arguments as string
+     *     - else
+     *       - translate into fallback language
+     *   - if yes
+     *     - try to get strings for StringID
+     *       - if it fails
+     *         - try to get strings for UNKNOWN_STRING_ID
+     *           - if this fails
+     *             - use predefined minimal strings
+     *             - append arguments as string
+     *           - if it succeeds
+     *             - insert arguments
+     *       - if it succeeds
+     *         - insert arguments
+     *
+     * \iparam   TheLanguage     Language to translate into.
+     * \iparam   String          String to translate.
+     * \iparam   ChopArguments   true indicates chop arguments
+     * \iparam   UseAlternateString   true indicates alternate string to be used
+     * \return                      The translation.
+     */
+    /****************************************************************************/
+    QString TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString = false,
+                                const bool ChopArguments = false) const;
     /****************************************************************************/
     /**
      * \brief Get languages.
