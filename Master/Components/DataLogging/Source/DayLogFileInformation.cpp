@@ -129,8 +129,15 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                          Counter++) {
                         if (QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).
                                 compare(STRING_NEWLINE) != 0) {
-                            TranslateStringList << QString::fromUtf8(ReadData.split(DELIMITER_SEMICOLON)
-                                                                     .value(Counter).toStdString().c_str());
+                            QString StrPar = ReadData.split(DELIMITER_SEMICOLON).value(Counter);
+                            if(!StrPar.startsWith("##"))// plain string
+                            {
+                                TranslateStringList << Global::TranslatableString(StrPar);
+                            }
+                            else //need to be translated
+                            {
+                                TranslateStringList << Global::TranslatableString(StrPar.mid(2).toUInt());//chop out ##
+                            }
                         }
                     }
                     // used for alternate text
@@ -140,11 +147,11 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                         UseAlternateText = true;
                     }
                     // translate the parameters
-                    if (m_EventIDs.contains(QString(ReadData.split(DELIMITER_SEMICOLON).
-                                                    value(EVENTSTRING_EVENTID)).toUInt())) {
-                        TranslateTheParameters(QString(ReadData.split(DELIMITER_SEMICOLON).
-                                                       value(EVENTSTRING_EVENTID)).toUInt(), TranslateStringList);
-                    }
+//                    if (m_EventIDs.contains(QString(ReadData.split(DELIMITER_SEMICOLON).
+//                                                    value(EVENTSTRING_EVENTID)).toUInt())) {
+//                        TranslateTheParameters(QString(ReadData.split(DELIMITER_SEMICOLON).
+//                                                       value(EVENTSTRING_EVENTID)).toUInt(), TranslateStringList);
+//                    }
 
                     // translate the data
                     QString EventData = Global::EventTranslator::TranslatorInstance().Translate
@@ -175,8 +182,8 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                     }
 
                     // translate the event type
-                    QString EventType = Global::EventTranslator::TranslatorInstance().Translate
-                                                (ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTTYPE).split(":").value(1).toUInt());
+                    QString EventType = ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTTYPE);
+                    TranslateEventType(EventType);
 
                     // join the required data
                     ReadData = QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_TIMESTAMP))
@@ -306,12 +313,12 @@ void DayLogFileInformation::TranslateEventType(const QString &TranslatedString) 
     QString EventType;
 
     // first store all the events in the string list
-    EventTypeList << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED)
-                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR)
-                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR)
-                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING)
-                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO)
-                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG);
+    EventTypeList << Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED)
+                  << Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR)
+                  << Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR)
+                  << Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING)
+                  << Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO)
+                  << Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG);
     // store all the event Ids in the list
     EventTypeIDList << Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED
                     << Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR

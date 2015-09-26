@@ -113,7 +113,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
         case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
         default:                            break;
     }
-    QString TrEventType =QString("%1:%2").arg(Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,IDStrEvtType)).arg(IDStrEvtType);
+    QString TrEventType =Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,IDStrEvtType);
 
     const Global::AlternateEventStringUsage AltStringUsage = Entry.GetAltStringUsageType();
     bool UseAltEventString = false;
@@ -189,7 +189,14 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
     QString ParameterString = "";
     foreach (Global::TranslatableString s, Entry.GetString())
     {
-        ParameterString += s.GetString() +";";
+        if(s.IsString())//plain string
+        {
+            ParameterString += s.GetString() +";";
+        }
+        else
+        {
+            ParameterString += QString("%1%2%3").arg("##").arg(s.GetStringID()).arg(";");
+        }
     }
 
     QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +

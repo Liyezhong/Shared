@@ -141,41 +141,52 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             // raise the event if the RMS state is changed
             if (TempSettings.GetValue("RMS_PROCESSINGMODE") != Settings.GetValue("RMS_PROCESSINGMODE")) {
                 QString Value = Settings.GetValue("RMS_PROCESSINGMODE");
+                quint32 RMSStringID = 0;
                 if (Value.compare("DAYS", Qt::CaseInsensitive) == 0) {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_DAYS);
+                    RMSStringID = Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_DAYS;
                 }
                 else if (Value.compare("CYCLES", Qt::CaseInsensitive) == 0) {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CYCLES);
+                    RMSStringID = Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CYCLES;
                 }
                 else if (Value.compare("CASSETTES", Qt::CaseInsensitive) == 0) {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CASSETTES);
+                    RMSStringID = Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CASSETTES;
                 }
                 else {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF);
+                    RMSStringID = Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF;
                 }
                 Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CHANGED,
-                                                           Global::FmtArgs() << Value);
+                                                           //Global::FmtArgs() << Value);
+                                                           Global::tTranslatableStringList()<< Global::TranslatableString(RMSStringID));
             }
             if (TempSettings.GetValue("RMS_CLEANINGMODE") != Settings.GetValue("RMS_CLEANINGMODE")) {
                 QString Value = Settings.GetValue("RMS_CLEANINGMODE");
+                quint32 RMSStringID = 0;
                 if (Value.compare("DAYS", Qt::CaseInsensitive) == 0) {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_DAYS);
+                    RMSStringID = Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_DAYS;
                 }
                 else if (Value.compare("CYCLES", Qt::CaseInsensitive) == 0) {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CYCLES);
+                    RMSStringID = Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CYCLES;
                 }
                 else {
                     Value = Global::UITranslator::TranslatorInstance().Translate
                             (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF);
+                    RMSStringID = Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF;
                 }
                 Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_CLEANING_RMS_STATE_CHANGED,
-                                                           Global::FmtArgs() << Value);
+                                                           //Global::FmtArgs() << Value);
+                                                           Global::tTranslatableStringList()<< Global::TranslatableString(RMSStringID));
             }
 
             // raise the event if the temprature format is changed
