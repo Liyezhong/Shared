@@ -119,6 +119,7 @@ public:
 private:
     QHash<quint64, Global::AlarmType> m_errorList;      ///< list of alarms for errors
     QHash<quint64, Global::AlarmType> m_warningList;    ///< list of alarms for warnings
+    QHash<quint64, Global::AlarmType> m_infoList;       ///< list of alarms for info
     QTimer* m_Timer;                                    ///< timer
 
     /****************************************************************************/

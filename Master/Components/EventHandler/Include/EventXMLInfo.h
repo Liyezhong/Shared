@@ -385,7 +385,7 @@ private:
     QString                                 		m_Source;			///< Source Name
     quint32                                 		m_Code;				///< Code
     QString                                         m_EventName;         ///< Event macro
-    Global::EventType                          m_ErrorType;		///< Error Type
+    Global::EventType                               m_ErrorType;		///< Error Type
     Global::GuiUserLevel                          m_AuthType;			///< Authority Type
     Global::AlarmPosType                               m_AlarmType;		///< Alarm Type
     quint32                                 		m_RootStep;			///< Root Step

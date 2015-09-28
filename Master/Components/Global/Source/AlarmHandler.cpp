@@ -55,6 +55,10 @@ void AlarmHandler::onTimeout()
         emitAlarm(Global::ALARM_WARNING);
         qDebug() << "AlarmHandler::onTimeout warning... timeout: " << this->m_WarnPeriod;
     }
+    else if (!(m_infoList.size() == 0)) {
+        emitAlarm(Global::ALARM_INFO);
+        qDebug() << "AlarmHandler::onTimeout info...";
+    }
 }
 
 void AlarmHandler::setTimeout(quint32 timeout)
@@ -91,6 +95,10 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
         else if (alarmType == Global::ALARM_WARNING) {
             m_warningList.insert(eventKey, alarmType);
         }
+        else if (alarmType == Global::ALARM_INFO)
+        {
+            m_infoList.insert(eventKey, alarmType);
+        }
 
         onTimeout(); // trigger the alarm immediately.
     }
@@ -100,6 +108,10 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
         }
         else if (alarmType == Global::ALARM_WARNING) {
             m_warningList.remove(eventKey);
+        }
+        else if (alarmType == Global::ALARM_INFO)
+        {
+            m_infoList.remove(eventKey);
         }
     }
 
@@ -117,6 +129,7 @@ void AlarmHandler::reset()
 {
     m_errorList.clear();
     m_warningList.clear();
+    m_infoList.clear();
 }
 
 } // end namespace Global
