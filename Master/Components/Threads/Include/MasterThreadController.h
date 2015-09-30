@@ -39,7 +39,7 @@
 
 namespace DataManager {
     class CDataManagerBase;
-    class CUserSettings;
+    class CHimalayaUserSettings;
 }
 
 namespace EventHandler {
@@ -438,7 +438,7 @@ protected:
     CommandChannel                              m_CommandChannelEventThread;    ///< Command channel for EventHandler.
     EventHandler::EventHandlerThreadController  *mp_EventThreadController;      ///< Pointer to the system event handling object.
     QHash<QString, Threads::CommandChannel*>    m_channelList;                  ///< Hash of command channels connected related to its name
-    DataManager::CUserSettings                  *mp_UserSettings;               ///< The user settings.
+    DataManager::CHimalayaUserSettings          *mp_UserSettings;               ///< The user settings.
     DataManager::CDataManagerBase               *mp_DataManagerBase;            //!< The DataManager.\warning Dont delete this, Pointer points to address in stack.
     GPIOManager::GPIOThreadController           *mp_GPIOThreadController;       //!< Thread controller to monitor softswitch
     CommandChannel                              m_CommandChannelGPIOManager;    //!< Command channel for SoftSwitch Manager

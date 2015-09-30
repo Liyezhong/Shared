@@ -182,10 +182,16 @@ void MasterThreadController::CreateAndInitializeObjects() {
         Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_WARNING, mp_UserSettings->GetSoundNumberWarning());
         Global::AlarmPlayer::Instance().setVolume(Global::ALARM_ERROR, mp_UserSettings->GetSoundLevelError());
         Global::AlarmPlayer::Instance().setVolume(Global::ALARM_WARNING, mp_UserSettings->GetSoundLevelWarning());
+        Global::AlarmPlayer::Instance().setVolume(Global::ALARM_INFO, mp_UserSettings->GetSoundLevelInformation());
+        Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_INFO, mp_UserSettings->GetSoundNumberInformation());
 
         Global::AlarmHandler::Instance().setWarnPeriod(mp_UserSettings->GetSoundPeriodicWarning());
         Global::AlarmHandler::Instance().setWarnPeriodInterval(mp_UserSettings->GetSoundPeriodicTimeWarning());
+
+        Global::AlarmHandler::Instance().setInfoPeriod(mp_UserSettings->GetSoundPeriodicInfo());
+        Global::AlarmHandler::Instance().setInfoPeriodInterval(mp_UserSettings->GetSoundPeriodicTimeInfo());
     }
+
 
     if (m_SWUpdateStatus == "Failure") {
         Global::EventObject::Instance().RaiseEvent(SWUpdate::EVENT_SW_UPDATE_FAILED);

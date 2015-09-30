@@ -31,6 +31,8 @@ AlarmHandler::AlarmHandler(QObject *p_Parent, quint16 TimeOut)
     : QObject(p_Parent)
     , m_WarnPeriodOn(true)
     , m_WarnPeriod(0)
+    , m_InfoPeriodOn(true)
+    , m_InfoPeriod(0)
 {
     m_Timer = new QTimer(this);
     connect(m_Timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
@@ -86,6 +88,16 @@ void AlarmHandler::setWarnPeriodInterval(qint32 interval)
     this->m_WarnPeriod = interval;
 }
 
+void AlarmHandler::setInfoPeriod(bool onoff)
+{
+    this->m_InfoPeriodOn = onoff;
+}
+
+void AlarmHandler::setInfoPeriodInterval(qint32 interval)
+{
+    qDebug() << "AlarmHandler::setInfoPeriodInterval: interval=" << interval << "seconds.";
+    this->m_InfoPeriod = interval;
+}
 void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active)
 {
     if (active) {
@@ -118,6 +130,10 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
     if (m_WarnPeriodOn && m_warningList.size() > 0 && m_errorList.size() < 1) {
         this->setTimeout(m_WarnPeriod * 1000);
         qDebug() << "AlarmHandler::setAlarm warn period, interval: " << m_WarnPeriod;
+    }
+    else if (m_InfoPeriodOn && m_infoList.size() >0 && m_warningList.size() <1 && m_errorList.size() < 1)
+    {
+        this->setTimeout(m_InfoPeriod*1000);
     }
     else {
         this->setTimeout(DEFAULT_ALARM_TIMEOUT);

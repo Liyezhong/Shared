@@ -210,6 +210,7 @@ bool CUserSettings::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Com
         }
         XmlStreamWriter.writeEndElement();
     }
+
     //write network settings realted details
     XmlStreamWriter.writeStartElement("Network");
     XmlStreamWriter.writeAttribute("RemoteCare", Global::OnOffStateToString(GetRemoteCare()));
@@ -672,6 +673,40 @@ bool CUserSettings::GetSoundPeriodicWarning(void) const
     }
 }
 
+
+/****************************************************************************/
+/*!
+ *  \brief Get the Info sound periodic time
+ *
+ *  \return Info sound periodic time
+ */
+/****************************************************************************/
+int CUserSettings::GetSoundPeriodicTimeInfo(void) const
+{
+    return Helper::ConvertTimeStringToSeconds
+            (GetValue(INFORMATION_TONE_PERIODIC_TIME));
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief Get the Info sound periodic flag
+ *
+ *  \return Info sound periodic flag
+ */
+/****************************************************************************/
+bool CUserSettings::GetSoundPeriodicInfo(void) const
+{
+    QString Value = GetValue(INFORMATION_TONE_PERIODIC).toLower();
+    if (PERIODIC_ON == Value)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 /****************************************************************************/
 /*!
