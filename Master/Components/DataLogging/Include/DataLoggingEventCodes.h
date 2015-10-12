@@ -43,6 +43,7 @@ const quint32 EVENT_USER_ACK_BUTTON_YES                                 = EVENT_
 const quint32 EVENT_USER_ACK_BUTTON_NO                                  = EVENT_GROUP_PLATFORM_DATALOGGING + 0x000F; ///< No
 const quint32 EVENT_USER_ACK_BUTTON_CONTINUE                            = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0010; ///< Continue
 const quint32 EVENT_USER_ACK_BUTTON_STOP                                = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0011; ///< Stop
+const quint32 EVENT_USER_ACK_BUTTON_TIMEOUT                             = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0012; ///< Timeout
 
 
 

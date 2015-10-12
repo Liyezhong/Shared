@@ -180,6 +180,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventInfo.EventStringParList = EventStringParList;
                 EventInfo.EventRDStringParList = EventRDStringParList;
                 EventInfo.AlarmActFlag = false;
+                EventInfo.UserSelect = NetCommands::NOT_SPECIFIED;
                 m_ActiveEvents.insert(EventKey,EventInfo);
                 if(pEvent->GetServiceString() > 0){
                     LogEntry(EventInfo,true);
@@ -604,6 +605,8 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
         m_EventEntry.SetStringID(EventInfo.Event->GetServiceString());
         m_EventEntry.SetString(EventInfo.EventRDStringParList);
         m_EventEntry.SetShowInRunLogStatus(false);
+        m_EventEntry.SetButtonType(Global::NOT_SPECIFIED);
+        m_EventEntry.SetAckValue(NetCommands::NOT_SPECIFIED);
     }
     else if(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetType() == "MSG"){
         m_EventEntry.SetStringID(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetStringID());
@@ -618,8 +621,8 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
         m_EventEntry.SetString(Global::tTranslatableStringList() <<QString("%1").arg(EventInfo.EventID)
                                              << EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetAction()
                                              << Result);
-
         m_EventEntry.SetButtonType(Global::NOT_SPECIFIED);
+        m_EventEntry.SetAckValue(NetCommands::NOT_SPECIFIED);
     }
 
     quint64 EventId64 = ((quint64)EventInfo.EventID << 32) | EventInfo.EventKey;

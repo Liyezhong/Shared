@@ -146,13 +146,13 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
     }
     if (!Entry.IsEventActive())
     {
-        TrEventMessage = Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_RESOLVED) + TrEventMessage;
+        TrEventMessage = Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_RESOLVED);
     }
 
     QString AcknowledgeString = "";
+    quint32 ButtonEventName = EVENT_USER_ACK_BUTTON_OK;
     if (Entry.GetAckValue() != NetCommands::NOT_SPECIFIED)
     {
-        quint32 ButtonEventName = EVENT_USER_ACK_BUTTON_OK;
         switch (Entry.GetAckValue()) {
             case NetCommands::OK_BUTTON:
             ButtonEventName = EVENT_USER_ACK_BUTTON_OK;
@@ -172,15 +172,17 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
             case NetCommands::NO_BUTTON:
             ButtonEventName = EVENT_USER_ACK_BUTTON_NO;
             break;
+            case NetCommands::TIMEOUT:
+            ButtonEventName = EVENT_USER_ACK_BUTTON_TIMEOUT;
+            break;
         default:
             break;
         }
 
-        TrEventMessage = Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED)
-                + " "
-                + Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,ButtonEventName)
-                + ": "
-                + TrEventMessage;
+        AcknowledgeString = Global::EventTranslator::TranslatorInstance().TranslateToLanguage(QLocale::English,Global::TranslatableString(Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED,
+                                                                                              Global::tTranslatableStringList()<<Global::TranslatableString(ButtonEventName)),
+                                                                                              UseAltEventString);
+
     }
 
     QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
@@ -199,15 +201,32 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
         }
     }
 
-    QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
-                            QString::number(Entry.GetEventCode(), 10) + ";" +
-                            TrEventType + ";" +
-                            QString::number(Entry.GetStringID(),10) + ";" +
-                            TrEventMessage + ";" +
-                            ShowInRunLog + ";" +
-                            AlternateString + ";" +
-                            ParameterString + ";" +
-                            AcknowledgeString;
+    QString LoggingString = "";
+    if (Entry.GetAckValue() != NetCommands::NOT_SPECIFIED)// from GUI
+    {
+        LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
+                                QString::number(Entry.GetEventCode(), 10) + ";" +
+                                TrEventType + ";" +
+                                QString::number(Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED,10) + ";" +
+                                AcknowledgeString + ";" +
+                                ShowInRunLog + ";" +
+                                AlternateString + ";" +
+                                QString("##%1").arg(ButtonEventName);
+        message = AcknowledgeString;
+    }
+    else
+    {
+        LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
+                                QString::number(Entry.GetEventCode(), 10) + ";" +
+                                TrEventType + ";" +
+                                QString::number(Entry.GetStringID(),10) + ";" +
+                                TrEventMessage + ";" +
+                                ShowInRunLog + ";" +
+                                AlternateString + ";" +
+                                ParameterString + ";" +
+                                AcknowledgeString;
+        message = TrEventMessage;
+    }
 
     if(EventType == Global::EVTTYPE_DEBUG){
         LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
@@ -217,7 +236,6 @@ void DayEventLogger::Log(const DayEventEntry &Entry, QString &message) {
                         TrEventMessage;
     }
 
-    message = TrEventMessage;
 
     // check if we must printout to console (because we sent it to the data logger
     // and we have to avoid a ping pong of error messages)

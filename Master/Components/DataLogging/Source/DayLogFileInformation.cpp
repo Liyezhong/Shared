@@ -110,7 +110,6 @@ DayLogFileInformation::DayLogFileInformation(QString FilePath, QString DailyRunL
 void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, const QByteArray &ByteArray) {
 
     QByteArray& FileData = const_cast<QByteArray&>(ByteArray);
-
     QFile LogFile(FileName);
     // check the file existence
     if (!LogFile.open(QIODevice::ReadOnly)) {
@@ -190,7 +189,6 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                                + STRING_SEMICOLON +
                                QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTID))
                                + STRING_SEMICOLON + EventType + STRING_SEMICOLON + EventData + STRING_NEWLINE;
-
                     FileData.append(ReadData.toUtf8());
                     FileData.append(STRING_NEWLINE.toUtf8());
                 }
