@@ -117,7 +117,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
     }
     // read entire file
     while (!LogFile.atEnd()) {
-        QString ReadData = LogFile.readLine();
+        QString ReadData = QString::fromUtf8(LogFile.readLine());
         if (ReadData.contains(STRING_SEMICOLON)) {
             if (ReadData.split(DELIMITER_SEMICOLON).count() > EVENTSTRING_USERLOG) {
                 if (QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_USERLOG)).compare(FLAG_VALUE) == 0) {
