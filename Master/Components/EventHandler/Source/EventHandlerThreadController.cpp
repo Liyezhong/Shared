@@ -278,6 +278,8 @@ void EventHandlerThreadController::InformAlarmHandler(Global::EventType EvtType,
         AlarmType = Global::ALARM_ERROR;
     else if (EvtType == Global::EVTTYPE_WARNING)
         AlarmType = Global::ALARM_WARNING;
+    else if (EvtType == Global::EVTTYPE_INFO)
+        AlarmType = Global::ALARM_INFO;
 
     mp_AlarmHandler->setAlarm(EventId64, AlarmType, StartAlarm);
 }

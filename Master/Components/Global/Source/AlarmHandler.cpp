@@ -31,6 +31,8 @@ AlarmHandler::AlarmHandler(QObject *p_Parent, quint16 TimeOut)
     : QObject(p_Parent)
     , m_WarnPeriodOn(true)
     , m_WarnPeriod(0)
+    , m_InfoPeriodOn(true)
+    , m_InfoPeriod(0)
 {
     m_Timer = new QTimer(this);
     connect(m_Timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
@@ -54,6 +56,10 @@ void AlarmHandler::onTimeout()
     else if (!(m_warningList.size() == 0)) {
         emitAlarm(Global::ALARM_WARNING);
         qDebug() << "AlarmHandler::onTimeout warning... timeout: " << this->m_WarnPeriod;
+    }
+    else if (!(m_infoList.size() == 0)) {
+        emitAlarm(Global::ALARM_INFO);
+        qDebug() << "AlarmHandler::onTimeout info...";
     }
 }
 
@@ -82,6 +88,16 @@ void AlarmHandler::setWarnPeriodInterval(qint32 interval)
     this->m_WarnPeriod = interval;
 }
 
+void AlarmHandler::setInfoPeriod(bool onoff)
+{
+    this->m_InfoPeriodOn = onoff;
+}
+
+void AlarmHandler::setInfoPeriodInterval(qint32 interval)
+{
+    qDebug() << "AlarmHandler::setInfoPeriodInterval: interval=" << interval << "seconds.";
+    this->m_InfoPeriod = interval;
+}
 void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active)
 {
     if (active) {
@@ -90,6 +106,10 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
         }
         else if (alarmType == Global::ALARM_WARNING) {
             m_warningList.insert(eventKey, alarmType);
+        }
+        else if (alarmType == Global::ALARM_INFO)
+        {
+            m_infoList.insert(eventKey, alarmType);
         }
 
         onTimeout(); // trigger the alarm immediately.
@@ -101,11 +121,19 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
         else if (alarmType == Global::ALARM_WARNING) {
             m_warningList.remove(eventKey);
         }
+        else if (alarmType == Global::ALARM_INFO)
+        {
+            m_infoList.remove(eventKey);
+        }
     }
 
     if (m_WarnPeriodOn && m_warningList.size() > 0 && m_errorList.size() < 1) {
         this->setTimeout(m_WarnPeriod * 1000);
         qDebug() << "AlarmHandler::setAlarm warn period, interval: " << m_WarnPeriod;
+    }
+    else if (m_InfoPeriodOn && m_infoList.size() >0 && m_warningList.size() <1 && m_errorList.size() < 1)
+    {
+        this->setTimeout(m_InfoPeriod*1000);
     }
     else {
         this->setTimeout(DEFAULT_ALARM_TIMEOUT);
@@ -117,6 +145,7 @@ void AlarmHandler::reset()
 {
     m_errorList.clear();
     m_warningList.clear();
+    m_infoList.clear();
 }
 
 } // end namespace Global

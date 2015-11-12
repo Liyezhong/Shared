@@ -159,7 +159,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
                 }
                 ResetRmtLocAlarm(EventInfo.EventKey,  EventInfo.Event);
-				ResetAlarm();
+                ResetAlarm();
                 m_ActiveEvents.remove(i.key());
             }
         }

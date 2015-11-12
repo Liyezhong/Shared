@@ -353,7 +353,8 @@ enum ExecutionState {
 enum AlarmType {
     ALARM_NONE,     //!< none
     ALARM_WARNING,  //!< warnings
-    ALARM_ERROR     //!< error
+    ALARM_ERROR,    //!< error
+    ALARM_INFO      //!< info
 };
 
 /****************************************************************************/

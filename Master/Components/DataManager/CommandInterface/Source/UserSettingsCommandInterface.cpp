@@ -104,9 +104,14 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
             Global::AlarmPlayer::Instance().setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
             Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
+            Global::AlarmPlayer::Instance().setVolume(Global::ALARM_INFO, Settings.GetSoundLevelInformation());
+            Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_INFO, Settings.GetSoundNumberInformation());
 
             Global::AlarmHandler::Instance().setWarnPeriod(Settings.GetSoundPeriodicWarning());
             Global::AlarmHandler::Instance().setWarnPeriodInterval(Settings.GetSoundPeriodicTimeWarning());
+
+            Global::AlarmHandler::Instance().setInfoPeriod(Settings.GetSoundPeriodicInfo());
+            Global::AlarmHandler::Instance().setInfoPeriodInterval(Settings.GetSoundPeriodicTimeInfo());
 
             // raise the event if the language is changed
             if (TempSettings.GetLanguage() != Settings.GetLanguage()) {

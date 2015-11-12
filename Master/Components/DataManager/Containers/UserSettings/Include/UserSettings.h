@@ -319,6 +319,8 @@ public:
     bool GetSoundPeriodicWarning(void) const;
     int GetSoundPeriodicTimeWarning(void) const;
 
+    bool GetSoundPeriodicInfo(void) const;
+    int GetSoundPeriodicTimeInfo(void) const;
 
     /****************************************************************************/
     /*!

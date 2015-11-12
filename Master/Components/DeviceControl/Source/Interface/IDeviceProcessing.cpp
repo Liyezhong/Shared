@@ -2315,7 +2315,16 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         }
         //make the stable threshold time 3 seconds
         DelaySomeTime(3000);
-        qreal pressure = m_pAirLiquid->GetPressure();
+
+        // Retrive 3 values, and then get the average one
+        qreal pressure = 0.0;
+        qint8 count = 3;
+        while (count>0)
+        {
+            pressure += m_pAirLiquid->GetPressure();
+            count--;
+        }
+        pressure = pressure/3;
 
         qreal baseLine = 0;
         if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
@@ -2439,15 +2448,23 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
 #endif
         // Wait for 30 seconds to get current pressure
         delayTime = QTime::currentTime().addMSecs(30000);
+        qint8 counter = 0;
         while (QTime::currentTime() < delayTime)
         {
             DelaySomeTime(100);
             if(previousPressure-(m_pAirLiquid->GetPressure()) > ThresholdPressure)
             {
-                m_pAirLiquid->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE(Wait for 30 seconds to get current pressure)");
-                LOG()<<"Sealing test: Failed.";
-                (void)m_pAirLiquid->ReleasePressure();
-                return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
+                counter++;
+                if (counter>=3)
+                {
+                    m_pAirLiquid->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE(Wait for 30 seconds to get current pressure)");
+                    (void)m_pAirLiquid->ReleasePressure();
+                    return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
+                }
+            }
+            else
+            {
+                counter = 0;
             }
         }
 

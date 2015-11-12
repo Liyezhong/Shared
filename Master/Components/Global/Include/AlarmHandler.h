@@ -103,6 +103,23 @@ public:
     /****************************************************************************/
     void setWarnPeriodInterval(qint32 interval);
 
+    /****************************************************************************/
+    /**
+     * \brief Switch for Info alarm period
+     *
+     * \iparam onoff = on off flag
+     */
+    /****************************************************************************/
+    void setInfoPeriod(bool onoff);
+
+    /****************************************************************************/
+    /**
+     * \brief Switch for Info alarm period
+     *
+     * \iparam interval = period time, minutes
+     */
+    /****************************************************************************/
+    void setInfoPeriodInterval(qint32 interval);
 
     /****************************************************************************/
     /**
@@ -119,6 +136,7 @@ public:
 private:
     QHash<quint64, Global::AlarmType> m_errorList;      ///< list of alarms for errors
     QHash<quint64, Global::AlarmType> m_warningList;    ///< list of alarms for warnings
+    QHash<quint64, Global::AlarmType> m_infoList;       ///< list of alarms for info
     QTimer* m_Timer;                                    ///< timer
 
     /****************************************************************************/
@@ -132,6 +150,8 @@ private:
 private:
     bool m_WarnPeriodOn;   ///< warning period flag
     quint32 m_WarnPeriod;  ///< warning period interval
+    bool m_InfoPeriodOn;   ///< Info period flag
+    quint32 m_InfoPeriod;  ///< Info period interval
 
 private slots:
     /****************************************************************************/

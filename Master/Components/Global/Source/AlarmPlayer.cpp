@@ -31,6 +31,7 @@ AlarmPlayer::AlarmPlayer()
     : QObject(0)
     , m_volumeError(2)
     , m_volumeWarning(0)
+    , m_volumeInfo(0)
     , m_processPlay(NULL)
     , m_processSetVolume(NULL)
     , m_Mutex(QMutex::Recursive)
@@ -65,6 +66,10 @@ void AlarmPlayer::setVolume(Global::AlarmType alarmType, quint8 volume)
     }
     else if (alarmType == Global::ALARM_WARNING) {
         m_volumeWarning = volume;
+    }
+    else if (alarmType == Global::ALARM_INFO)
+    {
+        m_volumeInfo = volume;
     }
 }
 
@@ -108,8 +113,11 @@ void AlarmPlayer::emitAlarm(Global::AlarmType alarmType, bool UsePresetValues, Q
         if (alarmType == Global::ALARM_ERROR) {
             ActiveVolume = m_volumeError;
         }
-        else {
+        else if (alarmType == Global::ALARM_WARNING) {
             ActiveVolume = m_volumeWarning;
+        }
+        else if (alarmType == Global::ALARM_INFO) {
+            ActiveVolume = m_volumeInfo;
         }
     }//Mutex scope ends
 

@@ -89,6 +89,7 @@ private:
 
     quint8 m_volumeError; //!< Error volume
     quint8 m_volumeWarning; //!< Warning volume
+    quint8 m_volumeInfo; //!< info volume
     QProcess* m_processPlay; //!< Process to play tone
     QProcess* m_processSetVolume; //!< Process to set volume
     QHash<Global::AlarmType, QString> m_soundList; //!< List for storing alarm file names
