@@ -161,11 +161,12 @@ public:
      *
      *  \param DelayTime = quint32 type parameter
      *  \param EnableInsufficientCheck = flag to indicate if Insufficient check is needed
+     *  \param SafeReagent4Paraffin = Flag to indicate if Filling is in safe reagent and for paraffin
      *
      *  \return from ALFilling
      */
     /****************************************************************************/
-    ReturnCode_t ALFilling(quint32 DelayTime, bool EnableInsufficientCheck);
+    ReturnCode_t ALFilling(quint32 DelayTime, bool EnableInsufficientCheck, bool SafeReagent4Paraffin);
 
     /****************************************************************************/
     /*!

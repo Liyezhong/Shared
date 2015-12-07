@@ -140,12 +140,13 @@ public:
      *  \brief  Definition/Declaration of function Filling
      *
      *  \param DelayTime = quint32 type parameter
-     *  \iparam  EnableInsufficientCheck = Enable Insufficient Check
+     *  \param  EnableInsufficientCheck = Enable Insufficient Check
+     *  \param  SafeReagent4Paraffin = Flag to indicate if Filling is in safe reagent and for paraffin.
      *
      *  \return from Filling
      */
     /****************************************************************************/
-    ReturnCode_t Filling(quint32 DelayTime, bool EnableInsufficientCheck);
+    ReturnCode_t Filling(quint32 DelayTime, bool EnableInsufficientCheck, bool SafeReagent4Paraffin);
 
     /****************************************************************************/
     /*!

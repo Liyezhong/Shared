@@ -1104,8 +1104,8 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure,
     qint64 TimeNow = 0;
     qint64 TimeStartPressure = 0;
     qint64 TimeStartDraining = 0;
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Drainging procedure.";
-    LogDebug(QString("INFO: Start Drainging procedure."));
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Draining procedure.";
+    LogDebug(QString("INFO: Start Draining procedure."));
     //release pressure
     RetValue = ReleasePressure();
     if( DCL_ERR_FCT_CALL_SUCCESS != RetValue )
@@ -1218,11 +1218,12 @@ SORTIE:
  *  \iparam  DelayTime = Delay a small period (in Millisecodns) before turn-off
  *                       the pump when retort has been detected full.
  *  \iparam  EnableInsufficientCheck = Enable Insufficient Check
+ *  \iparam  SafeReagent4Paraffin = Flag to indicate if Filling is in safe reagent and for paraffin.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficientCheck)
+ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficientCheck, bool SafeReagent4Paraffin)
 {
     ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1337,6 +1338,20 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                      lastValue = PressureBuf.at(i);
                 }
 
+                //During safe reagent processing and just for paraffin, we check the soak empty
+                if (SafeReagent4Paraffin)
+                {
+                    if ((PressureBuf[5]-PressureBuf[0])>1 && (PressureBuf[6]-PressureBuf[1])>1 && (PressureBuf[7]-PressureBuf[2])>1)
+                    {
+                        LogDebug(QString("ERROR: soak empty occured! Exit now"));
+                        for(qint32 i = 0; i < PressureBuf.length(); i++)
+                        {
+                            LogDebug(QString("INFO: Pressur buf: %1").arg(PressureBuf.at(i)));
+                        }
+                        RetValue = DCL_ERR_DEV_LA_FILLING_SOAK_EMPTY;
+                        goto SORTIE;
+                    }
+                }
                 if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM) && NeedOverflowChecking)
                 {
                     LogDebug(QString("ERROR: Overflow occured! Exit now"));
@@ -1376,10 +1391,13 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                 }
                 else
                 {
+#if 0
                     for (qint32 i=0; i<AllPressureBuf.length(); i++)
                     {
                         LogDebug(QString("INFO: Pressure when 4 min error %1 is: %2").arg(i).arg(AllPressureBuf.at(i)));
+
                     }
+#endif
                 }
                 FILE_LOG_L(laDEVPROC, llERROR) << "ERROR! Do not get level sensor data in" << (SUCKING_MAX_SETUP_TIME / 1000)<<" seconds, Time out! Exit!";
                 LogDebug(QString("ERROR! Do not get level sensor data in %1 seconds, Timeout! Exit!").arg(SUCKING_MAX_SETUP_TIME / 1000));

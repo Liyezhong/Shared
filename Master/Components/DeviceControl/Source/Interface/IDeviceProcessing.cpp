@@ -978,11 +978,12 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
  *
  *  \iparam  DelayTime = Delay time before stop pump.
  *  \iparam  EnableInsufficientCheck = Flag to indicate if Insufficient check is needed.
+ *  \iparam  SafeReagent4Paraffin = Flag to indicate if Filling is in safe reagent and for paraffin.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime, bool EnableInsufficientCheck)
+ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime, bool EnableInsufficientCheck, bool SafeReagent4Paraffin)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
@@ -990,7 +991,7 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime, bool EnableInsuffic
     }
     if(m_pAirLiquid)
     {
-        return m_pAirLiquid->Filling(DelayTime, EnableInsufficientCheck);
+        return m_pAirLiquid->Filling(DelayTime, EnableInsufficientCheck, SafeReagent4Paraffin);
     }
     else
     {
