@@ -60,7 +60,7 @@ CFileSelection::CFileSelection(QWidget *p_Parent) :
     mp_TableWidget->selectRow(0);
     mp_Ui->scrollTable->SetContent(mp_TableWidget);
     //mp_TableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    mp_TableWidget->horizontalHeader()->resizeSection(0, 50);
+    mp_TableWidget->horizontalHeader()->resizeSection(0, 55);
 
     mp_Ui->btnOk->setEnabled(false);
 
