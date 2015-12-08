@@ -496,7 +496,14 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if(Type.compare("MSG") == 0)
             {
                 tmp_stringid = StringId;
-                tmp_strings.insert(tmp_stringid,QString("%1,%2").arg(tmp_ErrorType).arg(tmp_UserFlag));
+                if(ButtonType != NOT_SPECIFIED) //user can see
+                {
+                    tmp_strings.insert(tmp_stringid,QString("%1,%2").arg(tmp_ErrorType).arg("TRUE"));
+                }
+                else
+                {
+                    tmp_strings.insert(tmp_stringid,QString("%1,%2").arg(tmp_ErrorType).arg(tmp_UserFlag));
+                }
             }
 #endif
             QSharedPointer<EventStep> pEventStep(new EventStep(Id, Type));
