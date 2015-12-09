@@ -90,7 +90,11 @@ void AlarmPlayer::setSoundNumber(Global::AlarmType alarmType, int number)
     if (alarmType == Global::ALARM_ERROR) {
         fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".ogg";
     }
-    else {
+    else if (alarmType == Global::ALARM_WARNING) {
+        fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Warning" + QString::number(number) + ".ogg";
+    }
+    else
+    {
         fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".ogg";
     }
     if (QFile::exists(fileName)) {
