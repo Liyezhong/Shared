@@ -40,8 +40,8 @@ CUserSettingsCommandInterface::CUserSettingsCommandInterface(CDataManagerBase *p
 
 {
     RegisterCommands();
-    (void)connect(this, SIGNAL(PlayTestTone(bool, quint8, quint8)),
-            &Global::AlarmPlayer::Instance(), SLOT(playTestTone(bool, quint8, quint8)));
+    (void)connect(this, SIGNAL(PlayTestTone(Global::AlarmType, quint8, quint8)),
+            &Global::AlarmPlayer::Instance(), SLOT(playTestTone(Global::AlarmType, quint8, quint8)));
 }
 
 /****************************************************************************/

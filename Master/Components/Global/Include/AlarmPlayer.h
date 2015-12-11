@@ -120,12 +120,12 @@ public slots:
     /**
      * \brief plays test tone
      *
-     * \iparam      AlarmTypeFlag = alarm type, true if error, else warning
+     * \iparam      alarmType = alarm type, it may be error, warning or infor
      * \iparam      Volume = volume
      * \iparam      AlarmNumber = alarm number
      */
     /****************************************************************************/
-    bool playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 AlarmNumber);
+    bool playTestTone(Global::AlarmType alarmType, quint8 Volume, quint8 AlarmNumber);
 
 
 }; //End of class AlarmPlayer

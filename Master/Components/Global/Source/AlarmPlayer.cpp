@@ -41,18 +41,24 @@ AlarmPlayer::AlarmPlayer()
 
 
 
-bool AlarmPlayer::playTestTone(bool AlarmTypeFlag, quint8 AlarmVolume, quint8 AlarmNumber)
+bool AlarmPlayer::playTestTone(Global::AlarmType alarmType, quint8 AlarmVolume, quint8 AlarmNumber)
 {
-    if ( AlarmTypeFlag ) {
+    if (alarmType == Global::ALARM_ERROR) {
         QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(AlarmNumber) + ".ogg";
         if (QFile::exists(FileName)) {
             emitAlarm(Global::ALARM_ERROR, false, FileName, AlarmVolume);
         }
     }
-    else {
-        QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(AlarmNumber) + ".ogg";
+    else if (alarmType == Global::ALARM_WARNING) {
+        QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Warning" + QString::number(AlarmNumber) + ".ogg";
         if (QFile::exists(FileName)) {
             emitAlarm(Global::ALARM_WARNING, false, FileName, AlarmVolume);
+        }
+    }
+    else if (alarmType == Global::ALARM_INFO) {
+        QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(AlarmNumber) + ".ogg";
+        if (QFile::exists(FileName)) {
+            emitAlarm(Global::ALARM_INFO, false, FileName, AlarmVolume);
         }
     }
     return true;
