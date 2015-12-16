@@ -1627,6 +1627,21 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
     }
 }
 
+ReturnCode_t IDeviceProcessing::RVReqMoveToCurrentTubePosition(RVPosition_t CurrentRVPosition)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pRotaryValve)
+    {
+        return m_pRotaryValve->ReqMoveToCurrentTubePosition(CurrentRVPosition);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
 
 /****************************************************************************/
 /*!

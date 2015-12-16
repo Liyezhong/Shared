@@ -1292,6 +1292,59 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
 
 /****************************************************************************/
 /*!
+ *  \brief   Request the rotary valve to move to current tube encoder disk's position.
+ *
+ *  \iparam  RVPosition = Current rotary valve encoder disk's position.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRotaryValveDevice::ReqMoveToCurrentTubePosition(RVPosition_t CurrentRVPosition)
+{
+    ReturnCode_t ret = DCL_ERR_FCT_CALL_SUCCESS;
+    SetEDPosition(CurrentRVPosition);
+
+    if(RV_UNDEF == CurrentRVPosition)
+    {
+        LogDebug(QString("ERROR: Can't find current position, please run MoveToInitialPosition first!"));
+        return DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION;
+    }
+
+    SetRotationDirection(DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW ); //lint !e641
+    ret = MoveToNextPort(true, \
+                         GetLowerLimit((quint32)CurrentRVPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, true), \
+                         GetUpperLimit((quint32)CurrentRVPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, true));
+
+    if((DCL_ERR_FCT_CALL_SUCCESS == ret) && (3 == (quint32)CurrentRVPosition))
+    {
+        ret = MoveToNextPort(false, \
+                             GetLowerLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, false), \
+                             GetUpperLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, false));
+    }
+
+    if((ret == DCL_ERR_FCT_CALL_SUCCESS) && (CurrentRVPosition == GetEDPosition()))
+    {
+        SetPrevEDPosition(CurrentRVPosition);
+        CurrentRVPosition = (RVPosition_t)((quint32)CurrentRVPosition - 1);
+        if(CurrentRVPosition == RV_UNDEF)
+        {
+            CurrentRVPosition = RV_SEAL_16;
+        }
+        SetEDPosition(CurrentRVPosition);
+        LogDebug(QString("INFO: CW Hit Position: %1").arg(TranslateFromEDPosition(CurrentRVPosition))); //lint !e641
+    }
+    else
+    {
+        LogDebug(QString("ERROR: Unknown error happened, lost current position, please run MoveToInitialPosition"));
+        SetEDPosition(RV_UNDEF);
+        SetPrevEDPosition(RV_UNDEF);
+    }
+
+    return ret;
+}
+
+/****************************************************************************/
+/*!
  *  \brief   Request the rotary valve to move to certain encoder disk's position.
  *
  *  \iparam  RVPosition = Target rotary valve encoder disk's position.
