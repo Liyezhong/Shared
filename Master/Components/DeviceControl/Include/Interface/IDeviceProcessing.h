@@ -403,6 +403,16 @@ public:
     ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition);
     //! Request actual oven cover position
     RVPosition_t RVReqActRVPosition();
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Request the rotary valve to move to current tube position.
+     *  \iparam  CurrentRVPosition = Current rotary valve encoder disk's position.
+     *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
+    ReturnCode_t RVReqMoveToCurrentTubePosition(RVPosition_t CurrentRVPosition);
+
     /****************************************************************************/
     /*!
      *  \brief  get the lower limit
