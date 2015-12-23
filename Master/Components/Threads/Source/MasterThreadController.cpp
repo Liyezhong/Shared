@@ -1335,15 +1335,15 @@ void MasterThreadController::ReadBootConfigFile(QFile *p_BootConfigFile) {
 
 void MasterThreadController::AlarmTest()
 {
-    connect(this, SIGNAL(PlayAlarmTone(bool, quint8, quint8)),
-            &Global::AlarmPlayer::Instance(), SLOT(playTestTone(bool, quint8, quint8)));
+    connect(this, SIGNAL(PlayAlarmTone(Global::AlarmType, quint8, quint8)),
+            &Global::AlarmPlayer::Instance(), SLOT(playTestTone(Global::AlarmType, quint8, quint8)));
     DataManager::CUserSettingsInterface *p_UserSettingsInterface = mp_DataManagerBase->GetUserSettingsInterface();
     if (p_UserSettingsInterface) {
         DataManager::CUserSettings *p_Settings = p_UserSettingsInterface->GetUserSettings();
         if (p_Settings) {
             quint32 Count = 0;
             do {
-                emit PlayAlarmTone(false, 6, p_Settings->GetSoundNumberError());
+                emit PlayAlarmTone(Global::ALARM_ERROR, 6, p_Settings->GetSoundNumberError());
                 Count++;
             } while (ALARM_REPEAT_MAX > Count);
         }

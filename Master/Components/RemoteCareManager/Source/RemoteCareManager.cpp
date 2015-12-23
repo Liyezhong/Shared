@@ -381,7 +381,7 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
 
         NetCommands::RCEventReportDataStruct EventReportData;
 
-        EventReportData.m_EventName = QString::number(TheEvent.GetStringID_KEY());
+        EventReportData.m_EventName = QString::number(TheEvent.GetEventCode());
 
         //add msg string
         EventReportData.m_EventMessage = message;

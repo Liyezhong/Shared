@@ -42,7 +42,7 @@ public:
  *  \brief  Constructor.
  */
 /****************************************************************************/
-    CmdAlarmToneTest(int Timeout, quint8 Sound, quint8 Volume, bool AlarmType);
+    CmdAlarmToneTest(int Timeout, quint8 Sound, quint8 Volume, Global::AlarmType AlarmType);
 /****************************************************************************/
 /*!
  *  \brief  Default Constructor.
@@ -80,7 +80,7 @@ public:
  *  \return  AlarmType
  */
 /****************************************************************************/
-    bool GetAlarmType() const;
+    Global::AlarmType GetAlarmType() const;
 private:
 
     CmdAlarmToneTest(const CmdAlarmToneTest &);                       ///< Not implemented.
@@ -88,7 +88,7 @@ private:
 private:
     quint8    m_Sound;     ///< Sound Parameter.
     quint8    m_Volume;    ///< Volume Parameter.
-    bool   m_AlarmType; ///< AlaramType Parameter.
+    Global::AlarmType   m_AlarmType; ///< AlaramType Parameter.
    }; // end class CmdAlarmToneTest
 /****************************************************************************/
 /**
@@ -104,7 +104,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdAlarmToneTest &C
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << Cmd.m_Sound << Cmd.m_Volume << Cmd.m_AlarmType;
+    Stream << Cmd.m_Sound << Cmd.m_Volume << (int)Cmd.m_AlarmType;
     return Stream;
 }
 
@@ -122,7 +122,10 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdAlarmToneTest &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
-    Stream >> Cmd.m_Sound >> Cmd.m_Volume >> Cmd.m_AlarmType;
+    Stream >> Cmd.m_Sound >> Cmd.m_Volume ;
+    int temp;
+    Stream >> temp;
+    Cmd.m_AlarmType = (Global::AlarmType)temp;
     return Stream;
 }
 

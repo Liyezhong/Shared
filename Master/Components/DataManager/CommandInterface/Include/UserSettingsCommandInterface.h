@@ -63,12 +63,12 @@ signals:
     /**
      * \brief This signal is emitted when User clicks on test tone button
      *
-     * \iparam AlarmTypeFlag = Alarm Type( Error/Note)
+     * \iparam AlarmTypeFlag = Alarm Type( warning/Error/Note)
      * \iparam Volume = Volume of tone
      * \iparam AlarmNumber = Tone Number
      */
     /****************************************************************************/
-    void PlayTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 AlarmNumber);
+    void PlayTestTone(Global::AlarmType AlarmTypeFlag, quint8 Volume, quint8 AlarmNumber);
 
     /****************************************************************************/
     /**
