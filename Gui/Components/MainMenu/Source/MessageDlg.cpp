@@ -97,6 +97,10 @@ void CMessageDlg::SetText(const QString &Text)
     mp_Ui->labelMessage->setText(QString("%1").arg(Text));
 }
 
+void CMessageDlg::SetTextFormat(Qt::TextFormat txtFmt)
+{
+    mp_Ui->labelMessage->setTextFormat(txtFmt);
+}
 /****************************************************************************/
 /*!
  *  \brief Sets the icon of the message box

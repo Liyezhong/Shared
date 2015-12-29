@@ -72,7 +72,7 @@ public:
     void HideButtonsOneAndTwo();
     void HideAllButtons();
     void StartTimer(int msec);
-
+    void SetTextFormat(Qt::TextFormat txtFmt);
 public slots:
     /****************************************************************************/
     /*!
