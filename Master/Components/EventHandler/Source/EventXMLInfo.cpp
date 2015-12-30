@@ -396,6 +396,10 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 {
                     ButtonType = YES_NO;
                 }
+                else if (strRet.trimmed().compare("YES_NO_CANCEL",Qt::CaseInsensitive) == 0)
+                {
+                    ButtonType = YES_NO_CANCEL;
+                }
                 else if (strRet.trimmed().compare("CONTINUE_STOP",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = CONTINUE_STOP;
@@ -468,6 +472,17 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
+            quint32 nextStepOnClickCancel = 0;
+            if (m_pXMLReader->attributes().hasAttribute("NextStepOnClickCANCEL"))
+            {
+                bool ok = false;
+                nextStepOnClickCancel = m_pXMLReader->attributes().value("NextStepOnClickCANCEL").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
+            }
+
             quint32 nextStepOnClickRetry = 0;
             if (m_pXMLReader->attributes().hasAttribute("NextStepOnClickRetry"))
             {
@@ -519,6 +534,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             pEventStep->m_NextStepOnClickRetry = nextStepOnClickRetry;
             pEventStep->m_NextStepOnClickYES = nextStepOnClickYES;
             pEventStep->m_NextStepOnClickNO = nextStepOnClickNO;
+            pEventStep->m_NextStepOnClickCancel = nextStepOnClickCancel;
             pEventStep->m_StatusBar = StatusBar;
             pXMLEvent->m_pEventStepList.insert(Id, pEventStep);
         }
@@ -570,7 +586,8 @@ bool XMLEvent::IsLastStep(quint32 stepId) const
     if(step)
     {
         ret = (step->GetNextStepOnClickNO() + step->GetNextStepOnClickOK() + step->GetNextStepOnClickYES()
-               + step->GetNextStepOnFail() + step->GetNextStepOnSuccess() + step->GetNextStepOnTimeOut()) <= 0 ;
+               + step->GetNextStepOnFail() + step->GetNextStepOnSuccess() + step->GetNextStepOnTimeOut()
+               + step->GetNextStepOnClickCancel()) <= 0 ;
     }
     return ret;
 }

@@ -47,7 +47,8 @@ public:
     /****************************************************************************/
     explicit EventStep(quint32 stepId, const QString& strType)
         : m_Id(stepId),m_Type(strType),m_NextStepOnFail(0),m_NextStepOnSuccess(0),m_StringId(0),m_NextStepOnTimeOut(0),
-          m_NextStepOnClickOk(0),m_NextStepOnClickRetry(0),m_NextStepOnClickYES(0),m_NextStepOnClickNO(0),m_StatusBar(false)
+          m_NextStepOnClickOk(0),m_NextStepOnClickRetry(0),m_NextStepOnClickYES(0),m_NextStepOnClickNO(0),
+          m_NextStepOnClickCancel(0),m_StatusBar(false)
 	{ }
 
     /****************************************************************************/
@@ -187,6 +188,15 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief Get NextStepOnClickCancel attribute
+     *
+     * \return m_NextStepOnClickCancel Type
+     */
+    /****************************************************************************/
+    quint32 GetNextStepOnClickCancel() const { return m_NextStepOnClickCancel; }
+
+    /****************************************************************************/
+    /**
      * \brief Get StatusBar attribute
      * 
      * \return StatusBar Type	
@@ -213,6 +223,7 @@ private:
     quint32                     m_NextStepOnClickRetry; ///< Next step on clingcing RETRY
     quint32                     m_NextStepOnClickYES;	///< Next step on clicking YES 
     quint32                     m_NextStepOnClickNO;	///< Next step on clicking NO 
+    quint32                     m_NextStepOnClickCancel;	///< Next step on clicking Cancel
     bool                        m_StatusBar;			///< Status Bar
 private:
     /****************************************************************************/
