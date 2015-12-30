@@ -256,6 +256,9 @@ quint32 GetButtonCountFromButtonType(GuiButtonType ButtonType) {
         return 0;
     case Global::INVISIBLE:
         return 0;
+    case Global::YES_NO_CANCEL:
+        return 3;
+
     default:
         return 1;
     }
