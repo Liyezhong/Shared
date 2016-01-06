@@ -38,9 +38,9 @@ CmdDataExport::CmdDataExport(int Timeout, const QDataStream &DataStream) :
     Command(Timeout)
 {
     m_ExportByteArray = static_cast< QBuffer *>(DataStream.device())->data();
-//    setIdleStateAllowed(true);
-//    setErrorStateAllowed(true);
-    setBusyStateAllowed(false);
+    setIdleStateAllowed(true);
+    setErrorStateAllowed(true);
+    setBusyStateAllowed(true);
 }
 
 /****************************************************************************/
