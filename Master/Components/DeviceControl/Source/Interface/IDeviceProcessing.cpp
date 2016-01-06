@@ -875,7 +875,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         if (DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION == retCode) // lost initial position
         {
            // Move to initial position and then move to sealing position again
-           retCode = m_pRotaryValve->ReqMoveToInitialPosition(RVPos);
+           retCode = m_pRotaryValve->ReqMoveToInitialPosition((RVPosition_t)RVPos);
            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
            {
                return retCode;
