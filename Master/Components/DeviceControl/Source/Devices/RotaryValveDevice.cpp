@@ -1844,7 +1844,12 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
     }
     if(ParaChange)
     {
-        (void)ApplyNewParameterSet();
+        ret = ApplyNewParameterSet();
+        if (DCL_ERR_FCT_CALL_SUCCESS != ret)
+        {
+            LogDebug("ERROR: ApplyNewParameterSet failed, run ApplyNewParameterSet again");
+            (void)ApplyNewParameterSet();
+        }
     }
     RVPosition_t ED = GetEDPosition();
     LogDebug(QString("INFO: Last ED is: %1, lower limit is: %2, upper limit is %3.").arg(ED).arg(LowerLimit).arg(UpperLimit));    //lint !e641
@@ -2321,6 +2326,7 @@ ReturnCode_t CRotaryValveDevice::ApplyNewParameterSet()
    ReturnCode_t retCode = SetMotorState(false);
     // disable function module before reconfiguration
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
+        LogDebug("ERROR:Disable SetMotorState failed");
         return retCode;
     }
     if(m_pMotorRV)
@@ -2332,6 +2338,7 @@ ReturnCode_t CRotaryValveDevice::ApplyNewParameterSet()
         retCode = DCL_ERR_NOT_INITIALIZED;
     }
     if ( retCode !=DCL_ERR_FCT_CALL_SUCCESS) {
+        LogDebug("ERROR:DoReconfiguration failed");
         return retCode;
     }
     if(m_pDevProc)
@@ -2342,11 +2349,16 @@ ReturnCode_t CRotaryValveDevice::ApplyNewParameterSet()
     {
         retCode = DCL_ERR_NOT_INITIALIZED;
     }
+
     (void)sleep(1);//in seconds
 
     if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
     {
         retCode = SetMotorState(true);
+    }
+
+    if ( retCode !=DCL_ERR_FCT_CALL_SUCCESS) {
+        LogDebug(QString( "ERROR! Unexpected return code at ApplyNewParameterSet: %1").arg((quint32)retCode));
     }
     return retCode;
 }
@@ -2461,6 +2473,7 @@ ReturnCode_t CRotaryValveDevice::SetMotorState(bool flag)
         retCode = DCL_ERR_NOT_INITIALIZED;
     }
     if (retCode != DCL_ERR_FCT_CALL_SUCCESS) {
+        LogDebug(QString( "ERROR! Unexpected return code at SetMotorState: %1").arg((quint32)retCode));
         return retCode;
     }
     if(m_pDevProc)
@@ -2471,7 +2484,10 @@ ReturnCode_t CRotaryValveDevice::SetMotorState(bool flag)
     {
         retCode = DCL_ERR_NOT_INITIALIZED;
     }
-
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        LogDebug(QString( "ERROR! Unexpected return code at SetMotorState and BlockingForSyncCall: %1").arg((quint32)retCode));
+    }
     return retCode;
 }
 

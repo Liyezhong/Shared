@@ -125,7 +125,7 @@ namespace DeviceControl
 
 class CANCommunicator;
 
-#define MAX_SM_MODULE_CMD_IDX   4   ///< up to 4 motion commands can be handled simultaneously
+#define MAX_SM_MODULE_CMD_IDX   16   ///< up to 16 motion commands can be handled simultaneously
 
 /****************************************************************************/
 /*!
