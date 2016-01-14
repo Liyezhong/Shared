@@ -341,7 +341,7 @@ void TestUserSettings::utTestCmdUserSettings()
     QCOMPARE(p_CmdAlarmToneTest->GetName(), QString(tr("MsgClasses::CmdAlarmToneTest")));
 
 
-    MsgClasses::CmdAlarmToneTest *p_CmdAlarmToneTestParam = new MsgClasses::CmdAlarmToneTest(1000,(quint32)3,(quint32)4,true);
+    MsgClasses::CmdAlarmToneTest *p_CmdAlarmToneTestParam = new MsgClasses::CmdAlarmToneTest(1000,(quint32)3,(quint32)4,Global::ALARM_WARNING);
     QCOMPARE(p_CmdAlarmToneTestParam->GetName(), QString(tr("MsgClasses::CmdAlarmToneTest")));
     delete p_CmdAlarmToneTestParam;
     delete p_CmdAlarmToneTest;
