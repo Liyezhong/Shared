@@ -161,7 +161,7 @@ void TestIDeviceProcessing::caseALDraining()
 
 void TestIDeviceProcessing::caseALFilling()
 {
-    QCOMPARE(p_IDeviceProcessing->ALFilling(100, false), DCL_ERR_FCT_CALL_SUCCESS);
+    QCOMPARE(p_IDeviceProcessing->ALFilling(100, false, false), DCL_ERR_FCT_CALL_SUCCESS);
     QCOMPARE(p_IDeviceProcessing->ALStopCmdExec(2), DCL_ERR_FCT_CALL_SUCCESS);
     QCOMPARE(p_IDeviceProcessing->ALFillingForService(2, false), DCL_ERR_FCT_CALL_SUCCESS);
 }
