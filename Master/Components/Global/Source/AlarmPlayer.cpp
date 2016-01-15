@@ -112,7 +112,7 @@ void AlarmPlayer::setSoundNumber(Global::AlarmType alarmType, int number)
 void AlarmPlayer::emitAlarm(Global::AlarmType alarmType, bool UsePresetValues, QString Filename, quint8 Volume)
 {
     qDebug()<<"Alarm Player Thread" << this->thread();
-    quint8 ActiveVolume;
+    quint8 ActiveVolume = 0;
     { //Mutex scope start
         QMutexLocker Lock(&m_Mutex);
         if (!m_soundList.contains(alarmType)) {
