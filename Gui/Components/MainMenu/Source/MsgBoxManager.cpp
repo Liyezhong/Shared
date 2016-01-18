@@ -114,7 +114,7 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
         MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Retry", 0, QApplication::UnicodeUTF8));
         MsgDlg->HideButtons();
     }
-    else if (ButtonCount == 2) {
+    else if (ButtonCount == 2 || ButtonCount == 3) {
         SetMessageBoxType(MsgDlg, MsgDataStruct);
     }
     else if (ButtonCount == 0) {
@@ -281,7 +281,7 @@ void CMsgBoxManager::LanguageChanged()
             MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
             MessageDlg->HideButtons();
         }
-        else if (ButtonCount == 2) {
+        else if (ButtonCount == 2 || ButtonCount == 3) {
             SetMessageBoxType(MessageDlg,data);
         }
         else {
@@ -373,6 +373,9 @@ void CMsgBoxManager::ButtonLeftClicked(quint64 ID)
         else if (msg.BtnType == Global::YES_NO) {
             emit EventReportAck(NetCommands::NO_BUTTON, CmdRef, ID);
         }
+        else if (msg.BtnType == Global::YES_NO_CANCEL) {
+            emit EventReportAck(NetCommands::CANCEL_BUTTON, CmdRef, ID);
+        }
         RemoveDataFromContainers(ID);
         //    m_CurrentMsgBoxEventID  = -1;
         //    ShowNextMsgBoxInQueue();
@@ -387,9 +390,14 @@ void CMsgBoxManager::ButtonLeftClicked(quint64 ID)
 /****************************************************************************/
 void CMsgBoxManager::ButtonCenterClicked(quint64 ID)
 {
-    Q_UNUSED(ID)
-    //FUTURE Release
-
+    if(m_EvenIDCmdRefHash.contains(ID)){
+        Global::tRefType CmdRef = m_EvenIDCmdRefHash.value(ID);
+        MsgData msg = m_EventIDMsgDataHash.value(ID);
+        if (msg.BtnType == Global::YES_NO_CANCEL) {
+            emit EventReportAck(NetCommands::NO_BUTTON, CmdRef, ID);
+        }
+        RemoveDataFromContainers(ID);
+    }
 }
 
 /****************************************************************************/
@@ -419,6 +427,9 @@ void CMsgBoxManager::ButtonRightClicked(quint64 ID)
         }
         else if(msg.BtnType == Global::RETRY){
             emit EventReportAck(NetCommands::RETRY_BUTTON, CmdRef, ID);
+        }
+        else if (msg.BtnType == Global::YES_NO_CANCEL) {
+                emit EventReportAck(NetCommands::YES_BUTTON, CmdRef, ID);
         }
         RemoveDataFromContainers(ID);
 //        m_CurrentMsgBoxEventID  = 0;
@@ -558,6 +569,11 @@ void CMsgBoxManager::SetMessageBoxType(MainMenu::CMessageDlg *MsgDlg, MsgData Me
             MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
             MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Cancel", 0, QApplication::UnicodeUTF8));
             MsgDlg->HideCenterButton();
+            break;
+        case Global::YES_NO_CANCEL:
+            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", 0, QApplication::UnicodeUTF8));
+            MsgDlg->SetButtonText(2, QApplication::translate("CMsgBoxManager","No", 0, QApplication::UnicodeUTF8));
+            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Cancel", 0, QApplication::UnicodeUTF8));
             break;
         case Global::WITHOUT_BUTTONS:
             MsgDlg->HideAllButtons();
