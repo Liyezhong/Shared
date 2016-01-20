@@ -116,20 +116,20 @@ const quint32 EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED           = EVENT_GROUP_PLATFO
 
 const quint32 EVENT_SHUTDOWN_REQUEST_TOUSER                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x100F; //!< ask user to shutdown
 const quint32 EVENT_SHUTDOWN_ON_SYSTEM_ERROR                = EVENT_GROUP_PLATFORM_GLOBAL + 0x1010; //!< shutdown the system
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG1                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1011;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG2                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1012;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG3                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1013;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG4                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1014;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG5                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1015;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG6                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1016;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG7                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1017;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG8                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1018;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG9                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1019;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG10                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101A;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG11                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101B;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG12                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101C;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG13                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101D;
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG14                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101E;
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG1                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1011; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG2                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1012; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG3                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1013; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG4                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1014; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG5                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1015; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG6                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1016; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG7                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1017; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG8                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1018; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG9                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1019; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG10                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101A; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG11                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101B; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG12                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101C; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG13                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101D; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG14                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101E; //!< only for the diagnostication intention in the log file
 
 
 
