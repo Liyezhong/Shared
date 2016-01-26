@@ -257,6 +257,15 @@ void CMsgBoxManager::EnableOKButton()
   }
 }
 
+void CMsgBoxManager::SetRTLidStatusOpen()
+{
+    if (m_bMsgWaiting && mp_MessageDlg)
+    {
+        m_CurrentMsgData.BtnEnableConditions = "RT_LID_OPEN_CLOSE";
+        m_bMsgWaiting = false;
+    }
+}
+
 /****************** **********************************************************/
 /*!
  *  \brief This slot is called when the language is changed.

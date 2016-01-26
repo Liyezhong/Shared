@@ -73,6 +73,7 @@ public:
     void SetMessageBoxType(MainMenu::CMessageDlg *MsgDlg, MsgData MessageBoxData);
     //!< Data Structure containing Data Sent from EventReport
     void EnableOKButton();
+    void SetRTLidStatusOpen();
 private:
     //Data Members
     Global::PriorityQueue <quint64> m_PriorityQueue;  //!< Priority Queue consisting of EventID's
