@@ -51,7 +51,7 @@ CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInte
     mp_MessageDlg(NULL),
     mp_Parent(p_Parent),
     mp_SettingsInterface(p_SettingsInterface),
-    m_bMsgWaiting(false)
+    m_RtLocked(false)
 {
     m_PopupTimer.setSingleShot(true);
     CONNECTSIGNALSLOTGUI(&m_PopupTimer, timeout(), this, ShowMsgBoxIfQueueNotEmpty());
@@ -162,16 +162,11 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
     MsgDlg->SetTitle(Date + " " + Time, QString::number(ID));
 
     //disable "OK"
-    if ("" != MsgDataStruct.BtnEnableConditions)
+    if (MsgDataStruct.BtnEnableConditions == "RT_LID_OPEN_CLOSE" && !m_RtLocked)
     {
-        if (m_CurrentMsgData.BtnEnableConditions == "RT_LID_OPEN_CLOSE")
-        {
             MsgDlg->EnableButton(1, false);
-            m_bMsgWaiting = true;
-        }
     }
     return MsgDlg;
-
 }
 
 /****************************************************************************/
@@ -243,7 +238,7 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
 
 void CMsgBoxManager::EnableOKButton()
 {
-  if (m_bMsgWaiting && mp_MessageDlg)
+  if ( mp_MessageDlg)
   {
       QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
       while(i.hasNext())
@@ -253,17 +248,12 @@ void CMsgBoxManager::EnableOKButton()
               i.value()->EnableButton(1, true);
           }
       }
-      m_bMsgWaiting = false;
   }
 }
 
-void CMsgBoxManager::SetRTLidStatusOpen()
+void CMsgBoxManager::SetRTLidLocked(bool locked)
 {
-    if (m_bMsgWaiting && mp_MessageDlg)
-    {
-        m_CurrentMsgData.BtnEnableConditions = "RT_LID_OPEN_CLOSE";
-        m_bMsgWaiting = false;
-    }
+    m_RtLocked = locked;
 }
 
 /****************** **********************************************************/

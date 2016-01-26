@@ -73,9 +73,10 @@ public:
     void SetMessageBoxType(MainMenu::CMessageDlg *MsgDlg, MsgData MessageBoxData);
     //!< Data Structure containing Data Sent from EventReport
     void EnableOKButton();
-    void SetRTLidStatusOpen();
+    void SetRTLidLocked(bool locked);
 private:
     //Data Members
+    bool m_RtLocked;
     Global::PriorityQueue <quint64> m_PriorityQueue;  //!< Priority Queue consisting of EventID's
     qint64 m_CurrentMsgBoxEventID;                   //!< If a Event Msg box is displayed , the EventID associated with it.
     MainMenu::CMessageDlg *mp_MessageDlg;             //!< The msg dialog
