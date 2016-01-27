@@ -238,11 +238,12 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
 
 void CMsgBoxManager::EnableOKButton()
 {
-  if ( mp_MessageDlg)
+  if ( true)
   {
       QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
       while(i.hasNext())
       {
+          i.next();
           if(i.value())
           {
               i.value()->EnableButton(1, true);
