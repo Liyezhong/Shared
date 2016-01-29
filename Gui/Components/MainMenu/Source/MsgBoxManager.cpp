@@ -252,6 +252,22 @@ void CMsgBoxManager::EnableOKButton()
   }
 }
 
+void CMsgBoxManager::DisableOKButton()
+{
+  if ( true)
+  {
+      QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
+      while(i.hasNext())
+      {
+          i.next();
+          if(i.value())
+          {
+              i.value()->EnableButton(1, false);
+          }
+      }
+  }
+}
+
 void CMsgBoxManager::SetRTLidLocked(bool locked)
 {
     m_RtLocked = locked;

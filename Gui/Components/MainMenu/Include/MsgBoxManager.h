@@ -73,6 +73,7 @@ public:
     void SetMessageBoxType(MainMenu::CMessageDlg *MsgDlg, MsgData MessageBoxData);
     //!< Data Structure containing Data Sent from EventReport
     void EnableOKButton();
+    void DisableOKButton();
     void SetRTLidLocked(bool locked);
 private:
     //Data Members
