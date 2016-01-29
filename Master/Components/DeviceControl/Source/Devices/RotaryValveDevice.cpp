@@ -1848,7 +1848,12 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
         if (DCL_ERR_FCT_CALL_SUCCESS != ret)
         {
             LogDebug("ERROR: ApplyNewParameterSet failed, run ApplyNewParameterSet again");
-            (void)ApplyNewParameterSet();
+            m_pDevProc->BlockingForSyncCall(SYNC_CMD_TOTAL_DELAY, 500); //delay 500ms
+            ret = ApplyNewParameterSet();
+        }
+        if (DCL_ERR_FCT_CALL_SUCCESS != ret)
+        {
+            return DCL_ERR_DEV_INTER_SW_ERROR; // configure error
         }
     }
     RVPosition_t ED = GetEDPosition();
