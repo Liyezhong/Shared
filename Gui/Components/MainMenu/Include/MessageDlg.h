@@ -73,6 +73,20 @@ public:
     void HideAllButtons();
     void StartTimer(int msec);
     void SetTextFormat(Qt::TextFormat txtFmt);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when centre button is clicked
+     */
+    /****************************************************************************/
+    QString GetBtnEnableConditions(){ return m_BtnEnableConditions;}
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when centre button is clicked
+     *\param QString cons id
+     */
+    /****************************************************************************/
+    void SetBtnEnableConditions(QString cons){ m_BtnEnableConditions = cons;}
 public slots:
     /****************************************************************************/
     /*!
@@ -162,6 +176,7 @@ signals:
 private:
     quint64 m_ID; ///< mesage box id (event id)
     QTimer m_Timer; ///< timer for message box timeout
+    QString m_BtnEnableConditions;
 
 };
 

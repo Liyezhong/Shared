@@ -39,7 +39,7 @@ namespace MainMenu {
  */
 /****************************************************************************/
 CMessageDlg::CMessageDlg(QWidget *p_Parent, quint64 ID) : CDialogFrame(p_Parent),
-    mp_Ui(new Ui::CMessageDlg), m_ID(ID)
+    mp_Ui(new Ui::CMessageDlg), m_ID(ID),m_BtnEnableConditions("")
 {
     mp_Ui->setupUi(GetContentFrame());
     layout()->setSizeConstraint(QLayout::SetFixedSize);

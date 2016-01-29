@@ -162,6 +162,7 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
     MsgDlg->SetTitle(Date + " " + Time, QString::number(ID));
 
     //disable "OK"
+    MsgDlg->SetBtnEnableConditions(MsgDataStruct.BtnEnableConditions);
     if (MsgDataStruct.BtnEnableConditions == "RT_LID_OPEN_CLOSE" && !m_RtLocked)
     {
             MsgDlg->EnableButton(1, false);
@@ -260,7 +261,7 @@ void CMsgBoxManager::DisableOKButton()
       while(i.hasNext())
       {
           i.next();
-          if(i.value())
+          if(i.value() && i.value()->GetBtnEnableConditions() == "RT_LID_OPEN_CLOSE")
           {
               i.value()->EnableButton(1, false);
           }
