@@ -62,7 +62,7 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :QMainWindow(p_Parent), mp_Ui(new Ui
         qDebug() << "Can not connect mTimeRefreshTimer::timeout() with this::RefreshDateTime()";
     }
     mTimeRefreshTimer.setSingleShot(false);
-    mTimeRefreshTimer.setInterval(500); /// \todo get some reasonable interval (0.5 - 3 seconds)
+    mTimeRefreshTimer.setInterval(3000); /// \todo get some reasonable interval (0.5 - 3 seconds)
     mTimeRefreshTimer.start();
 
     QPalette Palette = mp_Ui->caption->palette();
