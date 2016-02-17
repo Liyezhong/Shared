@@ -137,7 +137,7 @@ const QString EVENTLOG_TEMP_FILE_NAME_SUFFIX = "Events_Tmp.log";
  */
 /****************************************************************************/
 #define CONNECTSIGNALSLOT(pSource, SignalSource, pTarget, SlotTarget) \
-    (void)QObject::disconnect((pSource), SIGNAL(SignalSource), (pTarget), SIGNAL(SlotTarget)); \
+    (void)QObject::disconnect((pSource), SIGNAL(SignalSource), (pTarget), SLOT(SlotTarget)); \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget))) { \
         LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE) \
@@ -194,7 +194,7 @@ const QString EVENTLOG_TEMP_FILE_NAME_SUFFIX = "Events_Tmp.log";
  */
 /****************************************************************************/
 #define CONNECTSIGNALSLOTGUI(pSource, SignalSource, pTarget, SlotTarget) \
-    (void)QObject::disconnect((pSource), SIGNAL(SignalSource), (pTarget), SIGNAL(SlotTarget)); \
+    (void)QObject::disconnect((pSource), SIGNAL(SignalSource), (pTarget), SLOT(SlotTarget)); \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget))) { \
         Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT,\
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE);\
