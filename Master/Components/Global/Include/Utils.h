@@ -34,6 +34,7 @@
 //lint -esym(773, FILE_LINE)
 //lint -esym(773, FILE_LINE_LIST)
 //lint -esym(773, WHEREAMI)
+//lint -e666
 /****************************************************************************/
 /**
  * \brief Kit/Bottle max retry count in case of consumable already used and
