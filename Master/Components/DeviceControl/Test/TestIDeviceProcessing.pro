@@ -18,4 +18,4 @@ HEADERS += ../Include/Global/*.h
 
 UseLibs(Global DataManager DeviceControl)
 
-LIBS += -ldl
+LIBS += -ldl -lrt

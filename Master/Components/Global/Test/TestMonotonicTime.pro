@@ -7,3 +7,4 @@ TARGET = utTestMonotonicTime
 SOURCES += TestMonotonicTime.cpp
 
 UseLibs(Global)
+LIBS += -lrt
