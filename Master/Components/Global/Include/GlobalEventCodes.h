@@ -116,9 +116,9 @@ const quint32 EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED           = EVENT_GROUP_PLATFO
 
 const quint32 EVENT_SHUTDOWN_REQUEST_TOUSER                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x100F; //!< ask user to shutdown
 const quint32 EVENT_SHUTDOWN_ON_SYSTEM_ERROR                = EVENT_GROUP_PLATFORM_GLOBAL + 0x1010; //!< shutdown the system
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG1                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1011; //!< only for the diagnostication intention in the log file
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG2                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1012; //!< only for the diagnostication intention in the log file
-const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG3                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1013; //!< only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG1                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1011; //!< Flag1 only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG2                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1012; //!< Flag2 only for the diagnostication intention in the log file
+const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG3                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1013; //!< Flag3 only for the diagnostication intention in the log file
 const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG4                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1014; //!< only for the diagnostication intention in the log file
 const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG5                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1015; //!< only for the diagnostication intention in the log file
 const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG6                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x1016; //!< only for the diagnostication intention in the log file
