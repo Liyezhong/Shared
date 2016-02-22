@@ -99,7 +99,6 @@ private:
      */
     QHash<quint64, Global::tRefType> m_EvenIDCmdRefHash; //!< Hash of EventID(Key) and CmdRef(value)
     QTimer m_PopupTimer;    //!< When this timer times out, MsgBox will be poped out if queue not empty.
-    bool m_bMsgWaiting;    //!<it has a "OK" button, but it is disabled.
     //----------------End of Members------------------------//
 
     //Methods

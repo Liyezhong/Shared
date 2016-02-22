@@ -47,11 +47,11 @@ const int MAX_MESSAGE_TEXT_LENGTH = 1024;       //!< Maximum length of the text 
  */
 /****************************************************************************/
 CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface):
+    m_RtLocked(false),
     m_CurrentMsgBoxEventID(-1),
     mp_MessageDlg(NULL),
     mp_Parent(p_Parent),
-    mp_SettingsInterface(p_SettingsInterface),
-    m_RtLocked(false)
+    mp_SettingsInterface(p_SettingsInterface)
 {
     m_PopupTimer.setSingleShot(true);
     CONNECTSIGNALSLOTGUI(&m_PopupTimer, timeout(), this, ShowMsgBoxIfQueueNotEmpty());
@@ -239,32 +239,26 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
 
 void CMsgBoxManager::EnableOKButton()
 {
-  if ( true)
+  QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
+  while(i.hasNext())
   {
-      QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
-      while(i.hasNext())
+      i.next();
+      if(i.value())
       {
-          i.next();
-          if(i.value())
-          {
-              i.value()->EnableButton(1, true);
-          }
+          i.value()->EnableButton(1, true);
       }
   }
 }
 
 void CMsgBoxManager::DisableOKButton()
 {
-  if ( true)
+  QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
+  while(i.hasNext())
   {
-      QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
-      while(i.hasNext())
+      i.next();
+      if(i.value() && i.value()->GetBtnEnableConditions() == "RT_LID_OPEN_CLOSE")
       {
-          i.next();
-          if(i.value() && i.value()->GetBtnEnableConditions() == "RT_LID_OPEN_CLOSE")
-          {
-              i.value()->EnableButton(1, false);
-          }
+          i.value()->EnableButton(1, false);
       }
   }
 }
