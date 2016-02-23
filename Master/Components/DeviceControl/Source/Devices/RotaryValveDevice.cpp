@@ -1294,7 +1294,7 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
 /*!
  *  \brief   Request the rotary valve to move to current tube encoder disk's position.
  *
- *  \iparam  RVPosition = Current rotary valve encoder disk's position.
+ *  \iparam  CurrentRVPosition = Current rotary valve encoder disk's position.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
