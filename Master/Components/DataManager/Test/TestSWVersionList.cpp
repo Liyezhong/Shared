@@ -252,7 +252,7 @@ void TestSWVersionList::utTestSWVersionListVerifier() {
     VersionList.AddVerifier(p_SWVersionListVerifier);
 
     VersionList.SetDataVerificationMode(false);
-    QCOMPARE(VersionList.Read(RESOURCE_FILENAME), true);
+    QCOMPARE(VersionList.Read(RESOURCE_FILENAME), false);
     VersionList.SetDataVerificationMode(true);
     // do verification of the container
     QCOMPARE(VersionList.VerifyData(), true);
