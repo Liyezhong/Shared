@@ -305,7 +305,7 @@ void TestUserSettings::utTestWriteReadUserSettingsInterface() {
     Settings = SettingsInterface.GetUserSettings();
     // now test settings
 
-    QCOMPARE(Settings->GetDateFormat(), Global::DATE_ISO);
+    QCOMPARE(Settings->GetDateFormat(), Global::DATE_US);
     QCOMPARE(Settings->GetTimeFormat(), Global::TIME_24);
     QCOMPARE(Settings->GetTemperatureFormat(), Global::TEMP_FORMAT_CELSIUS);
     QCOMPARE(Settings->GetSoundNumberError(), 1);
