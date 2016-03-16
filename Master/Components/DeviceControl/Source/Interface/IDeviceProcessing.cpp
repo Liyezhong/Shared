@@ -964,7 +964,9 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         {
             BasePressure = 0.53;
         }
-
+#if !defined(__arm__)
+    return DCL_ERR_FCT_CALL_SUCCESS;
+#endif
         delayTime = QTime::currentTime().addMSecs(180*1000);
         while (QTime::currentTime() < delayTime)
         {
