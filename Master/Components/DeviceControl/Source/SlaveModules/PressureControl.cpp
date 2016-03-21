@@ -399,9 +399,16 @@ void CPressureControl::HandleCommandRequestTask()
                 ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->bPressureTolerance,\
                 ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->sSamplingPeriod, \
                 0);
-                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_PRESSURECTRL_TIMEOUT_STATUS_SET_REQ;
+                }
+                else
+                {
                 //because there is no slave acknowledge, we send our own acknowldege
-                emit ReportRefPressure(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Pressure);
+                    emit ReportRefPressure(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Pressure);
+                }
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTPRESSURE)
             {
@@ -545,10 +552,16 @@ void CPressureControl::HandleCommandRequestTask()
                 //send the pressure ctrl status to the slave
 
                 RetVal = SendCANMsgSetValve(m_ModuleCommand[idx].ValveIndex, m_ModuleCommand[idx].ValveState);
-                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
-
+                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_PRESSURECTRL_TIMEOUT_STATUS_SET_REQ;
+                }
+                else
+                {
                 //because there is no slave acknowledge, we send our own acknowldege
-                emit ReportRefValveState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].ValveIndex, m_ModuleCommand[idx].ValveState);
+                    emit ReportRefValveState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].ValveIndex, m_ModuleCommand[idx].ValveState);
+                }
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_SET_FAN)
             {
@@ -601,6 +614,19 @@ void CPressureControl::HandleCommandRequestTask()
         {
             // check avtive motor commands for timeout
             ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_SET_PRESSURE)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                //because there is no slave acknowledge, we send our own acknowldege
+                emit ReportRefPressure(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, m_ModuleCommand[idx].Pressure);
+            }
+            else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_SET_VALVE)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+
+                //because there is no slave acknowledge, we send our own acknowldege
+                emit ReportRefValveState(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, m_ModuleCommand[idx].ValveIndex, m_ModuleCommand[idx].ValveState);
+            }
             if(m_ModuleCommand[idx].ReqSendTime.Elapsed() > m_ModuleCommand[idx].Timeout)
             {
                 if((m_ModuleCommand[idx].TimeoutRetry++) >= MODULE_CMD_MAX_RESEND_TIME )
