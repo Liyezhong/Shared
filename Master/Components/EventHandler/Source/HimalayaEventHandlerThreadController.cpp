@@ -163,6 +163,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     if(EventInfo.Event->GetAlarmType() >= Global::ALARMPOS_LOCAL)
                     {
                         ResetRmtLocAlarm(EventInfo.EventKey,  EventInfo.Event);
+                        ResetAlarm();
                     }
                     else if(EventInfo.Event->GetAlarmType() == Global::ALARMPOS_DEVICE)
                     {
