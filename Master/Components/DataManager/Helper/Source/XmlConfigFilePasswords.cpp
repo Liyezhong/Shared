@@ -113,10 +113,6 @@ void XmlConfigFilePasswords::WritePasswords(const QString &FileName,
     Writer.writeEndElement();
     // write enddocument
     Writer.writeEndDocument();
-
-    const QString MD5sumGenerator = QString("%1%2 %3").arg(Global::SystemPaths::Instance().GetScriptsPath()).
-            arg(QString("/EBox-Utils.sh update_md5sum_for_file_in_settings")).arg(FileName);
-    (void)system(MD5sumGenerator.toStdString().c_str());
 }
 
 } // end namespace DataManager

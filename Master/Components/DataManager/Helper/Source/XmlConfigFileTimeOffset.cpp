@@ -79,6 +79,10 @@ void XmlConfigFileTimeOffset::WriteTimeOffset(const QString &FileName, int TimeO
     // write enddocument
     Writer.writeEndDocument();
 
+    (void)File.flush();
+    (void)fsync(File.handle());
+    File.close();
+
     const QString MD5sumGenerator = QString("%1%2 %3").arg(Global::SystemPaths::Instance().GetScriptsPath()).
             arg(QString("/EBox-Utils.sh update_md5sum_for_file_in_settings")).arg(FileName);
     (void)system(MD5sumGenerator.toStdString().c_str());
