@@ -24,6 +24,7 @@
 #include <Global/Include/Utils.h>
 #include <Global/Include/EventObject.h>
 #include <Global/Include/SystemPaths.h>
+#include <unistd.h>
 
 namespace DataManager {
 
