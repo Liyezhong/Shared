@@ -206,7 +206,56 @@ CheckIfSlaveHWNameIsPresentInUpdatePkg()
         fi                                                                     
     done                                                                                                                         
     return 1                                                                                                        
-}    
+}
+
+#=== FUNCTION ================================================================
+# NAME: CompareHWVersion
+# DESCRIPTION: Decide wether the current hw version is compatible with update version.
+#		Return ACCEPTED if current version compatible with update version.
+#		Return REJECTED other cases.
+# PARAMETER 1: 	current version
+# PARAMETER 2:	update version
+#=============================================================================
+
+CompareHWVersion()
+{
+    local low=
+    local high=
+    local cur_ver=$1
+    local str=$2
+    local arr=(${str//-/ })
+
+    if [[ ${#arr[@]} -eq 2 ]]; then
+        low=${arr[0]}
+        high=${arr[1]}
+    elif [[ ${#arr[@]} -eq 1 ]]; then
+        low=${arr[0]}
+    else
+        low=$2
+    fi
+
+    if [[ "$2"x = "any"x ]]; then
+        echo "ACCEPTED"
+    elif [[ "$2" =~ ^\-[0-9]\.[0-9]$ ]]; then #-0.3, <=0.3
+        awk 'BEGIN {if('$cur_ver' <= '$low')
+            {print "ACCEPTED"}
+            else {print "REJECTED"}}'
+    elif [[ "$2" =~ ^[0-9]\.[0-9]\-$ ]]; then #0.3-, >=0.3
+        awk 'BEGIN {if('$cur_ver' >= '$low')
+            {print "ACCEPTED"}
+            else {print "REJECTED"}}'
+    elif [[ "$2" =~ ^[0-9]\.[0-9]\-[0-9]\.[0-9]$ ]]; then  #0.3-0.6, 0.3 <= v <= 0.6
+        awk 'BEGIN {if('$cur_ver' >= '$low' && '$cur_ver' <= '$high')
+            {print "ACCEPTED"}
+            else {print "REJECTED"}}'
+    elif [[ "$2" =~ ^[0-9]\.[0-9]$ ]]; then  # 0.3
+        awk 'BEGIN {if('$cur_ver' == '$low')
+            {print "ACCEPTED"}
+            else {print "REJECTED"}}'
+    else
+         echo "REJECTED"
+    fi
+}
 
 #=== FUNCTION =========================================================================
 # NAME: CheckSlaveHWVersion
@@ -240,8 +289,8 @@ CheckSlaveHWVersion()
         [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MISSING_SLAVE" "$Name" "$UPDATEHWVERFILE"
         local CurrentHWVersion=${CurrentSlaveHWVersionMap[$Name]}
         local RequiredHWVersion=${UpdatePkgSlaveHWVersionMap[$Name]}
-        local Return=$(CompareVersion $CurrentHWVersion $RequiredHWVersion )
-        if [ $Return != "EQUAL" ]; then
+        local Return=$(CompareHWVersion $CurrentHWVersion $RequiredHWVersion)
+        if [ $Return != "ACCEPTED" ]; then
             ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_DOESNOT_HAVE_REQ_HW_VER" "$Name" "$CurrentHWVersion" "$RequiredHWVersion"		
         else
             Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_HAS_REQ_HW_VER" "$Name" "$CurrentHWVersion"
