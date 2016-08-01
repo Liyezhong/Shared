@@ -120,6 +120,7 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
             }
             else {
                 emit SWUpdateStatus(false);
+                Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
             }
         }
         else {
@@ -152,6 +153,7 @@ void SWUpdateManager::PowerFailed()
         m_ScriptExited = true;
         emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
         emit SWUpdateStatus(false);
+        Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
         UpdateRebootFile("NA", "NA");
     }
 }
@@ -242,6 +244,7 @@ void SWUpdateManager::SWUpdateError(int ErrorCode)
     m_MasterThreadControllerRef.m_UpdatingRollback = false;
     emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
     emit SWUpdateStatus(false);
+    Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
 }
 
 /****************************************************************************/
