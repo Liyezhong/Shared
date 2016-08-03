@@ -38,7 +38,7 @@ DeviceLifeCycleRecord::~DeviceLifeCycleRecord()
     FreeObjects();
 }
 
-void DeviceLifeCycleRecord::ReadRecord()
+bool DeviceLifeCycleRecord::ReadRecord()
 {
     QDomDocument domDocument;
     QDomElement root;
@@ -47,12 +47,12 @@ void DeviceLifeCycleRecord::ReadRecord()
     if (!file.open(QIODevice::ReadOnly))
     {
         file.close();
-        return;
+        return false;
     }
 
     if (!domDocument.setContent(&file)) {
          file.close();
-         return;
+         return false;
      }
 
     root = domDocument.documentElement();
@@ -60,20 +60,20 @@ void DeviceLifeCycleRecord::ReadRecord()
     if (root.tagName() != "DeviceLifeCycles")
     {
         file.close();
-        return;
+        return false;
     }
     else if (root.hasAttribute("Version")
                && root.attribute("Version") != "0")
     {
         file.close();
-        return;
+        return false;
     }
 
     child = root.firstChildElement("DeviceList");
     if(child.isNull())
     {
           file.close();
-          return;
+          return false;
     }
 
     QDomElement childDevice = child.firstChildElement("Device");
@@ -105,9 +105,10 @@ void DeviceLifeCycleRecord::ReadRecord()
        childDevice = childDevice.nextSiblingElement("Device");
     }
     file.close();
+    return true;
 }
 
-void DeviceLifeCycleRecord::WriteRecord()
+bool DeviceLifeCycleRecord::WriteRecord()
 {
     QDomDocument domDocument;
     QDomElement root;
@@ -115,7 +116,7 @@ void DeviceLifeCycleRecord::WriteRecord()
     if (!file.open(QFile::WriteOnly))
     {
         file.close();
-        return;
+        return false;
     }
 
     QTextStream out(&file);
@@ -167,6 +168,7 @@ void DeviceLifeCycleRecord::WriteRecord()
     const QString MD5sumGenerator = QString("%1%2 %3").arg(Global::SystemPaths::Instance().GetScriptsPath()).
     arg(QString("/EBox-Utils.sh update_md5sum_for_file_in_settings")).arg(m_DeviceLifeCycleRecordFileName);
     (void)system(MD5sumGenerator.toStdString().c_str());
+    return true;
 }
 
 void DeviceLifeCycleRecord::FreeObjects()

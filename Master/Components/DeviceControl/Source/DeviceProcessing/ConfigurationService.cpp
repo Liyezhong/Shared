@@ -232,7 +232,7 @@ void CConfigurationService::HandleCANNodesTask()
 ReturnCode_t CConfigurationService::CreateDeviceComponents()
 {
     m_pDeviceLifeCycleRecord =  new DeviceLifeCycleRecord();
-    m_pDeviceLifeCycleRecord->ReadRecord();
+    (void)m_pDeviceLifeCycleRecord->ReadRecord();
 
     // Read hardware configuration (CAN-objects and devices)
     // The configuration information is stored inside the HardwareConfiguration class
@@ -265,7 +265,7 @@ ReturnCode_t CConfigurationService::CreateDeviceComponents()
 void CConfigurationService::WriteDeviceLifeCycle()
 {
     if (m_pDeviceLifeCycleRecord)
-        m_pDeviceLifeCycleRecord->WriteRecord();
+        (void)m_pDeviceLifeCycleRecord->WriteRecord();
 }
 
 /****************************************************************************/

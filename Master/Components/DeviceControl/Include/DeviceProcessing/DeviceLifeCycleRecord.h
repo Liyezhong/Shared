@@ -67,11 +67,11 @@ namespace DeviceControl
         /**
          * \brief ReadRecord
         */
-        void ReadRecord();
+        bool ReadRecord();
         /**
          * \brief WriteRecord
         */
-        void WriteRecord();
+        bool WriteRecord();
 
         QMap<QString, ModuleLifeCycleRecord*> m_ModuleLifeCycleMap; //!< life cycle map
 

@@ -35,7 +35,7 @@ const quint32 EVENT_INIT_RESTRICTED_SUCCESS         = EVENT_GROUP_PLATFORM_EVENT
 const quint32 EVENT_INIT_RESTRICTED_STAGE_SUCCESS   = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x000A; ///< Init stage completed with restrictions
 const quint32 EVENT_CONFIG_FILE                     = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x000B; ///< Init stage completed with restrictions
 
-const quint32 STR_SCHEDULER_EVENT_SCENARIO_ACTION_RESULT = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x000C; ///< Event Code: %1, Scenario: %2, Action: %3, Action Result: %4.
+const quint32 STR_SCHEDULER_EVENT_SCENARIO_ACTION_RESULT = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x000C; ///< The instrument encountered the error %1 during scenario %2; and tried to do the recovery action %3. The action result is %4.
 
 
 #endif // EVENTHANDLEREVENTCODES_H
