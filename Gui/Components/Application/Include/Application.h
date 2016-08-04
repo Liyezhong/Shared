@@ -46,7 +46,8 @@ signals:
 
 private:
     QPoint m_MousePos;
-	
+    virtual void commitData(QSessionManager& sm);
+    virtual void saveState(QSessionManager& sm);
   /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.

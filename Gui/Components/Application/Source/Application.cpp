@@ -74,4 +74,12 @@ bool CApplication::notify ( QObject * receiver, QEvent * e )
     return QApplication::notify(receiver, e);
 }
 
+void CApplication::commitData(QSessionManager& sm)
+{
+}
+
+void CApplication::saveState(QSessionManager& sm)
+{
+
+}
 } // end namespace Application
