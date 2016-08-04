@@ -46,8 +46,10 @@ signals:
 
 private:
     QPoint m_MousePos;
+    #if 0 //for compile issue in specific QT version
     virtual void commitData(QSessionManager& sm);
     virtual void saveState(QSessionManager& sm);
+    #endif
   /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.

@@ -73,7 +73,7 @@ bool CApplication::notify ( QObject * receiver, QEvent * e )
 
     return QApplication::notify(receiver, e);
 }
-
+#if 0 //for compile issue in specific QT version
 void CApplication::commitData(QSessionManager& sm)
 {
 }
@@ -82,4 +82,5 @@ void CApplication::saveState(QSessionManager& sm)
 {
 
 }
+#endif
 } // end namespace Application
