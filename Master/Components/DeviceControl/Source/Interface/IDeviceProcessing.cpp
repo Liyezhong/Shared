@@ -449,7 +449,7 @@ void IDeviceProcessing::ResetActiveCarbonFilterLifeTime()
         m_pAirLiquid->ResetActiveCarbonFilterLifeTime();
     }
     ArchiveServiceInfor();
-    m_SaveLifeCycleRecordTimer.start();
+    m_SaveLifeCycleRecordTimer.start();//Note: It will not work in debug mode
 }
 
 /****************************************************************************/
