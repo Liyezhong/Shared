@@ -29,6 +29,7 @@
 #include <QLocale>
 
 #include <iostream>
+#include <Global/Include/Utils.h>
 
 // the following macros must not be paranthesized
 //lint -esym(773, FILE_LINE)
@@ -659,6 +660,23 @@ void WriteBootVariable(const QMap<QString, QString> content, QFile &file);
  */
 /****************************************************************************/
 void CreateSymbolicLinkToFonts();
+/****************************************************************************/
+/**
+ * \brief  Get the Flag of MantainenceFirstRecord
+ * \return true indicates the first record for Mantainence
+ *
+ */
+/****************************************************************************/
+bool GetMantainenceFirstRecordFlag();
+/****************************************************************************/
+/**
+ * \brief  Set the Flag of MantainenceFirstRecord
+ * \param true indicates the first record for Mantainence
+ *
+ */
+/****************************************************************************/
+void SetMantainenceFirstRecordFlag(bool bSet);
+
 } // end namespace Global
 
 #endif // GLOBAL_UTILS_H

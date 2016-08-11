@@ -28,6 +28,7 @@
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include <QFinalState>
 #include "DeviceControl/Include/Global/dcl_log.h"
+#include <Global/Include/Utils.h>
 
 namespace DeviceControl
 {
@@ -204,6 +205,10 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     if (iterFilter != pPartLifeCycleRecord->m_ParamMap.end())
         pPartLifeCycleRecord->m_ParamMap["ActiveCarbonFilter_LifeTime"] = strLifeTimeCarbonFilter;
 
+    if (Global::GetMantainenceFirstRecordFlag())
+        pPartLifeCycleRecord->m_ParamMap["CarbonFilter_FirstRecord_Flag"] = "1";
+    else
+        pPartLifeCycleRecord->m_ParamMap["CarbonFilter_FirstRecord_Flag"] = "0";
 
     QString strLifeTimeExhaustFan = QString().setNum(mp_PressureControl->GetExhaustFanLifeTime());
     QMap<QString, QString>::const_iterator iterExhaustFan = pPartLifeCycleRecord->m_ParamMap.find("Exhaust_Fan_LifeTime");

@@ -508,4 +508,16 @@ void CreateSymbolicLinkToFonts()
     }
 }
 
+static bool Mantainence_FirstRecord_Flag = false;
+
+bool GetMantainenceFirstRecordFlag()
+{
+    return Mantainence_FirstRecord_Flag;
+}
+
+void SetMantainenceFirstRecordFlag(bool bSet)
+{
+    Mantainence_FirstRecord_Flag = bSet;
+}
+
 } // end namespace Global
