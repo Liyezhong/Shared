@@ -442,11 +442,11 @@ void IDeviceProcessing::NotifySavedServiceInfor(const QString& deviceType)
     emit ReportSavedServiceInfor(deviceType);
 }
 
-void IDeviceProcessing::ResetActiveCarbonFilterLifeTime()
+void IDeviceProcessing::ResetActiveCarbonFilterLifeTime(quint32 setVal)
 {
     if(m_pAirLiquid)
     {
-        m_pAirLiquid->ResetActiveCarbonFilterLifeTime();
+        m_pAirLiquid->ResetActiveCarbonFilterLifeTime(setVal);
     }
     ArchiveServiceInfor();
     m_SaveLifeCycleRecordTimer.start();//Note: It will not work in debug mode

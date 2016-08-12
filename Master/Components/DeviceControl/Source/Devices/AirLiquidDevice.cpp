@@ -2712,13 +2712,14 @@ ReturnCode_t CAirLiquidDevice::SetPressureDrift(float pressureDrift)
 /****************************************************************************/
 /*!
  *  \brief  Reset the life time of ActiveCarbonFilter
+ *  \param  setVal -- lifetime for carbon filter
  */
 /****************************************************************************/
-void CAirLiquidDevice::ResetActiveCarbonFilterLifeTime()
+void CAirLiquidDevice::ResetActiveCarbonFilterLifeTime(quint32 setVal)
 {
     if (m_pPressureCtrl)
     {
-        m_pPressureCtrl->SetActiveCarbonFilterLifeTime(0);
+        m_pPressureCtrl->SetActiveCarbonFilterLifeTime(setVal);
     }
 
 }

@@ -824,10 +824,11 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Reset the life time of ActiveCarbonFilter
+     *  \param  setVal -- lifetime for carbon filter
      *
      */
     /****************************************************************************/
-    void ResetActiveCarbonFilterLifeTime();
+    void ResetActiveCarbonFilterLifeTime(quint32 setVal);
     /****************************************************************************/
     /*!
      *  \brief  Get Current and Voltage status of all the slave devices

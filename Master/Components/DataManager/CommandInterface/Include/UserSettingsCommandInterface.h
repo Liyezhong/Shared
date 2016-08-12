@@ -73,10 +73,11 @@ signals:
     /****************************************************************************/
     /**
      * \brief This signal is emitted when User resets the life time of ActiveCarbonFilter
+     * \param  setVal -- lifetime for carbon filter
      *
      */
     /****************************************************************************/
-    void ResetActiveCarbonFilterLifeTime();
+    void ResetActiveCarbonFilterLifeTime(quint32 setVal);
 };
 
 }// End of namespace DataManager

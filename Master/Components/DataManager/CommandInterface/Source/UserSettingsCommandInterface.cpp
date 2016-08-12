@@ -120,14 +120,17 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                 LanguageChanged = true;
             }
 
-            QString str = Settings.GetActiveCarbonLastResetDate();
-            QDateTime lastResetDateTime = QDateTime::fromString(str);
-            QDateTime currentDateTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            int diff = lastResetDateTime.secsTo(QDateTime::fromString(currentDateTime.toString()));
-            if (diff < 3600)
-            {
-                emit ResetActiveCarbonFilterLifeTime();
+            CHimalayaUserSettings& TempSettingsRef = const_cast<CHimalayaUserSettings &>(TempSettings);
+            CHimalayaUserSettings& SettingsRef = const_cast<CHimalayaUserSettings &>(Settings);
+
+            if (TempSettingsRef.GetActiveCarbonLastResetDate() != SettingsRef.GetActiveCarbonLastResetDate()) {
+                QString str = Settings.GetActiveCarbonLastResetDate();
+                QDateTime lastResetDateTime = QDateTime::fromString(str);
+                QDateTime currentDateTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                int diff = lastResetDateTime.secsTo(QDateTime::fromString(currentDateTime.toString()));
+                emit ResetActiveCarbonFilterLifeTime(diff);
             }
+
 
             // raise the event if the network settings is changed
             if (TempSettings.GetProxyIPAddress() != Settings.GetProxyIPAddress() ||
