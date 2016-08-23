@@ -766,8 +766,7 @@ StoreDataReadFromPackageSWVersionXml()
  #  UpdatePkgBoardOptionVer=(""$BOARDOPTIONVERSION"")
  # CheckVersionString UpdatePkgBoardOptionVer[@]
 
-    local UpdatePkgRELVer=${UpdatePkgRELVersions[0]}
-    UpdatePkgRELVerNew=$(echo $UpdatePkgRELVer | cut -d_ -f2)
+    UpdatePkgRELVerNew=${UpdatePkgRELVersions[0]}
     
 	local Index=0
     local Name
