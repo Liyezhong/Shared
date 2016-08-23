@@ -979,6 +979,7 @@ MasterSWUpdate()
         CheckIfAnyModulesWereUpdated
         if [ $? -eq 0 ]; then
             xmlstarlet ed -L -u "//Release/@Version" -v ${UpdatePkgRELVerNew} $SWVERFILE
+            UpdateMd5SumForSWVersionXml
             UpdateBootConfigFile "Software_Update_Status" "Success"
         else
             UpdateBootConfigFile "Software_Update_Status" "HigherVersionNA"
