@@ -42,6 +42,9 @@ else
 	exit 1
 fi
 
+# jeff@2016-08-23@replace 'MasterSWupdateStarter.sh' first
+cp -rf $CURRDIR/MasterSWupdateStarter.sh '/home/Leica/Bin'
+
 # Extract current script name PROGNAME=$(basename $0) 
 
 CMDARG="Usage: $0 [-update / -updateRollback] [baseeventid]"
