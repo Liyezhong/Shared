@@ -43,7 +43,16 @@ else
 fi
 
 # jeff@2016-08-23@replace 'MasterSWupdateStarter.sh' first
-cp -rf $CURRDIR/MasterSWupdateStarter.sh '/home/Leica/Bin'
+replace_updater()
+{
+    cp -rf $CURRDIR/MasterSWupdateStarter.sh '/home/Leica/Bin'
+    cd '/home/Leica/Bin'
+    local FileName='MasterSWupdateStarter.sh'
+    local Md5Sum=$(md5sum $FileName)
+    sed -i "s@^.*$FileName.*\$@$Md5Sum@" .md5sum.txt
+    cd - > /dev/null 2>&1
+}
+replace_updater
 
 # Extract current script name PROGNAME=$(basename $0) 
 
