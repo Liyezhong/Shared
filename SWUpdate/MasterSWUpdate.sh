@@ -752,6 +752,7 @@ UpdateInitScripts()
 #=============================================================================
 StoreDataReadFromPackageSWVersionXml()
 {
+    UpdatePkgRELVersions=(""$RELVER"")
     UpdatePkgSWNames=(""$SWNAME"")
     UpdatePkgSWVersions=(""$SWVER"")
     CheckSWVersionString
@@ -764,6 +765,9 @@ StoreDataReadFromPackageSWVersionXml()
  #   UpdatePkgBoardOptionName=(""$BOARDOPTIONNAME"")	
  #  UpdatePkgBoardOptionVer=(""$BOARDOPTIONVERSION"")
  # CheckVersionString UpdatePkgBoardOptionVer[@]
+
+    local UpdatePkgRELVer=${UpdatePkgRELVersions[0]}
+    UpdatePkgRELVerNew=$(echo $UpdatePkgRELVer | cut -d_ -f2)
     
 	local Index=0
     local Name
@@ -915,6 +919,8 @@ ReadXML()
     xmlstarlet val "$1" 
     [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$1"
 
+    RELVER="$(xmlstarlet sel -t -m '(/SW_Version/SW/Release)' -v @Version -n  "$1" 2>/dev/null)"
+
 	SWNAME="$(xmlstarlet sel -t -m '(/SW_Version/Master_SW/file)' -v @Filename -n  "$1" 2>/dev/null)"
 
     SWVER="$(xmlstarlet sel -t -m '(/SW_Version/Master_SW/file)' -v @Version -n  "$1" 2>/dev/null)"
@@ -973,6 +979,7 @@ MasterSWUpdate()
 #        UpdateBoardOptions
         CheckIfAnyModulesWereUpdated
         if [ $? -eq 0 ]; then
+            xmlstarlet ed -L -u "//Release/@Version" -v ${UpdatePkgRELVerNew} $SWVERFILE
             UpdateBootConfigFile "Software_Update_Status" "Success"
         else
             UpdateBootConfigFile "Software_Update_Status" "HigherVersionNA"
