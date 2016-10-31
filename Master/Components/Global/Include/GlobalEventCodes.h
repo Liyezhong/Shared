@@ -131,7 +131,11 @@ const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG12                = EVENT_GROUP_PLATFO
 const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG13                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101D; //!< only for the diagnostication intention in the log file
 const quint32 EVENT_SHUTDOWN_ON_CHECK_FLAG14                = EVENT_GROUP_PLATFORM_GLOBAL + 0x101E; //!< only for the diagnostication intention in the log file
 
-
+//string id for log activities of the pump and air valves
+const quint32 EVENT_GLOBAL_START_PUMP                       = EVENT_GROUP_PLATFORM_GLOBAL + 0x2000; //!< Start pump.
+const quint32 EVENT_GLOBAL_STOP_PUMP                        = EVENT_GROUP_PLATFORM_GLOBAL + 0x2001; //!< Stop pump.
+const quint32 EVENT_GLOBAL_OPEN_VALVE                       = EVENT_GROUP_PLATFORM_GLOBAL + 0x2002; //!< Start valve%1.
+const quint32 EVENT_GLOBAL_CLOSE_VALVE                      = EVENT_GROUP_PLATFORM_GLOBAL + 0x2003; //!< Stop valve%1.
 
 
 // string IDs for Export

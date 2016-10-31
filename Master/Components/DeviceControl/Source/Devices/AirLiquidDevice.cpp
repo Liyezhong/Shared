@@ -687,6 +687,14 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
     {
         DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_PRESSURE);
         float targetPressure = NominalPressure + m_PressureDrift;
+        if(AL_PUMP_MODE_OFF == flag)
+        {
+            Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STOP_PUMP);
+        }
+        else
+        {
+            Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_START_PUMP);
+        }
         retCode =  m_pPressureCtrl->SetPressure(flag, targetPressure);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -740,6 +748,14 @@ ReturnCode_t CAirLiquidDevice::SetValve(quint8 ValveIndex, quint8 ValveState)
     if(m_pPressureCtrl)
     {
         DCLEventLoop* event = m_pDevProc->CreateSyncCall(SYNC_CMD_AL_SET_VALVE);
+        if(VALVE_STATE_OPEN == ValveState)
+        {
+            Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_OPEN_VALVE, Global::tTranslatableStringList()<<QString("%1").arg(ValveIndex+1));
+        }
+        else
+        {
+            Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_CLOSE_VALVE, Global::tTranslatableStringList()<<QString("%1").arg(ValveIndex+1));
+        }
         retCode = m_pPressureCtrl->SetValve(ValveIndex, ValveState);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
             return retCode;
