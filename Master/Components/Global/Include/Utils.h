@@ -247,6 +247,15 @@ const QString EVENTLOG_TEMP_FILE_NAME_SUFFIX = "Events_Tmp.log";
 
 namespace Global {
 
+const QString FixationReagent                = "RG1";
+const QString WaterReagent                   = "RG2";
+const QString DehydratingDiluted             = "RG3";
+const QString DehydratingAbsolute            = "RG4";
+const QString ClearingReagent                = "RG5";
+const QString ParaffinReagent                = "RG6";
+
+const QString DehydratingDilutedFixation     = "RG3RG1";
+const QString FixationDehydratingDiluted     = "RG1RG3";
 
 /****************************************************************************/
 /**
