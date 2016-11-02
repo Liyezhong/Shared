@@ -934,7 +934,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
             if (pressure < 20.0)
             {
                 m_pAirLiquid->ReleasePressure();
-                return DCL_ERR_FCT_CALL_FAILED;
+                return ERROR_DCL_FORCE_DRAINING_TIMEOUT_BULIDPRESSURE;
             }
         }
 
