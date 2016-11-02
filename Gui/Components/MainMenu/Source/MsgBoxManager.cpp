@@ -48,6 +48,7 @@ const int MAX_MESSAGE_TEXT_LENGTH = 1024;       //!< Maximum length of the text 
 /****************************************************************************/
 CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface):
     m_RtLocked(false),
+    m_OvenDoor(false),
     m_CurrentMsgBoxEventID(-1),
     mp_MessageDlg(NULL),
     mp_Parent(p_Parent),
@@ -163,10 +164,14 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
 
     //disable "OK"
     MsgDlg->SetBtnEnableConditions(MsgDataStruct.BtnEnableConditions);
-    if (MsgDataStruct.BtnEnableConditions == "RT_LID_OPEN_CLOSE" && !m_RtLocked)
+    if ((MsgDataStruct.BtnEnableConditions == "RT_LID_OPEN_CLOSE" && !m_RtLocked) ||
+            (MsgDataStruct.BtnEnableConditions == "OVEN_DOOR_CLOSED" && !m_OvenDoor))
     {
             MsgDlg->EnableButton(1, false);
+            MsgDlg->EnableButton(2, false);
+            MsgDlg->EnableButton(3, false);
     }
+
     return MsgDlg;
 }
 
@@ -237,28 +242,17 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
     }
 }
 
-void CMsgBoxManager::EnableOKButton()
+void CMsgBoxManager::EnableAllButton(bool enable, QString cons)
 {
   QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
   while(i.hasNext())
   {
       i.next();
-      if(i.value())
+      if(i.value() && (i.value()->GetBtnEnableConditions().compare(cons, Qt::CaseInsensitive) == 0))
       {
-          i.value()->EnableButton(1, true);
-      }
-  }
-}
-
-void CMsgBoxManager::DisableOKButton()
-{
-  QHashIterator<quint64, MainMenu::CMessageDlg *> i(m_MsgDlgEventIDHash);
-  while(i.hasNext())
-  {
-      i.next();
-      if(i.value() && i.value()->GetBtnEnableConditions() == "RT_LID_OPEN_CLOSE")
-      {
-          i.value()->EnableButton(1, false);
+          i.value()->EnableButton(1, enable);
+          i.value()->EnableButton(2, enable);
+          i.value()->EnableButton(3, enable);
       }
   }
 }
@@ -268,6 +262,10 @@ void CMsgBoxManager::SetRTLidLocked(bool locked)
     m_RtLocked = locked;
 }
 
+void CMsgBoxManager::SetOverDoorStatus(bool close)
+{
+    m_OvenDoor = close;
+}
 /****************** **********************************************************/
 /*!
  *  \brief This slot is called when the language is changed.

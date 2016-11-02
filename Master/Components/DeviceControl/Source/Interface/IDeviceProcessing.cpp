@@ -2566,6 +2566,8 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
         }
     }
 
+
+    reportError.errorTime -= (Global::AdjustedTime::Instance().GetOffsetSeconds() * 1000);//DCR7175: switch to system time of the error
     return reportError;
 }
 
