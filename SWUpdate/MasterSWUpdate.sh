@@ -616,7 +616,7 @@ UpdateSWBinaries()
 #========================================================================================
 CopyEboxConfigFiles()
 {
-    cp -rf $EBOXCONFIGDIR/etc/profile /etc/profile
+    cp -rf $TMPSCRIPTS/etc/profile /etc/profile
     Log "copy /etc/profile"
     cp -rf $EBOXCONFIGDIR/etc/dhcp/dhclient.conf /etc/dhcp/
     Log "copy /etc/dhcp/dhclinet.conf"
