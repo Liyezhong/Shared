@@ -583,7 +583,7 @@ UpdateSWBinaries()
 {
 	# Counter for no. of SW files need to be updated
 	local SWCount=0
-    local Name
+    	local Name
 	for Name in "${!UpdatePkgSWNameVersionMap[@]}";do
         #chop the version string , e.g. MAIN_1.123 will become 1.123
         local  CurrentSWVersion=$(echo ${CurrSWNameVersionMap[$Name]} | cut -d_ -f2)
@@ -600,12 +600,47 @@ UpdateSWBinaries()
             xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgSWNameVersionMap[$Name]} $SWVERFILE
 	    fi
 	done
+	[ $SWCount -ne 0 ] && CopyEboxConfigFiles
     if [ ${#UPDATED_SW_BINARIES[@]} -gt 0 ]; then 
         UpdateSettingsAndTranslations	
         UpdateMd5SumForBin
         UpdateMd5SumForSettings
         SwUpdated=true;
     fi
+}
+
+#=== FUNCTION ===========================================================================
+# NAME: CopyEboxConfigFiles
+# DESCRIPTION:  Copy the Ebox config files to target folder
+# PARAMETER : NA 
+#========================================================================================
+CopyEboxConfigFiles()
+{
+    cp -rf $EBOXCONFIGDIR/etc/profile /etc/profile
+    Log "copy /etc/profile"
+    cp -rf $EBOXCONFIGDIR/etc/dhcp/dhclient.conf /etc/dhcp/
+    Log "copy /etc/dhcp/dhclinet.conf"
+    cp -rf $EBOXCONFIGDIR/ts/pointercal_colorado /etc/pointercal
+    Log "copy /ts/pointercal_colorado"
+    cp -rf $EBOXCONFIGDIR/ts/ts.conf /etc/
+    Log "copy /ts/ts.conf"
+    cp -rf $EBOXCONFIGDIR/ts/pointercal_colorado "$LEICA_DIR"/Settings/pointercal
+    Log "copy /ts/pointercal_colorado to settings"
+    #update QT lib
+    [ -d "$EBOXCONFIGDIR/Libs" ] && { Log "copy QT lib file"; cp -rf $EBOXCONFIGDIR/Libs/* /usr/lib;}
+   
+    #update and link fonts
+    if [-d "$EBOXCONFIGDIR/fonts" ]; then
+        cp -rf "$EBOXCONFIGDIR/fonts" "$src"
+        for File in $(ls $EBOXCONFIGDIR/fonts); do
+            ln -sf "$EBOXCONFIGDIR/fonts/$File" "$/usr/lib/fonts/$File"
+   	    Log "copy fonts" "$EBOXCONFIGDIR/fonts/$File" "$/usr/lib/fonts/$File"
+        done
+    fi
+
+    cp $TMPINITD/EBox-Startup.sh $EBOXINITSCRIPTSDIR
+    Log "copy init script."
+    InitScriptsUpdated="true"
 }
 
 #=== FUNCTION ================================================================
