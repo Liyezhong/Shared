@@ -618,6 +618,8 @@ CopyEboxConfigFiles()
 {
     cp -rf $TMPSCRIPTS/profile /etc/profile
     Log "copy /etc/profile"
+    cp -rf $TMPSCRIPTS/local.rules $DEVRULESDIR/local.rules
+    Log "copy /etc/udev/local.rules"
     cp -rf $EBOXCONFIGDIR/etc/dhcp/dhclient.conf /etc/dhcp/
     Log "copy /etc/dhcp/dhclinet.conf"
     cp -rf $EBOXCONFIGDIR/ts/pointercal_colorado /etc/pointercal
