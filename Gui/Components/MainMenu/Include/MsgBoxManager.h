@@ -77,10 +77,12 @@ public:
     void SetRTLidLocked(bool locked);
     //!< update the status of the oven door
     void SetOverDoorStatus(bool closed);
+    //!< update the status of the oven door
+    bool IsOvenDoorLocked(){return m_OvenDoorLocked;}
 private:
     //Data Members
     bool m_RtLocked; //!< the flag for the retort lid open / closed
-    bool m_OvenDoor; //!< the flag for the over door open /closed
+    bool m_OvenDoorLocked; //!< the flag for the over door open /closed
     Global::PriorityQueue <quint64> m_PriorityQueue;  //!< Priority Queue consisting of EventID's
     qint64 m_CurrentMsgBoxEventID;                   //!< If a Event Msg box is displayed , the EventID associated with it.
     MainMenu::CMessageDlg *mp_MessageDlg;             //!< The msg dialog

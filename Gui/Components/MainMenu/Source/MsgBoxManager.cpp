@@ -48,7 +48,7 @@ const int MAX_MESSAGE_TEXT_LENGTH = 1024;       //!< Maximum length of the text 
 /****************************************************************************/
 CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface):
     m_RtLocked(false),
-    m_OvenDoor(false),
+    m_OvenDoorLocked(false),
     m_CurrentMsgBoxEventID(-1),
     mp_MessageDlg(NULL),
     mp_Parent(p_Parent),
@@ -165,7 +165,7 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
     //disable "OK"
     MsgDlg->SetBtnEnableConditions(MsgDataStruct.BtnEnableConditions);
     if ((MsgDataStruct.BtnEnableConditions == "RT_LID_OPEN_CLOSE" && !m_RtLocked) ||
-            (MsgDataStruct.BtnEnableConditions == "OVEN_DOOR_CLOSED" && !m_OvenDoor))
+            (MsgDataStruct.BtnEnableConditions == "OVEN_DOOR_CLOSED" && !m_OvenDoorLocked))
     {
             MsgDlg->EnableButton(1, false);
             MsgDlg->EnableButton(2, false);
@@ -264,7 +264,7 @@ void CMsgBoxManager::SetRTLidLocked(bool locked)
 
 void CMsgBoxManager::SetOverDoorStatus(bool close)
 {
-    m_OvenDoor = close;
+    m_OvenDoorLocked = close;
 }
 /****************** **********************************************************/
 /*!
