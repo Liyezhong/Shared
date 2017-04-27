@@ -132,7 +132,7 @@ CSubSpeller::CSubSpeller(CKeyBoard *p_Parent,
     mp_Parent = p_Parent;
     mp_ParentButton = p_KeyBoardButton;
     //! See : http://en.wikipedia.org/wiki/ISO/IEC_8859-15
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("ISO 8859-15"));
+    //QTextCodec::setCodecForCStrings(QTextCodec::codecForName("ISO 8859-15"));
     //10000 should be good enough
     setMaximumWidth(10000);
     setAutoFillBackground(false);
@@ -240,17 +240,17 @@ void CSubSpeller::InitSubSpellerGUI(qint32 LookUpIndex,
     if (KeyBoardType == QWERTZ_KEYBOARD) {
         //Need to swap first key in subspeller for Y & Z if QWERTZ keyboard
          if (LookUpIndex == LETTER_Y -1 ) { // subtracting "1" because index starts with "0"
-            ButtonText = QChar::fromAscii(m_SubSpellerLookUp[Offset + LookUpIndex + 1].AsciiCodeOfKey[0]);
+            ButtonText = QChar::fromLatin1(m_SubSpellerLookUp[Offset + LookUpIndex + 1].AsciiCodeOfKey[0]);
          }
          else if( LookUpIndex == (LETTER_Z -1)) { // z or Z
-             ButtonText = QChar::fromAscii(m_SubSpellerLookUp[Offset + LookUpIndex -1].AsciiCodeOfKey[0]);
+             ButtonText = QChar::fromLatin1(m_SubSpellerLookUp[Offset + LookUpIndex -1].AsciiCodeOfKey[0]);
          }
          else { // Other chars
-            ButtonText = QChar::fromAscii(m_SubSpellerLookUp[Offset + LookUpIndex].AsciiCodeOfKey[0]);
+            ButtonText = QChar::fromLatin1(m_SubSpellerLookUp[Offset + LookUpIndex].AsciiCodeOfKey[0]);
          }
     }
     else {
-        ButtonText = QChar::fromAscii(m_SubSpellerLookUp[Offset + LookUpIndex].AsciiCodeOfKey[0]);
+        ButtonText = QChar::fromLatin1(m_SubSpellerLookUp[Offset + LookUpIndex].AsciiCodeOfKey[0]);
     }
     if (m_SubSpellerLookUp[Offset + LookUpIndex].NoOfSubSpeller == ONE_BUTTON_SUBSPELLER) {
         setGeometry(XCoordinate, YCoordinate, mp_ParentButton->width() + m_SubspellerOffsetW,
@@ -290,7 +290,7 @@ void CSubSpeller::InitSubSpellerGUI(qint32 LookUpIndex,
             mp_HorizontalLayout->setContentsMargins(10, 0, 10, 0);
         }
         for( qint32 I = 1; I < m_SubSpellerLookUp[Offset + LookUpIndex].NoOfSubSpeller ; I++) {
-            ButtonText = QChar::fromAscii(m_SubSpellerLookUp[Offset + LookUpIndex].AsciiCodeOfKey[I]);
+            ButtonText = QChar::fromLatin1(m_SubSpellerLookUp[Offset + LookUpIndex].AsciiCodeOfKey[I]);
             QString IconType = (I != m_SubSpellerLookUp[Offset + LookUpIndex].NoOfSubSpeller - 1) ? "Center" : "Right";
             CKeyBoardButton *p_Button = CSubSpeller::CreateNewKey(IconType, ButtonText, "", false);
             mp_HorizontalLayout->addWidget(p_Button);

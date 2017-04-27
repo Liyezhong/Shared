@@ -18,6 +18,7 @@
  */
 /****************************************************************************/
 
+#include <QDataStream>
 #include <QReadLocker>
 #include <QWriteLocker>
 #include <QDebug>
@@ -26,6 +27,7 @@
 #include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/EventObject.h"
+
 
 namespace DataManager {
 

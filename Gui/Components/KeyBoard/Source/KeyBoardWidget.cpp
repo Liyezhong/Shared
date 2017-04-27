@@ -387,7 +387,7 @@ void CKeyBoard::CreateSubSpeller(int Button)
         delete mp_SubSpeller;
         mp_SubSpeller = 0;
     }
-    qint16 AsciiVal = m_ButtonList.at(Button)->GetPrimaryText().at(0).toAscii();
+    qint16 AsciiVal = m_ButtonList.at(Button)->GetPrimaryText().at(0).toLatin1();
     if(m_ShiftCaps == false) {
         //LowerCase
         if (((AsciiVal >= ASCII_a) && (AsciiVal <= ASCII_z))) {
@@ -1034,30 +1034,30 @@ bool CKeyBoard::ValidateString(QString InputString)
     }
     mp_MessageDlg = new MainMenu::CMessageDlg(this);
     mp_MessageDlg->SetTitle(QApplication::translate("KeyBoard::CKeyBoard", "Information Message",
-                                                 0, QApplication::UnicodeUTF8));
+                                                 Q_NULLPTR, -1));
     mp_MessageDlg->SetIcon(QMessageBox::Information);
    mp_MessageDlg->SetButtonText(1, QApplication::translate("KeyBoard::CKeyBoard", "Ok",
-                                                           0, QApplication::UnicodeUTF8));
+                                                           Q_NULLPTR, -1));
     mp_MessageDlg->HideButtons();
 
     //Emtpy string not allowed
     if (InputString == "") {
         mp_MessageDlg->SetText(QApplication::translate("KeyBoard::CKeyBoard", "Please enter text",
-                                                     0, QApplication::UnicodeUTF8));
+                                                     Q_NULLPTR, -1));
         (void) mp_MessageDlg->exec();
         return false;
     }
     else if (EnteredCharLen < m_MinEnteredCharLen) {
         mp_MessageDlg->SetText(QApplication::translate("KeyBoard::CKeyBoard",
         "The entered text is too short. The length must be at least %1 characters.",
-                        0, QApplication::UnicodeUTF8).arg(m_MinEnteredCharLen));
+                        Q_NULLPTR, -1).arg(m_MinEnteredCharLen));
          (void) mp_MessageDlg->exec();
          return false;
     }
     else if (EnteredCharLen > m_MaxEnteredCharLen) {
         mp_MessageDlg->SetText(QApplication::translate("KeyBoard::CKeyBoard",
         "The entered text is too long. The length must not be greater than %1 characters.",
-        0, QApplication::UnicodeUTF8).arg(m_MaxEnteredCharLen));
+        Q_NULLPTR, -1).arg(m_MaxEnteredCharLen));
          (void) mp_MessageDlg->exec();
          return false;
     }

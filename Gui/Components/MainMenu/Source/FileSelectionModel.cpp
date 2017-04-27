@@ -203,10 +203,10 @@ QVariant CFileSelectionModel::headerData(int Section, Qt::Orientation Orientatio
         switch (Section) {
         case 0:
             return QApplication::translate("CFileSelectionModel",
-                               "Use", 0, QApplication::UnicodeUTF8);
+                               "Use", Q_NULLPTR, -1);
         case 1:
             return QApplication::translate("CFileSelectionModel",
-                               "File Name", 0, QApplication::UnicodeUTF8);
+                               "File Name", Q_NULLPTR, -1);
         }
     }
     return QVariant();

@@ -21,6 +21,7 @@
 #ifndef GLOBAL_SIGNALHANDLER_H
 #define GLOBAL_SIGNALHANDLER_H
 
+#include <QObject>
 #include <QStringList>
 
 namespace Global {

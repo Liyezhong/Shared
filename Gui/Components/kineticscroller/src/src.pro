@@ -5,6 +5,7 @@ INCLUDEPATH += ../include
 TARGET = QtScroller
 DESTDIR = ../lib
 
+QT += widgets
 !no-webkit:QT += webkit
 no-webkit:DEFINES += QTSCROLLER_NO_WEBKIT
 

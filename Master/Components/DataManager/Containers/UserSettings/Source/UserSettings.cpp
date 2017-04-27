@@ -26,6 +26,8 @@
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/EventObject.h"
+#include <QDataStream>
+
 //lint -e641
 //lint -e1536
 

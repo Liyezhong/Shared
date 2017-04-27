@@ -31,6 +31,7 @@
 #include <Global/Include/EventObject.h>
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/GlobalEventCodes.h"
+#include <QDataStream>
 
 namespace DataManager {
 

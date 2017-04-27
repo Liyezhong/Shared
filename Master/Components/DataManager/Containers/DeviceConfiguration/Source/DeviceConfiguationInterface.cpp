@@ -27,6 +27,7 @@
 #include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/EventObject.h"
+#include <QDataStream>
 
 namespace DataManager {
 

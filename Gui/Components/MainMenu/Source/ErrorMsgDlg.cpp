@@ -166,7 +166,7 @@ void CErrorMsgDlg::PopUp()
     SetErrorMsgList();
     //Setting Title and Caption label
     SetDialogTitle(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
-                                           0, QApplication::UnicodeUTF8));
+                                           Q_NULLPTR, -1));
     if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
         mp_Ui->captionLabel->hide();
         resize(mp_MainWidow->width() - 50, mp_MainWidow->height() - 40);
@@ -174,7 +174,7 @@ void CErrorMsgDlg::PopUp()
     }
     else {
         SetCaption(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
-                                           0, QApplication::UnicodeUTF8));
+                                           Q_NULLPTR, -1));
         resize(mp_MainWidow->width() - 150, mp_MainWidow->height() - 75);
         move(80, 35);
     }
@@ -189,9 +189,9 @@ void CErrorMsgDlg::PopUp()
 void CErrorMsgDlg::RetranslateUI()
 {
     SetDialogTitle(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
-                                           0, QApplication::UnicodeUTF8));
+                                           Q_NULLPTR, -1));
     SetCaption(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
-                                       0, QApplication::UnicodeUTF8));
+                                       Q_NULLPTR, -1));
 }
 
 /****************************************************************************/

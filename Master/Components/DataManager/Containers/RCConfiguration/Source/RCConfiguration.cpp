@@ -26,9 +26,11 @@
 #include "DataManager/Containers/RCConfiguration/Include/RCConfiguration.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/EventObject.h"
+#include <QDataStream>
 //lint -e641
 //lint -e1536
 //lint -sem(DataManager::CRCConfiguration::CopyFromOther,initializer)
+
 namespace DataManager {
 
 /****************************************************************************/

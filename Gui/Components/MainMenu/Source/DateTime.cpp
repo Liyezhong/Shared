@@ -68,23 +68,23 @@ CDateTime::CDateTime(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CDate
         mp_MinWheel->AddItem(QString("%1").arg(i, 2, 10, QChar('0')), i);
     }
     mp_Ui->scrollPanelDate->Init(3);
-    mp_Ui->scrollPanelDate->SetTitle(QApplication::translate("MainMenu::CDateTime", "Date", 0, QApplication::UnicodeUTF8));
+    mp_Ui->scrollPanelDate->SetTitle(QApplication::translate("MainMenu::CDateTime", "Date", Q_NULLPTR, -1));
     mp_Ui->scrollPanelDate->AddScrollWheel(mp_DayWheel, 0);
-    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Day", 0, QApplication::UnicodeUTF8), 0);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Day", Q_NULLPTR, -1), 0);
     mp_Ui->scrollPanelDate->AddSeparator(MainMenu::CWheelPanel::FULLSTOP, 0);
     mp_Ui->scrollPanelDate->AddScrollWheel(mp_MonthWheel, 1);
-    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Month", 0, QApplication::UnicodeUTF8), 1);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Month", Q_NULLPTR, -1), 1);
     mp_Ui->scrollPanelDate->AddSeparator(MainMenu::CWheelPanel::FULLSTOP, 1);
     mp_Ui->scrollPanelDate->AddScrollWheel(mp_YearWheel, 2);
-    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Year", 0, QApplication::UnicodeUTF8), 2);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Year", Q_NULLPTR, -1), 2);
 
     mp_Ui->scrollPanelTime->Init(2);
-    mp_Ui->scrollPanelTime->SetTitle(QApplication::translate("MainMenu::CDateTime", "Time", 0, QApplication::UnicodeUTF8));
+    mp_Ui->scrollPanelTime->SetTitle(QApplication::translate("MainMenu::CDateTime", "Time", Q_NULLPTR, -1));
     mp_Ui->scrollPanelTime->AddScrollWheel(mp_HourWheel, 0);
-    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Hour", 0, QApplication::UnicodeUTF8), 0);
+    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Hour", Q_NULLPTR, -1), 0);
     mp_Ui->scrollPanelTime->AddSeparator(MainMenu::CWheelPanel::COLON, 0);
     mp_Ui->scrollPanelTime->AddScrollWheel(mp_MinWheel, 1);
-    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Minute", 0, QApplication::UnicodeUTF8), 1);
+    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Minute", Q_NULLPTR, -1), 1);
 
     if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
         mp_DayWheel->InitScrollWheel("Large");
@@ -210,13 +210,13 @@ void CDateTime::CollectData(bool Send)
     {
         MainMenu::CMessageDlg* pMessageDlg = new MainMenu::CMessageDlg(this);
         pMessageDlg->SetTitle(QApplication::translate("MainMenu::CDateTime", "Information",
-                                                     0, QApplication::UnicodeUTF8));
+                                                     Q_NULLPTR, -1));
         pMessageDlg->SetIcon(QMessageBox::Information);
         pMessageDlg->SetButtonText(1, QApplication::translate("MainMenu::CDateTime", "Ok",
-                                                               0, QApplication::UnicodeUTF8));
+                                                               Q_NULLPTR, -1));
         pMessageDlg->HideButtons();
         pMessageDlg->SetText(QApplication::translate("MainMenu::CDateTime", "The selected date is invalid. Please select another one.",
-                                                         0, QApplication::UnicodeUTF8));
+                                                         Q_NULLPTR, -1));
         if (mp_MainWindow)
         {
             QRect scr = mp_MainWindow->geometry();
@@ -229,7 +229,7 @@ void CDateTime::CollectData(bool Send)
 
     if (Send == true) {
         emit ShowWaitDialog(QApplication::translate("MainMenu::CDateTime", "Saving settings ...",
-                                                 0, QApplication::UnicodeUTF8));
+                                                 Q_NULLPTR, -1));
         emit ApplyData(m_DateTime);
     }
 }
@@ -241,14 +241,14 @@ void CDateTime::CollectData(bool Send)
 /****************************************************************************/
 void CDateTime::RetranslateUI()
 {
-    mp_Ui->scrollPanelDate->SetTitle(QApplication::translate("MainMenu::CDateTime", "Date", 0, QApplication::UnicodeUTF8));
-    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Day", 0, QApplication::UnicodeUTF8),0);
-    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Month", 0, QApplication::UnicodeUTF8),1);
-    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Year", 0, QApplication::UnicodeUTF8),2);
+    mp_Ui->scrollPanelDate->SetTitle(QApplication::translate("MainMenu::CDateTime", "Date", Q_NULLPTR, -1));
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Day", Q_NULLPTR, -1),0);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Month", Q_NULLPTR, -1),1);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Year", Q_NULLPTR, -1),2);
 
-    mp_Ui->scrollPanelTime->SetTitle(QApplication::translate("MainMenu::CDateTime", "Time", 0, QApplication::UnicodeUTF8));
-    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Hour", 0, QApplication::UnicodeUTF8),0);
-    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Minute", 0, QApplication::UnicodeUTF8),1);
+    mp_Ui->scrollPanelTime->SetTitle(QApplication::translate("MainMenu::CDateTime", "Time", Q_NULLPTR, -1));
+    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Hour", Q_NULLPTR, -1),0);
+    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Minute", Q_NULLPTR, -1),1);
 }
 
 /****************************************************************************/

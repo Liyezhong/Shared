@@ -12,11 +12,12 @@ CONFIG += static \
 
 QT += gui \
       core \
+      widgets \
 
 
 CONFIG += debug_and_release
 #CONFIG += build_all
-CONFIG += uitools
+QT+=uitools
 
 INCLUDEPATH += ../.. \
                ../../../../../Platform/Master/Components \

@@ -29,7 +29,6 @@
 #include <QLocale>
 
 #include <iostream>
-#include <Global/Include/Utils.h>
 
 // the following macros must not be paranthesized
 //lint -esym(773, FILE_LINE)
@@ -99,7 +98,7 @@ const QString EVENTLOG_TEMP_FILE_NAME_SUFFIX = "Events_Tmp.log";
  * \return The string.
  */
 /****************************************************************************/
-#define WHEREAMI Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") + " " + "0x" + QString::number((unsigned int)QThread::currentThreadId(), 16).toUpper() + " -> " + __PRETTY_FUNCTION__
+#define WHEREAMI Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") + " " + "0x" + static_cast<char*>(QThread::currentThreadId()) + " -> " + __PRETTY_FUNCTION__
 
 /****************************************************************************/
 /**

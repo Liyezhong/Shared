@@ -21,7 +21,7 @@
 #ifndef APPLICATION_LEICASTYLE_H
 #define APPLICATION_LEICASTYLE_H
 
-#include <QWindowsStyle>
+#include <QProxyStyle>
 
 //lint -e616
 //lint -e527
@@ -40,7 +40,7 @@ typedef enum {
  *        interfaces
  */
 /****************************************************************************/
-class CLeicaStyle : public QWindowsStyle
+class CLeicaStyle : public QProxyStyle
 {    
 public:
     void polish(QPalette &Palette);

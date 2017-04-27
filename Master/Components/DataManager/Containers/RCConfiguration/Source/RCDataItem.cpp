@@ -29,6 +29,7 @@
 #include <Global/Include/EventObject.h>
 #include <DataManager/Helper/Include/DataManagerEventCodes.h>
 #include "DataManager/Helper/Include/Helper.h"
+#include <QDataStream>
 
 //lint -e1566
 //lint -sem(DataManager::CRCDataItem::CopyFromOther,initializer)

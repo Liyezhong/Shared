@@ -124,7 +124,7 @@ NetworkServerType_t NetworkServer::GetServerType()
  *  \param    sktDescriptor = socket parameter given by the QTcpServer
  *
  ****************************************************************************/
-void NetworkServer::incomingConnection(int sktDescriptor)
+void NetworkServer::incomingConnection(qintptr sktDescriptor)
 {
     qDebug() << "NETSERVER: Entered incomingConnection..." << this->m_myIp << this->m_myPort;
 
@@ -194,7 +194,7 @@ void NetworkServer::incomingConnection(int sktDescriptor)
  *  \param    sktDescriptor = socket parameter given by the QTcpServer
  *
  ****************************************************************************/
-void NetworkServer::DisconnectTheSocket(DisconnectType_t dtype, int sktDescriptor)
+void NetworkServer::DisconnectTheSocket(DisconnectType_t dtype, qintptr sktDescriptor)
 {
     QTcpSocket socket;
     if (!socket.setSocketDescriptor(sktDescriptor)) {

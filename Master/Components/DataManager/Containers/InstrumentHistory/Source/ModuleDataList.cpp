@@ -28,6 +28,7 @@
 #include <QBuffer>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QDataStream>
 
 namespace DataManager
 {

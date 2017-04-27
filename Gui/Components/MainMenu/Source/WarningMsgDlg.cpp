@@ -168,7 +168,7 @@ void CWarningMsgDlg::PopUp()
     SetWarningMsgList();    
    //Setting Title and Caption label    
     SetDialogTitle(QApplication::translate("MainMenu::CWarningMsgDlg",
-                                           "Warning Messages", 0, QApplication::UnicodeUTF8));
+                                           "Warning Messages", Q_NULLPTR, -1));
     if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
         mp_Ui->captionLabel->hide();
         resize(mp_MainWidow->width() - 50, mp_MainWidow->height() - 40);
@@ -176,7 +176,7 @@ void CWarningMsgDlg::PopUp()
     }
     else {
         SetCaption(QApplication::translate("MainMenu::CWarningMsgDlg",
-                                           "Warning Messages", 0, QApplication::UnicodeUTF8));
+                                           "Warning Messages", Q_NULLPTR, -1));
         resize(mp_MainWidow->width() - 150, mp_MainWidow->height() - 75);
         move(80, 35);
     }
@@ -192,9 +192,9 @@ void CWarningMsgDlg::PopUp()
 void CWarningMsgDlg::RetranslateUI()
 {
     SetCaption(QApplication::translate("MainMenu::CWarningMsgDlg",
-                                       "Warning Messages", 0, QApplication::UnicodeUTF8));
+                                       "Warning Messages", Q_NULLPTR, -1));
     SetDialogTitle(QApplication::translate("MainMenu::CWarningMsgDlg",
-                                           "Warning Messages", 0, QApplication::UnicodeUTF8));
+                                           "Warning Messages", Q_NULLPTR, -1));
 }
 
 /****************************************************************************/

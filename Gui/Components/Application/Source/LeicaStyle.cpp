@@ -74,7 +74,7 @@ int CLeicaStyle::pixelMetric(PixelMetric Which, const QStyleOption *p_Option, co
     case PM_IndicatorWidth:
         return 37;
     default:
-        return QWindowsStyle::pixelMetric(Which, p_Option, p_Widget);
+        return QProxyStyle::pixelMetric(Which, p_Option, p_Widget);
     }
 }
 
@@ -207,7 +207,7 @@ void CLeicaStyle::drawPrimitive(PrimitiveElement Which, const QStyleOption *p_Op
         break;
     }
     default:
-        QWindowsStyle::drawPrimitive(Which, p_Option, p_Painter, p_Widget);
+        QProxyStyle::drawPrimitive(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -299,12 +299,12 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
         const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
 
         if (p_Tab->shape == QTabBar::RoundedNorth) {
-            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+            QProxyStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
         }
         else {
             QTransform Transform = QTransform::fromTranslate(0, -12);
             p_Painter->setTransform(Transform);
-            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+            QProxyStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
             Transform = QTransform::fromTranslate(0, 0);
             p_Painter->setTransform(Transform);
         }
@@ -377,7 +377,7 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
             QFont Font = p_Painter->font();
             Font.setBold(true);
             p_Painter->setFont(Font);
-            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+            QProxyStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
             break;
         }*/
     case CE_HeaderSection:
@@ -388,7 +388,7 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
         break;
     }
     default:
-        QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+        QProxyStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -421,7 +421,7 @@ void CLeicaStyle::drawComplexControl(ComplexControl Which, const QStyleOptionCom
         break;
     }
     default:
-        QWindowsStyle::drawComplexControl(Which, p_Option, p_Painter, p_Widget);
+        QProxyStyle::drawComplexControl(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -442,7 +442,7 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
     switch (Which) {
     case CT_HeaderSection:
     {
-        QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+        QSize Size = QProxyStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
         Size.setHeight(28);
         return Size;
     }
@@ -454,7 +454,7 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
                 return QSize(71, 62);
             }
             else {
-                QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+                QSize Size = QProxyStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
                 if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
                     //Small push button icon height
                     // Size.setHeight(58);
@@ -472,7 +472,7 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
             }
         }
         else {
-            return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+            return QProxyStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
         }
     }
     case CT_TabBarTab:
@@ -503,7 +503,7 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
             return QSize(149, 45);
         }
     default:
-        return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+        return QProxyStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
     }
 }
 
@@ -525,7 +525,7 @@ int CLeicaStyle::styleHint(StyleHint Which, const QStyleOption *p_Option, const 
     case SH_EtchDisabledText:
         return 0;
     default:
-        return QWindowsStyle::styleHint(Which, p_Option, p_Widget, p_ReturnData);
+        return QProxyStyle::styleHint(Which, p_Option, p_Widget, p_ReturnData);
     }
 }
 
@@ -571,7 +571,7 @@ QRect CLeicaStyle::subElementRect(SubElement Which, const QStyleOption *p_Option
     case SE_RadioButtonFocusRect:
         return QRect(0, 0, 0, 0);
     default:
-        return QWindowsStyle::subElementRect(Which, p_Option, p_Widget);
+        return QProxyStyle::subElementRect(Which, p_Option, p_Widget);
     }
 }
 

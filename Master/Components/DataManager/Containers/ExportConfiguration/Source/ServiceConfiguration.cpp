@@ -31,6 +31,7 @@
 
 #include "DataManager/Containers/ExportConfiguration/Include/ServiceConfiguration.h"
 #include <Global/Include/EventObject.h>
+#include <QDataStream>
 
 namespace DataManager {
 

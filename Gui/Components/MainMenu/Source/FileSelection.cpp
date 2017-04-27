@@ -46,7 +46,7 @@ CFileSelection::CFileSelection(QWidget *p_Parent) :
 
 {
     SetDialogTitle(QApplication::translate("MainMenu::CFileSelection", "Import Files",
-                                           0, QApplication::UnicodeUTF8));
+                                           Q_NULLPTR, -1));
     mp_Ui->setupUi(GetContentFrame());
 
     mp_TableWidget = new MainMenu::CBaseTable;
@@ -226,7 +226,7 @@ void CFileSelection::CancelButtonClicked()
 void CFileSelection::RetranslateUI()
 {
     MainMenu::CDialogFrame::SetDialogTitle(QApplication::translate("MainMenu::CFileSelection", "Import Files",
-                                                                   0, QApplication::UnicodeUTF8));
+                                                                   Q_NULLPTR, -1));
 }
 
 

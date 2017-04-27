@@ -27,6 +27,7 @@
 #include "DataManager/Helper/Include/Helper.h"
 
 #include <QDebug>
+#include <QDataStream>
 
 namespace DataManager
 {

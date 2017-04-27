@@ -49,9 +49,9 @@ CBaseTable::CBaseTable(QWidget *p_Parent) : QTableView(p_Parent)
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    horizontalHeader()->setClickable(false);
+    horizontalHeader()->setSectionsClickable (false);
     horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+    horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     horizontalHeader()->setStretchLastSection(true);
     horizontalHeader()->hide();
     verticalHeader()->setDefaultSectionSize(40);

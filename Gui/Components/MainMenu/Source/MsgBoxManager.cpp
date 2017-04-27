@@ -82,37 +82,37 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
     switch (MsgDataStruct.EventType) {
     case Global::EVTTYPE_INFO:
         MsgDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Information Message",
-                                                        0, QApplication::UnicodeUTF8));
+                                                        Q_NULLPTR, -1));
 
         //Also set Msg Box Icon
         MsgDlg->SetIcon(QMessageBox::Information);
         break;
     case Global::EVTTYPE_WARNING:
         MsgDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Warning Message",
-                                                        0, QApplication::UnicodeUTF8));
+                                                        Q_NULLPTR, -1));
 
         MsgDlg->SetIcon(QMessageBox::Warning);
         break;
     case Global::EVTTYPE_FATAL_ERROR:
     case Global::EVTTYPE_ERROR:
         MsgDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Error Message",
-                                                        0, QApplication::UnicodeUTF8));
+                                                        Q_NULLPTR, -1));
         MsgDlg->SetIcon(QMessageBox::Critical);
         break;
     default:
         MsgDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Error Message",
-                                                        0, QApplication::UnicodeUTF8));
+                                                        Q_NULLPTR, -1));
         MsgDlg->SetIcon(QMessageBox::Critical);
         break;
     }
     //Set Button Text
     quint32 ButtonCount = Global::GetButtonCountFromButtonType(MsgDataStruct.BtnType);
     if (ButtonCount == 1 && MsgDataStruct.BtnType == Global::OK) {
-        MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+        MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", Q_NULLPTR, -1));
         MsgDlg->HideButtons();
     }
     else if (ButtonCount == 1 && MsgDataStruct.BtnType == Global::RETRY){
-        MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Retry", 0, QApplication::UnicodeUTF8));
+        MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Retry", Q_NULLPTR, -1));
         MsgDlg->HideButtons();
     }
     else if (ButtonCount == 2 || ButtonCount == 3) {
@@ -122,7 +122,7 @@ MainMenu::CMessageDlg *  CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
         MsgDlg->HideAllButtons();
     }
     else {
-        MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", 0, QApplication::UnicodeUTF8));
+        MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", Q_NULLPTR, -1));
         MsgDlg->HideButtons();
     }
     MsgDlg->setModal(true);
@@ -287,7 +287,7 @@ void CMsgBoxManager::LanguageChanged()
         MainMenu::CMessageDlg *MessageDlg = m_MsgDlgEventIDHash.value(EventID);
         quint32 ButtonCount = Global::GetButtonCountFromButtonType(data.BtnType);
         if (ButtonCount == 1 && m_CurrentMsgData.BtnType == Global::OK && MessageDlg) {
-            MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+            MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", Q_NULLPTR, -1));
             MessageDlg->HideButtons();
         }
         else if (ButtonCount == 2 || ButtonCount == 3) {
@@ -295,7 +295,7 @@ void CMsgBoxManager::LanguageChanged()
         }
         else {
             if (MessageDlg) {
-                MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+                MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", Q_NULLPTR, -1));
                 MessageDlg->HideButtons();
             }
         }
@@ -565,30 +565,30 @@ void CMsgBoxManager::SetMessageBoxType(MainMenu::CMessageDlg *MsgDlg, MsgData Me
         case Global::YES_NO:
             //I am not adding the below lines(Which are repeated in every switch case) to a function
             //since Translation is a problem
-            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", 0, QApplication::UnicodeUTF8));
-            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager", "No", 0, QApplication::UnicodeUTF8));
+            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", Q_NULLPTR, -1));
+            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager", "No", Q_NULLPTR, -1));
             MsgDlg->HideCenterButton();
             break;
         case Global::CONTINUE_STOP:
-            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Continue", 0, QApplication::UnicodeUTF8));
-            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Stop", 0, QApplication::UnicodeUTF8));
+            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Continue", Q_NULLPTR, -1));
+            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Stop", Q_NULLPTR, -1));
             MsgDlg->HideCenterButton();
             break;
         case Global::OK_CANCEL:
-            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
-            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Cancel", 0, QApplication::UnicodeUTF8));
+            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", Q_NULLPTR, -1));
+            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Cancel", Q_NULLPTR, -1));
             MsgDlg->HideCenterButton();
             break;
         case Global::YES_NO_CANCEL:
-            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", 0, QApplication::UnicodeUTF8));
-            MsgDlg->SetButtonText(2, QApplication::translate("CMsgBoxManager","No", 0, QApplication::UnicodeUTF8));
-            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Cancel", 0, QApplication::UnicodeUTF8));
+            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", Q_NULLPTR, -1));
+            MsgDlg->SetButtonText(2, QApplication::translate("CMsgBoxManager","No", Q_NULLPTR, -1));
+            MsgDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Cancel", Q_NULLPTR, -1));
             break;
         case Global::WITHOUT_BUTTONS:
             MsgDlg->HideAllButtons();
             break;
         default:
-            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+            MsgDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", Q_NULLPTR, -1));
             MsgDlg->HideButtons();
             break;
         }

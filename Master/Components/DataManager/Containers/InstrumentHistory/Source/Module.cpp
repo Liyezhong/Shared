@@ -30,6 +30,7 @@
 
 #include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include "DataManager/Helper/Include/Helper.h"
+#include <QDataStream>
 
 namespace DataManager
 {

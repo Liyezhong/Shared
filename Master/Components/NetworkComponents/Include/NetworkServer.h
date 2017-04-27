@@ -135,8 +135,7 @@ public:
     void DestroyAllConnections();
 
 protected:
-
-    void incomingConnection(int sktDescriptor);
+    virtual void incomingConnection(qintptr sktDescriptor);
 
 signals:
 
@@ -196,7 +195,7 @@ private:
 
     quint32 GetFreeConnectionNumber();
     bool GenerateReference();
-    void DisconnectTheSocket(DisconnectType_t dtype, int socketDescriptor);
+    void DisconnectTheSocket(DisconnectType_t dtype, qintptr socketDescriptor);
     void HandleDisconnectReason(DisconnectType_t dtype, const QString &client);
     QString FetchServerTypeString();
 

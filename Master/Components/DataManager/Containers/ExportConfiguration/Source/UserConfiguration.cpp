@@ -30,6 +30,7 @@
 #include "Global/Include/Utils.h"
 #include "DataManager/Containers/ExportConfiguration/Include/UserConfiguration.h"
 #include <Global/Include/EventObject.h>
+#include <QDataStream>
 
 namespace DataManager {
 

@@ -42,7 +42,7 @@ CServiceExportDlg::CServiceExportDlg(QWidget *p_Parent) :
 
 {
     SetDialogTitle(QApplication::translate("MainMenu::CServiceExport", "Service Export",
-                                           0, QApplication::UnicodeUTF8));
+                                           Q_NULLPTR, -1));
     mp_Ui->setupUi(GetContentFrame());
     mp_Ui->radioButton_5files->setChecked(true);
     CONNECTSIGNALSLOTGUI(mp_Ui->btnOk, clicked(), this, OkClicked());
@@ -98,6 +98,6 @@ void CServiceExportDlg::OkClicked()
 void CServiceExportDlg::RetranslateUI()
 {
     SetDialogTitle(QApplication::translate("MainMenu::CServiceExport", "Service Export",
-                                           0, QApplication::UnicodeUTF8));
+                                           Q_NULLPTR, -1));
 }
 }

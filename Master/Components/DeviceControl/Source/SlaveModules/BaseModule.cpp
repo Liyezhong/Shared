@@ -2541,7 +2541,7 @@ void CBaseModule::HandleCANMsgSerialNumber(can_frame* pCANframe)
             Size = -1;
         }
 
-        m_SerialNumber.append(QString::fromAscii((const char *)&pCANframe->data[1], Size));
+        m_SerialNumber.append(QString::fromLatin1((const char *)&pCANframe->data[1], Size));
     }
     else
     {
@@ -2772,7 +2772,7 @@ void CBaseModule::HandleCANMsgBoardName(can_frame* pCANframe)
                                   << ": Board name received:" << (int) pCANframe->data[0];
     if(pCANframe->can_dlc == 8)
     {
-        QString BoardName = QString::fromAscii((const char *)pCANframe->data);
+        QString BoardName = QString::fromLatin1((const char *)pCANframe->data);
 
         emit ReportBoardName(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, BoardName);
     }

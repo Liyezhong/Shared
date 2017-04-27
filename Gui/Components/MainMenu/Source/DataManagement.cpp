@@ -290,13 +290,13 @@ void CDataManagement::SetPtrToMainWindow(MainMenu::CMainWindow *p_MainWindow)
 void CDataManagement::RetranslateUI()
 {
    mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CDataManagement", "Import",
-                                                     0, QApplication::UnicodeUTF8));
+                                                     Q_NULLPTR, -1));
    mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CDataManagement", "Export",
-                                                     0, QApplication::UnicodeUTF8));
+                                                     Q_NULLPTR, -1));
    mp_Dialog->SetText(QApplication::translate("MainMenu::CDataManagement", "Importing data ...",
-                                              0, QApplication::UnicodeUTF8));
+                                              Q_NULLPTR, -1));
    mp_Dialog->SetText(QApplication::translate("MainMenu::CDataManagement", "Exporting data ...",
-                                              0, QApplication::UnicodeUTF8));
+                                              Q_NULLPTR, -1));
 }
 
 } // end namespace MainMenu

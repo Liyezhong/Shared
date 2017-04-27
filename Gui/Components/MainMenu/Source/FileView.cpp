@@ -163,7 +163,7 @@ void CFileView::DayRunLogFileContent(const QDataStream &DataStream)
 
     // tr function is used for translator
     mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CFileView", "Event Viewer",
-                                                      0, QApplication::UnicodeUTF8));
+                                                      Q_NULLPTR, -1));
     mp_Dialog->SetCaption(m_Model.itemFromIndex(mp_TableWidget->currentIndex())->text() + " ");
     mp_Dialog->setModal(true);
     mp_Dialog->show();
@@ -285,9 +285,9 @@ void CFileView::AddEmptyRows()
 void CFileView::RetranslateUI()
 {
     m_Model.setHorizontalHeaderItem(0, new QStandardItem(QApplication::translate("MainMenu::CFileView", "File Name",
-                                                                                   0, QApplication::UnicodeUTF8)));
+                                                                                   Q_NULLPTR, -1)));
     mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CFileView", "Event Viewer",
-                                                      0, QApplication::UnicodeUTF8));
+                                                      Q_NULLPTR, -1));
     if (mp_TableWidget->currentIndex().row() >= 0) {
         mp_Dialog->SetCaption(m_Model.itemFromIndex(mp_TableWidget->currentIndex())->text() + " ");
     }
