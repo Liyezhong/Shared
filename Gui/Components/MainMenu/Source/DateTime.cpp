@@ -27,7 +27,7 @@
 #include "ui_DateTime.h"
 #include <QDebug>
 #include <QPainter>
-#include "Core/Include/GlobalHelper.h"
+//#include "Core/Include/GlobalHelper.h"
 #include "MainMenu/Include/MessageDlg.h"
 namespace MainMenu {
 
@@ -271,13 +271,13 @@ void CDateTime::ResetButtons()
 {
     m_ProcessRunning = MainMenu::CMainWindow::GetProcessRunningStatus();
     if (!m_ProcessRunning) {
-        if (Core::CGlobalHelper::CheckIfCanEdit() == false) {
-            mp_Ui->pushButton->setEnabled(false);
-        }
-        else {
+        //if (Core::CGlobalHelper::CheckIfCanEdit() == false) {
+        //    mp_Ui->pushButton->setEnabled(false);
+        //}
+       // else {
             //Edit Mode
             mp_Ui->pushButton->setEnabled(true);
-        }
+       // }
     }
     else {
         mp_Ui->pushButton->setEnabled(false);

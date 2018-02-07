@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/Popup">
+        <file>Popup-Rack-black.png</file>
+        <file>Popup-Rack-darkblue.png</file>
+        <file>Popup-Rack-green.png</file>
+        <file>Popup-Rack-grey.png</file>
+        <file>Popup-Rack-lightblue.png</file>
+        <file>Popup-Rack-pink.png</file>
+        <file>Popup-Rack-purple.png</file>
+        <file>Popup-Rack-red.png</file>
+        <file>Popup-Rack-white.png</file>
+        <file>Popup-Rack-yellow.png</file>
+        <file>Popup.png</file>
+    </qresource>
+</RCC>

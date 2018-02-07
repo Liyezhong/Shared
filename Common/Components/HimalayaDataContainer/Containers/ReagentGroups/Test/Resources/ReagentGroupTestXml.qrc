@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Xml">
+        <file>ProgramSequenceNOK.xml</file>
+    </qresource>
+</RCC>

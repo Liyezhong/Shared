@@ -1,0 +1,57 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/BathButton">
+    <file>BathButton_Unload-Enabled.png</file>
+    <file>BathButton_Grid.png</file>
+    <file>BathButton_MC-Pressed.png</file>
+    <file>BathButton_Load_LC-Enabled.png</file>
+    <file>BathButton-Pressed.png</file>
+    <file>BathButton_MC-Warning.png</file>
+    <file>BathButton_Unload_LL-Disabled.png</file>
+    <file>BathButton_Load_LL-Enabled.png</file>
+    <file>BathButton_LR-Pressed.png</file>
+    <file>BathButton_Unload_LC-Disabled.png</file>
+    <file>BathButton_LL-Warning.png</file>
+    <file>BathButton_Load_LC-Disabled.png</file>
+    <file>BathButton_Load_LL-Pressed.png</file>
+    <file>BathButton_Load_LL-Disabled.png</file>
+    <file>BathButton_UR-Enabled.png</file>
+    <file>BathButton_Unload-Disabled.png</file>
+    <file>BathButton_UL-Disabled.png</file>
+    <file>BathButton-Enabled.png</file>
+    <file>BathButton_LL-Pressed.png</file>
+    <file>BathButton_LR-Disabled.png</file>
+    <file>BathButton_Unload_LC-Pressed.png</file>
+    <file>BathButton_MC-Disabled.png</file>
+    <file>BathButton_LL-Enabled.png</file>
+    <file>BathButton_Unload-Pressed.png</file>
+    <file>BathButton_Unload_LC-Enabled.png</file>
+    <file>BathButton_Unload_LL-Enabled.png</file>
+    <file>BathButton_Load_LC-Pressed.png</file>
+    <file>BathButton_MC-Enabled.png</file>
+    <file>BathButton_UR-Warning.png</file>
+    <file>BathButton_LL-Disabled.png</file>
+    <file>BathButton_UR-Pressed.png</file>
+    <file>BathButton_Water.png</file>
+    <file>BathButton_LR-Warning.png</file>
+    <file>BathButton_LR-Enabled.png</file>
+    <file>BathButton-Disabled.png</file>
+    <file>BathButton_UL-Enabled.png</file>
+    <file>BathButton_UR-Disabled.png</file>
+    <file>BathButton_UL-Pressed.png</file>
+    <file>BathButton_Unload_LL-Pressed.png</file>
+    <file>BathButton_UL-Warning.png</file>
+	<file>BathButton_LL-green.png</file>
+	<file>BathButton_LR-green.png</file>
+	<file>BathButton_MC-green.png</file>
+	<file>BathButton_UL-green.png</file>
+	<file>BathButton_UR-green.png</file> 
+	<file>BathButton_green.png</file>
+	<file>BathButton_LL-orange.png</file>
+	<file>BathButton_LR-orange.png</file>
+	<file>BathButton_MC-orange.png</file>
+	<file>BathButton_UL-orange.png</file>
+	<file>BathButton_UR-orange.png</file> 
+	<file>BathButton_orange.png</file>
+	
+</qresource>
+</RCC>

@@ -28,7 +28,7 @@
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
-#include "../../../Himalaya/Shared//Master/Components/HimalayaDataContainer/Containers/UserSettings/Include/HimalayaUserSettings.h"
+#include "HimalayaDataContainer/Containers/UserSettings/Include/HimalayaUserSettings.h"
 
 //lint -sem(DataManager::CUserSettingsInterface::SetDefaultAttributes,initializer)
 //lint -sem(DataManager::CUserSettingsInterface::UpdateUserSettings, custodial(1))

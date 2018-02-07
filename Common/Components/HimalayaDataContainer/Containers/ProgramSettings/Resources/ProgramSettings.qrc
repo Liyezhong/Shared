@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Xml">
+        <file>ProgramSettings.xml</file>
+    </qresource>
+</RCC>

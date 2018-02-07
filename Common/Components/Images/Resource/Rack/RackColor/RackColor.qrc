@@ -1,0 +1,15 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/Rack/RackColor">
+    <file>RackColor_black.png</file>
+    <file>RackColor_purple.png</file>
+    <file>RackColor_lightblue.png</file>
+    <file>RackColor_darkblue.png</file>
+    <file>RackColor_pink.png</file>
+    <file>RackColor_green.png</file>
+    <file>RackColor_grey.png</file>
+    <file>RackColor_red.png</file>
+    <file>RackColor_white_black_border.png</file>
+    <file>RackColor_white.png</file>
+    <file>RackColor_yellow.png</file>
+</qresource>
+</RCC>

@@ -5,7 +5,7 @@
 TARGET = RemoteCareManager
 
 #include Platform
-INCLUDEPATH += ../../../../../../Platform
+INCLUDEPATH += ../../../../../Shared
 
 HEADERS +=  ../Include/*.h
 

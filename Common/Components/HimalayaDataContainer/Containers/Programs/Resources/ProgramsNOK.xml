@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE StainingPrograms>
+<StainingPrograms Version="3">
+    <ProgramList NextProgramID="U4711">
+        <Program ID="U37" ShortName="P13" LongName="Program 37" Color="pink" Locked="false">
+            <StepList NextStepID="4">
+                <Step ID="0" ReagentID="S4" Exclusive="false" ParallelStations="3" MinDuration="10s" MaxDuration="25%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+                <Step ID="1" ReagentID="U10" Exclusive="true" ParallelStations="3" MinDuration="20s" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+                <Step ID="2" ReagentID="U15" Exclusive="false" ParallelStations="3" MinDuration="30s" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+                <Step ID="3" ReagentID="U20" Exclusive="false" ParallelStations="3" MinDuration="40s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+            </StepList>
+        </Program>
+        <Program ID="L99" ShortName="L99" LongName="Leica Program 99" Color="red" Locked="true">
+            <StepList NextStepID="4">
+                <Step ID="0" ReagentID="S4" Exclusive="false" ParallelStations="0" MinDuration="15s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+                <Step ID="1" ReagentID="U35" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+                <Step ID="3" ReagentID="U25" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+            </StepList>
+        </Program>
+        <Program ID="U2" ShortName="P2" LongName="Program 2" Color="green" Locked="false">
+            <StepList NextStepID="11">
+                <Step ID="0" ReagentID="U15" Exclusive="false" ParallelStations="1" MinDuration="hh 5s" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+                <Step ID="5" ReagentID="U10" Exclusive="false" ParallelStations="2" MinDuration="10s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+                <Step ID="10" ReagentID="U20" Exclusive="false" ParallelStations="3" MinDuration="10m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0" RangeHigh="0"/>
+            </StepList>
+        </Program>
+    </ProgramList>
+</StainingPrograms>

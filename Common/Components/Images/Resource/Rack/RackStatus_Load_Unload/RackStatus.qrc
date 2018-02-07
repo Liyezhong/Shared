@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/Rack/RackStatus">
+        <file>RackStatus_Load_black.png</file>
+        <file>RackStatus_Load_darkblue.png</file>
+        <file>RackStatus_Load_green.png</file>
+        <file>RackStatus_Unload_darkblue.png</file>
+        <file>RackStatus_Unload_green.png</file>
+        <file>RackStatus_Load_grey.png</file>
+        <file>RackStatus_Load_lightblue.png</file>
+        <file>RackStatus_Load_pink.png</file>
+        <file>RackStatus_Load_red.png</file>
+        <file>RackStatus_Load_Unload.qrc</file>
+        <file>RackStatus_Load_white.png</file>
+        <file>RackStatus_Unload_black.png</file>
+        <file>RackStatus_Unload_grey.png</file>
+        <file>RackStatus_Unload_lightblue.png</file>
+        <file>RackStatus_Unload_pink.png</file>
+        <file>RackStatus_Unload_red.png</file>
+        <file>RackStatus_Unload_white.png</file>
+        <file>RackStatus_Unload_yellow.png</file>
+        <file>RackStatus_Load_yellow.png</file>
+    </qresource>
+</RCC>

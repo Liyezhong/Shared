@@ -1,0 +1,14 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/BathRack">
+    <file>BathRack-white.png</file>
+    <file>BathRack-green.png</file>
+    <file>BathRack-darkblue.png</file>
+    <file>BathRack-lightblue.png</file>
+    <file>BathRack-yellow.png</file>
+    <file>BathRack-black.png</file>
+    <file>BathRack-purple.png</file>
+    <file>BathRack-pink.png</file>
+    <file>BathRack-grey.png</file>
+    <file>BathRack-red.png</file>
+</qresource>
+</RCC>

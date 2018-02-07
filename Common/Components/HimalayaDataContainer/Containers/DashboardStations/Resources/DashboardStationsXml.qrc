@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Xml">
+        <file>HimalayaStations.xml</file>
+    </qresource>
+</RCC>

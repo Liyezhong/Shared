@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Stations>
+<Stations Version="1">
+    <Station ID="R1" Name="Retort">
+        <Reagent ID="U1" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="P1" Name="Paraffin (1)">
+        <Reagent ID="U1" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="P2" Name="Paraffin (2)">
+        <Reagent ID="U1" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="P3" Name="Paraffin (3)">
+        <Reagent ID="U1" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S1" Name="S1">
+        <Reagent ID="U1" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S2" Name="S2">
+        <Reagent ID="U2" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S3" Name="S3">
+        <Reagent ID="U3" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S4" Name="S4">
+        <Reagent ID="U4" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S5" Name="S5">
+        <Reagent ID="U5" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S6" Name="S6">
+        <Reagent ID="U6" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S7" Name="S7">
+        <Reagent ID="U7" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S8" Name="S8">
+        <Reagent ID="U8" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S9" Name="S9">
+        <Reagent ID="U9" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S10" Name="S10">
+        <Reagent ID="U10" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S11" Name="S11">
+        <Reagent ID="U11" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S12" Name="S12">
+        <Reagent ID="U12" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+    <Station ID="S13" Name="S13">
+        <Reagent ID="U13" ActualCassettes="500" ActualCycles="5" ExpiryDate ="2011-10-06"/>
+    </Station>
+</Stations>

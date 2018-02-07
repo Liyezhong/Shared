@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/Btn_Help">
+    <file>Btn_Help-Pressed.png</file>
+    <file>Btn_Help-Enabled.png</file>
+    <file>Icon_Help.png</file>
+</qresource>
+</RCC>

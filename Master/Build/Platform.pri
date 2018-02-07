@@ -21,15 +21,9 @@ CONFIG += debug_and_release
 #CONFIG += build_all
 
 INCLUDEPATH += ../..
-#INCLUDEPATH += ../../../../../Platform/Master/Components/
-#               ../../../../../Himalaya/Shared/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components
-INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components
+INCLUDEPATH += ../../../../../Shared/Common/Components
 INCLUDEPATH += ../../../../../
 DEPENDPATH += ../..
-#              ../../../../../Platform/Master/Components/
-#              ../../../../../Himalaya/Shared/Master/Components/
 
 QMAKE_CXXFLAGS += -Wall -std=c++0x
 

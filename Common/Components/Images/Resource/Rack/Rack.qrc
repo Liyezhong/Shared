@@ -1,0 +1,25 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/Rack">
+    <file>Rack-purple-Pressed.png</file>
+    <file>Rack-pink-Pressed.png</file>
+    <file>Rack-darkblue-Pressed.png</file>
+    <file>Rack-grey-Enabled.png</file>
+    <file>Vertical_Splitter.png</file>
+    <file>Rack-green-Enabled.png</file>
+    <file>Rack-white-Enabled.png</file>
+    <file>Rack-lightblue-Enabled.png</file>
+    <file>Rack-yellow-Enabled.png</file>
+    <file>Rack-black-Pressed.png</file>
+    <file>Rack-grey-Pressed.png</file>
+    <file>Rack-darkblue-Enabled.png</file>
+    <file>Rack-red-Pressed.png</file>
+    <file>Rack-lightblue-Pressed.png</file>
+    <file>Rack-yellow-Pressed.png</file>
+    <file>Rack-red-Enabled.png</file>
+    <file>Rack-green-Pressed.png</file>
+    <file>Rack-black-Enabled.png</file>
+    <file>Rack-pink-Enabled.png</file>
+    <file>Rack-purple-Enabled.png</file>
+    <file>Rack-white-Pressed.png</file>
+</qresource>
+</RCC>

@@ -1,0 +1,9 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/StateInfoButton">
+    <file>StateInfoButton-Selected.png</file>
+    <file>StateInfoButton-Enabled.png</file>
+    <file>StateInfoButton-Disabled.png</file>
+    <file>StateInfoButton-SelectedPressed.png</file>
+    <file>StateInfoButton-Pressed.png</file>
+</qresource>
+</RCC>

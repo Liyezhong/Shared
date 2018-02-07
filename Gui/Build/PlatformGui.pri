@@ -20,14 +20,11 @@ CONFIG += debug_and_release
 QT+=uitools
 
 INCLUDEPATH += ../.. \
-               ../../../../../Platform/Master/Components \
-               ../../../../../Himalaya/HimalayaMain/Gui/Components \
-               ../../../../../Himalaya/Shared/Gui/Components
+               ../../../../../Shared/Master/Components \
+               ../../../../../Shared/Common/Components
 
 DEPENDPATH += ../.. \
-              ../../../../../Platform/Master/Components \
-              ../../../../../Himalaya/HimalayaMain/Gui/Components \
-              ../../../../../Himalaya/Shared/Gui/Components
+               ../../../../../Shared/Master/Components
 
 QMAKE_CXXFLAGS += -Wall -std=c++0x
 

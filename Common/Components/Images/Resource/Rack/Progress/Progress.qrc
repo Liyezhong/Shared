@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/Rack/Progress">
+    <file>Progress-FG-Devider.png</file>
+    <file>Progress-BG.png</file>
+    <file>Progress-Fill.png</file>
+</qresource>
+</RCC>

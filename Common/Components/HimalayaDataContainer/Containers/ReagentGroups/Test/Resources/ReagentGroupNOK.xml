@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ProgramsSequence>
+<ProgramsSequence Version="1">
+	<Program ID="U37" Used="false" Counter="47" StartCapable="false" StartCapableResult="0" />
+	<Program ID="L99" Used="false" Counter="11" StartCapable="false" StartCapableResult="1,2" />
+	<Program ID="U1" Used="true" Counter="8" StartCapable="true" StartCapableResult="2,3"/>
+	<Program ID="U2" Used="false" Counter="15" StartCapable="true" StartCapableResult="0"/>
+</ProgramsSequence>

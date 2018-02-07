@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/XML">
+        <file>HimalayaReagentGroupColors.xml</file>
+    </qresource>
+</RCC>
