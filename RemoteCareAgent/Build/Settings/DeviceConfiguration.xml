@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DeviceConfiguration>
+<DeviceConfiguration>
+    <Device SLIDEIDCAMERA="No" VERSION="8" WORKSTATIONMODE="Yes" DEVICENAME="Himalaya" SERIALNUMBER="12345678" COVERSLIPPERNAME="CV 8020" HEATEDCUEVETTES="Yes"/>
+</DeviceConfiguration>

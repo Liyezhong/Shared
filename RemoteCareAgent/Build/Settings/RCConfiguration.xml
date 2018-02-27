@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE RCConfiguration>
+<RCConfiguration Version="0">
+    <General QueueSize="2000000" HTTPConnectionPersistence="On" Debug="On"/>
+    <SecureConnection HTTPSecureConnection="On" EncryptionLevel="Medium" Authentication="Off" CertificateFileName="Certificate FileName"/>
+    <RemoteCareServer ExecTime="5" ServerType="Primary" TargetDataBase="drm-data_source" ServerURL="https://leica-sandbox.axeda.com:443/eMessage" ServerId="15"/>
+    <LocalDevice DeviceType="Master" DeviceId="15"/>
+    <LocalNetworkProxy ProxyProtocol="SOCKS"/>
+    <RemoteSession RemoteSessionName="HimalayaRemote" RemoteSessionIPAddress="127.0.0.1"/>
+    <FileUpload Compression="Off" MaxChunkSize="60000">
+        <DataItems>
+            <DataItem Name="EnableSoftwareUpdate" Type="Digital" Quality="DataGood" Value="0"/>
+            <DataItem Name="RequestAssetInformation" Type="Digital" Quality="DataGood" Value="0"/>
+            <DataItem Name="RequestRemoteSession" Type="Digital" Quality="DataGood" Value="0"/>
+            <DataItem Name="SetDownloadFinished" Type="Digital" Quality="DataGood" Value="0"/>
+            <DataItem Name="SetEventClass" Type="Analog" Quality="DataGood" Value="0"/>
+            <DataItem Name="SetEventPriority" Type="Analog" Quality="DataGood" Value="0"/>
+            <DataItem Name="SetLogNumber" Type="Analog" Quality="DataGood" Value="4"/>
+            <DataItem Name="SetPingRate" Type="Analog" Quality="DataGood" Value="60"/>
+            <DataItem Name="SetSubscription" Type="Digital" Quality="DataGood" Value="0"/>
+            <DataItem Name="SetUpdateAvailable" Type="Digital" Quality="DataGood" Value="0"/>
+	    <DataItem Name="StateDownloadFolder" Type="String" Quality="DataGood" Value="../RemoteCare"/>
+	    <DataItem Name="StateSessionType" Type="String" Quality="DataGood" Value="desktop"/>
+	    <DataItem Name="StateSessionPort" Type="Analog" Quality="DataGood" Value="5900"/>
+        </DataItems>
+    </FileUpload>
+</RCConfiguration>

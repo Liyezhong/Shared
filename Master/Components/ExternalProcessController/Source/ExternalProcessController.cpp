@@ -207,7 +207,7 @@ void ExternalProcessController::ExternalProcessExited(const QString &name, int c
     qDebug() << "\nExternalProcessController: ExternalProcessExited called.\n";
 
     CHECKPTR(m_myStateManager);
-    if (name.contains("Himalaya Device GUI"))
+    if (name.contains("Skyline Device GUI"))
         exit(code);
 
     Global::EventObject::Instance().RaiseEvent(EVENT_EPC_EXTERNAL_PROCESS_EXITED, Global::FmtArgs() << GetProcessName() << code);

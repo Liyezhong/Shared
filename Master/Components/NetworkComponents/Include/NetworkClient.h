@@ -42,7 +42,7 @@ const QString NC_MSG_OFF_TAG  = "</message>";
      Do NOT change them unless you change the server network configuration XML file !!! */
 const QString ClientConfiguration[][4] = {
     {"Axeda Client", "1.0", "127.0.0.15", "8801"},         ///< client runs in Axeda Process
-    {"Himalaya Device GUI", "1.0", "127.0.0.16", "8801"},  ///< client runs in Colorado Normal GUI
+    {"Skyline Device GUI", "1.0", "127.0.0.16", "8801"},  ///< client runs in Colorado Normal GUI
     {"Sepia Device GUI", "1.0", "127.0.0.17", "8801"},     ///< client runs in Sepia Normal GUI
     {"Himalaya Serice SW", "1.0", "127.0.0.18", "8801"},   ///< client runs in Colorado Service GUI
     {"Sepia Serice SW", "1.0", "127.0.0.19", "8801"},      ///< client runs in Sepia Service GUI

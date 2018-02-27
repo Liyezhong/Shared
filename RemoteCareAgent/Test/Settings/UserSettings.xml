@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Settings>
+<Settings Version="1">
+    <Localization Language="en" DateFormat="US" TimeFormat="12" TemperatureFormat="C"/>
+    <Sound>
+        <ErrorTone Number="4" Level="5"/>
+        <WarningTone Number="2" Level="8"/>
+    </Sound>
+    <Network RemoteCare="Off" DirectConnection="On" ProxyUserName="Colorado" ProxyPassword="Colorado" ProxyIPAddress="012.126.123.124" ProxyIPPort="1254"/>
+    <AGITATION SPEED="4"/>
+    <LEICA AGITATIONSPEED="1"/>
+    <LEICA OVENTEMP="45"/>
+    <LOADER REAGENT1="U1"/>
+    <LOADER REAGENT2="U2"/>
+    <LOADER REAGENT3="U12"/>
+    <LOADER REAGENT4="U11"/>
+    <LOADER REAGENT5="U7"/>
+    <OVEN STARTMODE="AfterStartup"/>
+    <OVEN TEMP="65"/>
+    <RMS STATE="On"/>
+    <SETTINGS VERSION="1"/>
+    <WATER TYPE="Distilled"/>
+</Settings>
