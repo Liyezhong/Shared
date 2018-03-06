@@ -2450,7 +2450,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
         while (QTime::currentTime() < delayTime)
         {
             DelaySomeTime(100);
-            if (std::abs(targetPressure - m_pAirLiquid->GetPressure()) < 5.0)
+            if (std::abs(long(targetPressure - m_pAirLiquid->GetPressure())) < 5.0)
             {
                 targetPressureFlag = true;
                 break;
