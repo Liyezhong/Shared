@@ -1,7 +1,7 @@
 # build all components recursive
 
 TEMPLATE = subdirs
-SUBDIRS =   ../../../Himalaya/HimalayaMain/Master/Components/Scheduler/Test/Scheduler.pro \
+SUBDIRS =   ../../../Master/Components/Scheduler/Test/Scheduler.pro \
             ../Components/Global/Test/Global.pro \
             #../Components/DataLogging/Test/DataLogging.pro \
             #../Components/DataManager/Test/DataManager.pro \
