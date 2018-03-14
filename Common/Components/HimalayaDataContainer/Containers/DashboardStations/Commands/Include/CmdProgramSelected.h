@@ -52,7 +52,7 @@ public:
      *  \return from CmdProgramSelected
      */
     /****************************************************************************/
-    CmdProgramSelected(int Timeout, const QString& ProgramID, int ParaffinStepIndex);
+    CmdProgramSelected(int Timeout, int retortId, const QString& ProgramID, int ParaffinStepIndex);
     ~CmdProgramSelected();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -72,14 +72,13 @@ public:
     /****************************************************************************/
     inline int ParaffinStepIndex()const { return m_ParaffinStepIndex; }
 
-
+    inline int GetRetortId() const{return m_RetortId;}
 private:
     CmdProgramSelected(const CmdProgramSelected &);                     ///< Not implemented.
     const CmdProgramSelected & operator = (const CmdProgramSelected &); ///< Not implemented.
 private:
-    QString      m_ProgramID;       ///<  Definition/Declaration of variable m_ProgramID
-    int m_ParaffinStepIndex;       ///<  Definition/Declaration of variable m_ParaffinStepIndex
-}; // end class CmdProgramSelected
+    int m_RetortId;
+    QString      m_ProgramID;       ///<  Definition/Declaration of variable m_ProgramID    int m_ParaffinStepIndex;       ///<  Definition/Declaration of variable m_ParaffinStepIndex}; // end class CmdProgramSelected
 
 /****************************************************************************/
 /**
@@ -95,6 +94,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramSelected 
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
+    Stream << Cmd.m_RetortId;
     Stream << Cmd.m_ProgramID;
     Stream << Cmd.m_ParaffinStepIndex;
     return Stream;
@@ -114,6 +114,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramSelected &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
+    Stream >> Cmd.m_RetortId;
     Stream >> Cmd.m_ProgramID;
     Stream >> Cmd.m_ParaffinStepIndex;
     return Stream;

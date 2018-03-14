@@ -50,6 +50,7 @@ public:
      *  \brief  Definition/Declaration of function CmdProgramAction
      *
      *  \param timeout = int type parameter
+     *  \param retortId = int type parameter
      *  \param programID =  const QString type parameter
      *  \param actionType =  DataManager::ProgramActionType_t type parameter
      *  \param delayTime =  delay time
@@ -58,9 +59,9 @@ public:
      *  \return from CmdProgramAction
      */
     /****************************************************************************/
-    CmdProgramAction(int timeout, const QString& programID, DataManager::ProgramActionType_t actionType,
-                     int delayTime, int runDuration, const QString& reagentExpiredFlag);
-	/**
+    CmdProgramAction(int retortId, int timeout, const QString& programID, DataManager::ProgramActionType_t actionType,
+    int delayTime, int runDuration, const QString& reagentExpiredFlag);
+    /*!
 	* \brief destructor
 	*/
     ~CmdProgramAction();
@@ -108,7 +109,15 @@ public:
      *  \return from GetReagentExpiredFlag
      */
     /****************************************************************************/
-    inline const QString& GetReagentExpiredFlag()const {return m_ReagentExpiredFlag;}
+    inline const QString& GetReagentExpiredFlag()const {return m_ReagentExpiredFlag;}    
+
+    inline int GetRetortId() const {return m_RetortId;}
+
+virtual QString ToString()const
+{
+    return QString("RetortId{%1}ProgramID{%2}ActionType{%3}DelayTime{%4}ProgramRunDuration{%5}ReangentExpiredFlag{%6}").arg(m_RetortId).arg(m_ProgramID).arg(m_ActionType).arg(m_DelayTime).arg(m_ProgramRunDuration).arg(m_ReagentExpiredFlag);
+}
+
 private:
 	/**
 	* \brief constructor
@@ -119,7 +128,8 @@ private:
 	* \iparam instance
 	*/
     const CmdProgramAction & operator = (const CmdProgramAction &); ///< Not implemented.
-private:
+private:    
+    int m_RetortId;
     QString      m_ProgramID;       ///<  Definition/Declaration of variable m_ProgramID
     DataManager::ProgramActionType_t m_ActionType;       ///<  Definition/Declaration of variable m_ActionType
     int m_DelayTime;       ///<  Definition/Declaration of variable m_DelayTime
@@ -141,6 +151,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramAction &C
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
+    Stream << Cmd.m_RetortId;
     Stream << Cmd.m_ProgramID;
     Stream << (int)Cmd.m_ActionType;
     Stream << Cmd.m_DelayTime;
@@ -163,6 +174,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramAction &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
+    Stream >> Cmd.m_RetortId;
     Stream >> Cmd.m_ProgramID;
     int temp;
     Stream >> temp;
@@ -172,6 +184,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramAction &Cmd)
     Stream >> Cmd.m_ReagentExpiredFlag;
     return Stream;
 }
+
 } // end namespace MsgClasses
 
 #endif // MSGCLASSES_CMDPROGRAMACTION_H

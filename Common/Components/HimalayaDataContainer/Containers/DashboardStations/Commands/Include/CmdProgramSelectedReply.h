@@ -58,7 +58,7 @@ public:
      *  \return from CmdProgramSelectedReply
      */
     /****************************************************************************/
-    CmdProgramSelectedReply(int timeout, int timeProposed,
+    CmdProgramSelectedReply(int timeout, int retortId, int timeProposed,
                       int paraffinMeltCostedtime,
                       int costedTimeBeforeParaffin,
                       int whichStepHasNoSafeReagent,
@@ -126,11 +126,12 @@ public:
     /****************************************************************************/
     inline int GetFirstProgramStepIndex()const {return m_firstProgramStepIndex;}
 
-    
+    inline int GetRetortId() const{return m_RetortId;}
 private:
     CmdProgramSelectedReply(const CmdProgramSelectedReply &);                     ///< Not implemented.
     const CmdProgramSelectedReply & operator = (const CmdProgramSelectedReply &); ///< Not implemented.
 private:
+    int m_RetortId;
     int m_TimeProposed;///< the costed time for selected program, seconds
     int m_CostedTimeBeforeParaffin; ///< seconds
     int m_ParaffinMeltCostedtime; ///< seconds
@@ -154,6 +155,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramSelectedR
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
+    Stream << Cmd.m_RetortId;
     Stream << Cmd.m_TimeProposed;
     Stream << Cmd.m_ParaffinMeltCostedtime;
     Stream << Cmd.m_CostedTimeBeforeParaffin;
@@ -182,6 +184,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramSelectedReply &
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
+    Stream >> Cmd.m_RetortId;
     Stream >> Cmd.m_TimeProposed;
     Stream >> Cmd.m_ParaffinMeltCostedtime;
     Stream >> Cmd.m_CostedTimeBeforeParaffin;

@@ -26,8 +26,9 @@ namespace MsgClasses {
 QString CmdProgramSelected::NAME = "MsgClasses::CmdProgramSelected";
 
 
-CmdProgramSelected::CmdProgramSelected(int Timeout, const QString& ProgramID, int ParaffinStepIndex) :
+CmdProgramSelected::CmdProgramSelected(int Timeout, int retortId, const QString& ProgramID, int ParaffinStepIndex) :
     Command(Timeout),
+    m_RetortId(retortId),
     m_ProgramID(ProgramID),
     m_ParaffinStepIndex(ParaffinStepIndex)
 {
