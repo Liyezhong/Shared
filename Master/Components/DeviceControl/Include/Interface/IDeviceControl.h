@@ -1,51 +1,11 @@
-/****************************************************************************/
-/*! \file IDeviceProcessing.h
- *
- *  \brief Definition file for class IDeviceProcessing
- *
- *   Version: $ 0.1
- *   Date:    $ 08.08.2012
- *   Author:  $ Norbert Wiedmann / Stalin
- *
- *
- *  \b Description:
- *
- *       This module contains the interface to the IDeviceProcessing class
- *
- *  \b Company:
- *
- *       Leica Biosystems Nussloch GmbH.
- *
- *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice
- *  does not evidence any actual or intended publication.
- *
- */
-/****************************************************************************/
+#ifndef IDEVICECONTROL_H
+#define IDEVICECONTROL_H
 
-#ifndef IDEVICEPROCESSING_H
-#define IDEVICEPROCESSING_H
-
-#include <QHash>
 #include <QObject>
-
-#include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
-#include "DeviceControl/Include/SlaveModules/AnalogInput.h"
-#include "DeviceControl/Include/SlaveModules/AnalogOutput.h"
-#include "DeviceControl/Include/SlaveModules/BaseModule.h"
-#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
-#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
-#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
-#include "DeviceControl/Include/SlaveModules/Rfid11785.h"
-#include "DeviceControl/Include/SlaveModules/Rfid15693.h"
-#include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
-#include "DeviceControl/Include/Devices/RotaryValveDevice.h"
-#include "DeviceControl/Include/Devices/AirLiquidDevice.h"
-#include "DeviceControl/Include/Devices/RetortDevice.h"
-#include "DeviceControl/Include/Devices/OvenDevice.h"
-#include "DeviceControl/Include/Devices/PeripheryDevice.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
-#include "DeviceControl/Include/Interface/IDeviceControl.h"
+#include "DeviceControl/Include/Devices/BaseDevice.h"
+#include "DeviceControl/Include/SlaveModules/BaseModule.h"
+
 
 namespace DeviceControl
 {
@@ -58,40 +18,37 @@ namespace DeviceControl
  *      functionality.
  */
 /****************************************************************************/
-class IDeviceProcessing : public QObject, public IDeviceControl
+class IDeviceControl
 {
-    Q_OBJECT
-
 public:
-    IDeviceProcessing(int DevProcTimerInterval = 10);
-    ~IDeviceProcessing();
-
+    virtual ~IDeviceControl(){}
     //! Returns the serial number from config file
-    static bool GetSerialNumber(QString& SerialNo){return DeviceProcessing::GetSerialNumber(SerialNo);}
+    static bool GetSerialNumber(QString& SerialNo){
+        return DeviceProcessing::GetSerialNumber(SerialNo);}
 
     //! Emergency stop
-    virtual void EmergencyStop();   // should be called if the device's cover was opened by the user
+    virtual void EmergencyStop() = 0;   // should be called if the device's cover was opened by the user
     //! Switch to standby mode
-    void Standby();         // should be called to change to standby mode
+    virtual void Standby() = 0;         // should be called to change to standby mode
     //! Clean up the environment
-    void Destroy();         // should be called to finish all the activities
+    virtual void Destroy() = 0;         // should be called to finish all the activities
 
     //! Start device control layer configuration
-    ReturnCode_t StartConfigurationService();
+    virtual ReturnCode_t StartConfigurationService() = 0;
     //! Restart device control layer configuration
-    ReturnCode_t RestartConfigurationService();
+    virtual ReturnCode_t RestartConfigurationService() = 0;
     //! Start device control layer diagnstic service
-    ReturnCode_t StartDiagnosticService();
+    virtual ReturnCode_t StartDiagnosticService() = 0;
     //! Finisch device control layer diagnostic service
-    ReturnCode_t CloseDiagnosticService();
+   virtual  ReturnCode_t CloseDiagnosticService() = 0;
 
     //! Start adjustment service
-    ReturnCode_t StartAdjustmentService();
+    virtual ReturnCode_t StartAdjustmentService() = 0;
 
     //! Returns Device derived class pointer specified by instanceID
-    CBaseDevice* GetDevice(quint32 InstanceID);
+    virtual CBaseDevice* GetDevice(quint32 InstanceID) = 0;
     //! Return the pointer to the CBaseModule which is next in list
-    CBaseModule* GetNode(bool First);
+    virtual CBaseModule* GetNode(bool First) = 0;
     //Air liquid device funcs
     /****************************************************************************/
     /*!
@@ -100,7 +57,7 @@ public:
      *  \return from ALSetPressureCtrlON
      */
     /****************************************************************************/
-    ReturnCode_t ALSetPressureCtrlON();
+    virtual ReturnCode_t ALSetPressureCtrlON() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALSetPressureCtrlOFF
@@ -108,7 +65,7 @@ public:
      *  \return from ALSetPressureCtrlOFF
      */
     /****************************************************************************/
-    ReturnCode_t ALSetPressureCtrlOFF();
+    virtual ReturnCode_t ALSetPressureCtrlOFF() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALReleasePressure
@@ -116,7 +73,7 @@ public:
      *  \return from ALReleasePressure
      */
     /****************************************************************************/
-    ReturnCode_t ALReleasePressure(const QString& retortId);
+    virtual ReturnCode_t ALReleasePressure(const QString& retortId) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALPressure
@@ -124,7 +81,7 @@ public:
      *  \return from ALPressure
      */
     /****************************************************************************/
-    ReturnCode_t ALPressure(float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
+    virtual ReturnCode_t ALPressure(float targetPressure = AL_TARGET_PRESSURE_POSITIVE) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALVaccum
@@ -132,7 +89,7 @@ public:
      *  \return from ALVaccum
      */
     /****************************************************************************/
-    ReturnCode_t ALVaccum(float targetPressure = AL_TARGET_PRESSURE_NEGATIVE);
+    virtual ReturnCode_t ALVaccum(float targetPressure = AL_TARGET_PRESSURE_NEGATIVE) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALDraining
@@ -142,7 +99,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t ALDraining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE, bool IgnorePressure = false);
+    virtual ReturnCode_t ALDraining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE, bool IgnorePressure = false) = 0;
 
     /****************************************************************************/
     /*!
@@ -154,7 +111,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE, const QString& ReagentGrpID = "RG2");
+    virtual ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE, const QString& ReagentGrpID = "RG2") = 0;
 
     /****************************************************************************/
     /*!
@@ -167,7 +124,7 @@ public:
      *  \return from ALFilling
      */
     /****************************************************************************/
-    ReturnCode_t ALFilling(quint32 DelayTime, bool EnableInsufficientCheck, bool SafeReagent4Paraffin);
+    virtual ReturnCode_t ALFilling(quint32 DelayTime, bool EnableInsufficientCheck, bool SafeReagent4Paraffin) = 0;
 
     /****************************************************************************/
     /*!
@@ -178,7 +135,7 @@ public:
      *  \return from ALStopCmdExec
      */
     /****************************************************************************/
-    ReturnCode_t ALStopCmdExec(quint8 CmdType);
+    virtual ReturnCode_t ALStopCmdExec(quint8 CmdType) = 0;
 
     /****************************************************************************/
     /*!
@@ -190,7 +147,7 @@ public:
      *  \return from ALFilling
      */
     /****************************************************************************/
-    ReturnCode_t ALFillingForService(quint32 DelayTime, bool EnableInsufficientCheck);
+    virtual ReturnCode_t ALFillingForService(quint32 DelayTime, bool EnableInsufficientCheck) = 0;
 
     /****************************************************************************/
     /*!
@@ -199,7 +156,7 @@ public:
      *  \return from ALGetRecentPressure
      */
     /****************************************************************************/
-    qreal ALGetRecentPressure();
+    virtual qreal ALGetRecentPressure() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALSetTempCtrlON
@@ -209,8 +166,8 @@ public:
      *  \return from ALSetTempCtrlON
      */
     /****************************************************************************/
-    ReturnCode_t ALSetTempCtrlON(ALTempCtrlType_t Type);
-    ReturnCode_t ALSetTempCtrlOFF(ALTempCtrlType_t type);
+    virtual ReturnCode_t ALSetTempCtrlON(ALTempCtrlType_t Type) = 0;
+    virtual ReturnCode_t ALSetTempCtrlOFF(ALTempCtrlType_t type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALSetTemperaturePid
@@ -224,7 +181,7 @@ public:
      *  \return from ALSetTemperaturePid
      */
     /****************************************************************************/
-    ReturnCode_t ALSetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t ALSetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALStartTemperatureControl
@@ -236,7 +193,7 @@ public:
      *  \return from ALStartTemperatureControl
      */
     /****************************************************************************/
-    ReturnCode_t ALStartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    virtual ReturnCode_t ALStartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALGetRecentTemperature
@@ -247,7 +204,7 @@ public:
      *  \return from ALGetRecentTemperature
      */
     /****************************************************************************/
-    qreal ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index);
+    virtual qreal ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALGetTemperatureControlState
@@ -257,7 +214,7 @@ public:
      *  \return from ALGetTemperatureControlState
      */
     /****************************************************************************/
-    TempCtrlState_t ALGetTemperatureControlState(ALTempCtrlType_t Type);
+    virtual TempCtrlState_t ALGetTemperatureControlState(ALTempCtrlType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALTurnOnFan
@@ -265,7 +222,7 @@ public:
      *  \return from ALTurnOnFan
      */
     /****************************************************************************/
-    ReturnCode_t ALTurnOnFan();
+    virtual ReturnCode_t ALTurnOnFan() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALTurnOffFan
@@ -273,7 +230,7 @@ public:
      *  \return from ALTurnOffFan
      */
     /****************************************************************************/
-    ReturnCode_t ALTurnOffFan();
+    virtual ReturnCode_t ALTurnOffFan() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALAllStop
@@ -281,7 +238,7 @@ public:
      *  \return from ALAllStop
      */
     /****************************************************************************/
-    ReturnCode_t ALAllStop();
+    virtual ReturnCode_t ALAllStop() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALBreakAllOperation
@@ -289,7 +246,7 @@ public:
      *  \return from ALBreakAllOperation
      */
     /****************************************************************************/
-    ReturnCode_t ALBreakAllOperation();
+    virtual ReturnCode_t ALBreakAllOperation() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALSetPressureDrift
@@ -299,7 +256,7 @@ public:
      *  \return from ALSetPressureDrift
      */
     /****************************************************************************/
-    ReturnCode_t ALSetPressureDrift(qreal pressureDrift);
+    virtual ReturnCode_t ALSetPressureDrift(qreal pressureDrift) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALStartTemperatureControlWithPID
@@ -315,7 +272,7 @@ public:
      *  \return from ALStartTemperatureControlWithPID
      */
     /****************************************************************************/
-    ReturnCode_t ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALControlValve
@@ -326,7 +283,7 @@ public:
      *  \return from ALControlValve
      */
     /****************************************************************************/
-    ReturnCode_t ALControlValve(quint8 ValveIndex, quint8 ValveState);
+    virtual ReturnCode_t ALControlValve(quint8 ValveIndex, quint8 ValveState) = 0;
 
     /****************************************************************************/
     /*!
@@ -337,7 +294,7 @@ public:
      *  \return true - on, false -off
      */
     /****************************************************************************/
-    bool ALGetHeatingStatus(ALTempCtrlType_t Type);
+    virtual bool ALGetHeatingStatus(ALTempCtrlType_t Type) = 0;
 
     //Rotary Valve device func
     /****************************************************************************/
@@ -347,7 +304,7 @@ public:
      *  \return from RVSetTempCtrlON
      */
     /****************************************************************************/
-    ReturnCode_t RVSetTempCtrlON();
+    virtual ReturnCode_t RVSetTempCtrlON() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVSetTempCtrlOFF
@@ -355,7 +312,7 @@ public:
      *  \return from RVSetTempCtrlOFF
      */
     /****************************************************************************/
-    ReturnCode_t RVSetTempCtrlOFF();
+    virtual ReturnCode_t RVSetTempCtrlOFF() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVSetTemperaturePid
@@ -368,7 +325,7 @@ public:
      *  \return from RVSetTemperaturePid
      */
     /****************************************************************************/
-    ReturnCode_t RVSetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t RVSetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVStartTemperatureControl
@@ -379,7 +336,7 @@ public:
      *  \return from RVStartTemperatureControl
      */
     /****************************************************************************/
-    ReturnCode_t RVStartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange);
+    virtual ReturnCode_t RVStartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVGetRecentTemperature
@@ -389,7 +346,7 @@ public:
      *  \return from RVGetRecentTemperature
      */
     /****************************************************************************/
-    qreal RVGetRecentTemperature(quint32 Index);
+    virtual qreal RVGetRecentTemperature(quint32 Index) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVGetTemperatureControlState
@@ -397,13 +354,13 @@ public:
      *  \return from RVGetTemperatureControlState
      */
     /****************************************************************************/
-    TempCtrlState_t RVGetTemperatureControlState();
+    virtual TempCtrlState_t RVGetTemperatureControlState() = 0;
     //! Execute the move to intial position of the RV
-    ReturnCode_t RVReqMoveToInitialPosition(RVPosition_t RVPosition = RV_UNDEF);
+    virtual ReturnCode_t RVReqMoveToInitialPosition(RVPosition_t RVPosition = RV_UNDEF) = 0;
     //! Position the oven cover
-    ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition);
+    virtual ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition) = 0;
     //! Request actual oven cover position
-    RVPosition_t RVReqActRVPosition();
+    virtual RVPosition_t RVReqActRVPosition() = 0;
 
     /****************************************************************************/
     /*!
@@ -412,7 +369,7 @@ public:
      *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
      */
     /****************************************************************************/
-    ReturnCode_t RVReqMoveToCurrentTubePosition(RVPosition_t CurrentRVPosition);
+    virtual ReturnCode_t RVReqMoveToCurrentTubePosition(RVPosition_t CurrentRVPosition) = 0;
 
     /****************************************************************************/
     /*!
@@ -420,7 +377,7 @@ public:
      *  \return quint32
      */
     /****************************************************************************/
-    quint32 GetCurrentLowerLimit();
+    virtual quint32 GetCurrentLowerLimit() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVStartTemperatureControlWithPID
@@ -435,7 +392,7 @@ public:
      *  \return from RVStartTemperatureControlWithPID
      */
     /****************************************************************************/
-    ReturnCode_t RVStartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t RVStartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVSetTemperatureSwitchState
@@ -444,7 +401,7 @@ public:
      *  \return from RVSetTemperatureSwitchState
      */
     /****************************************************************************/
-    ReturnCode_t RVSetTemperatureSwitchState(qint8 HeaterVoltage, qint8 AutoType);
+    virtual ReturnCode_t RVSetTemperatureSwitchState(qint8 HeaterVoltage, qint8 AutoType) = 0;
 
     //Oven device func
     /****************************************************************************/
@@ -456,7 +413,7 @@ public:
      *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
      */
     /****************************************************************************/
-    ReturnCode_t OvenSetTempCtrlON(OVENTempCtrlType_t Type);
+    virtual ReturnCode_t OvenSetTempCtrlON(OVENTempCtrlType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief Disable Oven temperature control
@@ -466,7 +423,7 @@ public:
      *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
      */
     /****************************************************************************/
-    ReturnCode_t OvenSetTempCtrlOFF(OVENTempCtrlType_t type);
+    virtual ReturnCode_t OvenSetTempCtrlOFF(OVENTempCtrlType_t type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function OvenSetTemperaturePid
@@ -480,7 +437,7 @@ public:
      *  \return from OvenSetTemperaturePid
      */
     /****************************************************************************/
-    ReturnCode_t OvenSetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t OvenSetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function OvenStartTemperatureControl
@@ -492,7 +449,7 @@ public:
      *  \return from OvenStartTemperatureControl
      */
     /****************************************************************************/
-    ReturnCode_t OvenStartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    virtual ReturnCode_t OvenStartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function OvenGetRecentTemperature
@@ -503,7 +460,7 @@ public:
      *  \return from OvenGetRecentTemperature
      */
     /****************************************************************************/
-    qreal OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
+    virtual qreal OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Get Heating status
@@ -513,7 +470,7 @@ public:
      *  \return true - on, false -off
      */
     /****************************************************************************/
-    bool OvenGetHeatingStatus(OVENTempCtrlType_t Type);
+    virtual bool OvenGetHeatingStatus(OVENTempCtrlType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function OvenGetRecentLidStatus
@@ -521,7 +478,7 @@ public:
      *  \return from OvenGetRecentLidStatus
      */
     /****************************************************************************/
-    quint16 OvenGetRecentLidStatus();
+    virtual quint16 OvenGetRecentLidStatus() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function OvenGetTemperatureControlState
@@ -531,7 +488,7 @@ public:
      *  \return from OvenGetTemperatureControlState
      */
     /****************************************************************************/
-    TempCtrlState_t OvenGetTemperatureControlState(OVENTempCtrlType_t Type);
+    virtual TempCtrlState_t OvenGetTemperatureControlState(OVENTempCtrlType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function OvenStartTemperatureControlWithPID
@@ -547,7 +504,7 @@ public:
      *  \return from OvenStartTemperatureControlWithPID
      */
     /****************************************************************************/
-    ReturnCode_t OvenStartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t OvenStartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     //Retort device func
     /****************************************************************************/
     /*!
@@ -558,7 +515,7 @@ public:
      *  \return from RTSetTempCtrlON
      */
     /****************************************************************************/
-    ReturnCode_t RTSetTempCtrlON(RTTempCtrlType_t Type);
+    virtual ReturnCode_t RTSetTempCtrlON(RTTempCtrlType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTSetTempCtrlOFF
@@ -568,7 +525,7 @@ public:
      *  \return from RTSetTempCtrlOFF
      */
     /****************************************************************************/
-    ReturnCode_t RTSetTempCtrlOFF(RTTempCtrlType_t Type);
+    virtual ReturnCode_t RTSetTempCtrlOFF(RTTempCtrlType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTSetTemperaturePid
@@ -582,7 +539,7 @@ public:
      *  \return from RTSetTemperaturePid
      */
     /****************************************************************************/
-    ReturnCode_t RTSetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t RTSetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTStartTemperatureControl
@@ -594,7 +551,7 @@ public:
      *  \return from RTStartTemperatureControl
      */
     /****************************************************************************/
-    ReturnCode_t RTStartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    virtual ReturnCode_t RTStartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTStartTemperatureControlWithPID
@@ -610,7 +567,7 @@ public:
      *  \return from RTStartTemperatureControlWithPID
      */
     /****************************************************************************/
-    ReturnCode_t RTStartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    virtual ReturnCode_t RTStartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTGetRecentTemperature
@@ -621,7 +578,7 @@ public:
      *  \return from RTGetRecentTemperature
      */
     /****************************************************************************/
-    qreal RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
+    virtual qreal RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTGetTemperatureControlState
@@ -631,7 +588,7 @@ public:
      *  \return from RTGetTemperatureControlState
      */
     /****************************************************************************/
-    TempCtrlState_t RTGetTemperatureControlState(RTTempCtrlType_t Type);
+    virtual TempCtrlState_t RTGetTemperatureControlState(RTTempCtrlType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTUnlock
@@ -639,7 +596,7 @@ public:
      *  \return from RTUnlock
      */
     /****************************************************************************/
-    ReturnCode_t RTUnlock();
+    virtual ReturnCode_t RTUnlock() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTLock
@@ -647,7 +604,7 @@ public:
      *  \return from RTLock
      */
     /****************************************************************************/
-    ReturnCode_t RTLock();
+    virtual ReturnCode_t RTLock() = 0;
     /****************************************************************************/
     /*!
     *  \brief  Definition/Declaration of function RTSetTemperatureSwitchState
@@ -657,7 +614,7 @@ public:
     *  \return from RTSetTemperatureSwitchState
      */
     /****************************************************************************/
-    ReturnCode_t RTSetTemperatureSwitchState(RTTempCtrlType_t Type, qint8 HeaterVoltage, qint8 AutoType);
+    virtual ReturnCode_t RTSetTemperatureSwitchState(RTTempCtrlType_t Type, qint8 HeaterVoltage, qint8 AutoType) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RTGetRecentLockStatus
@@ -665,7 +622,7 @@ public:
      *  \return from RTGetRecentLockStatus
      */
     /****************************************************************************/
-    quint16 RTGetRecentLockStatus();
+    virtual quint16 RTGetRecentLockStatus() = 0;
     //Periphery device func
     /****************************************************************************/
     /*!
@@ -674,7 +631,7 @@ public:
      *  \return from PerTurnOffMainRelay
      */
     /****************************************************************************/
-    ReturnCode_t PerTurnOffMainRelay();
+    virtual ReturnCode_t PerTurnOffMainRelay() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function PerTurnOnMainRelay
@@ -682,7 +639,7 @@ public:
      *  \return from PerTurnOnMainRelay
      */
     /****************************************************************************/
-    ReturnCode_t PerTurnOnMainRelay();
+    virtual ReturnCode_t PerTurnOnMainRelay() = 0;
 
     /****************************************************************************/
     /*!
@@ -693,7 +650,7 @@ public:
      *  \return from PerTurnOnMainRelay
      */
     /****************************************************************************/
-    ReturnCode_t PerControlAlarm(bool On, bool Remote);
+    virtual ReturnCode_t PerControlAlarm(bool On, bool Remote) = 0;
 
     /****************************************************************************/
     /*!
@@ -703,7 +660,7 @@ public:
      *  \return 1 - connect, 0 - not connect, UNDEFINED_VALUE if failed
      */
     /****************************************************************************/
-    quint16 PerGetRecentAlarmStatus(qint8 type);
+    virtual quint16 PerGetRecentAlarmStatus(qint8 type) = 0;
 
     /****************************************************************************/
     /*!
@@ -715,7 +672,7 @@ public:
      *  \return from IDBottleCheck
      */
     /****************************************************************************/
-    ReturnCode_t IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos);
+    virtual ReturnCode_t IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function IDSealingCheck
@@ -726,7 +683,7 @@ public:
      *  \return from IDSealingCheck
      */
     /****************************************************************************/
-    ReturnCode_t IDSealingCheck(qreal ThresholdPressure, RVPosition_t SealPosition);
+    virtual ReturnCode_t IDSealingCheck(qreal ThresholdPressure, RVPosition_t SealPosition) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetFunctionModuleRef
@@ -737,7 +694,7 @@ public:
      *  \return from GetFunctionModuleRef
      */
     /****************************************************************************/
-    CFunctionModule* GetFunctionModuleRef(quint32 InstanceID, const QString &Key);
+    virtual CFunctionModule* GetFunctionModuleRef(quint32 InstanceID, const QString &Key) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function IDGetSlaveCurrent
@@ -747,7 +704,7 @@ public:
      *  \return Slave current
      */
     /****************************************************************************/
-    quint16 IDGetSlaveCurrent(HimSlaveType_t Type);
+    virtual quint16 IDGetSlaveCurrent(HimSlaveType_t Type) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function IDGetSlaveVoltage
@@ -757,7 +714,7 @@ public:
      *  \return Slave voltage
      */
     /****************************************************************************/
-    quint16 IDGetSlaveVoltage(HimSlaveType_t Type);
+    virtual quint16 IDGetSlaveVoltage(HimSlaveType_t Type) = 0;
 
     /****************************************************************************/
     /*!
@@ -768,7 +725,7 @@ public:
      *  \return BaseModule
      */
     /****************************************************************************/
-    CBaseModule* GetBaseModule(HimSlaveType_t Type);
+    virtual CBaseModule* GetBaseModule(HimSlaveType_t Type) = 0;
 
     /****************************************************************************/
     /*!
@@ -776,7 +733,7 @@ public:
      *
      *  \return 1: connected, 0: not connected
      */
-    quint16 IDGetRemoteAlarmStatus();
+    virtual quint16 IDGetRemoteAlarmStatus() = 0;
 
     /****************************************************************************/
     /*!
@@ -784,7 +741,7 @@ public:
      *
      *  \return 1: connected, 0: not connected
      */
-    quint16 IDGetLocalAlarmStatus();
+    virtual quint16 IDGetLocalAlarmStatus() = 0;
 
     /****************************************************************************/
     /*!
@@ -794,7 +751,7 @@ public:
      *
      *  \return operate result
      */
-    ReturnCode_t IDSetAlarm(qint8 opcode);
+    virtual ReturnCode_t IDSetAlarm(qint8 opcode) = 0;
 
     /****************************************************************************/
     /*!
@@ -802,14 +759,14 @@ public:
      *
      */
     /****************************************************************************/
-    void InitArchiveServiceInforState();
+    virtual void InitArchiveServiceInforState() = 0;
     /****************************************************************************/
     /*!
      *  \brief  start to archieve service information
      *
      */
     /****************************************************************************/
-    void ArchiveServiceInfor();
+    virtual void ArchiveServiceInfor() = 0;
     /****************************************************************************/
     /*!
      *  \brief  report last service information is saved
@@ -821,7 +778,7 @@ public:
      *  \param  deviceType device type
      *
      */
-    void NotifySavedServiceInfor(const QString& deviceType);
+    virtual void NotifySavedServiceInfor(const QString& deviceType) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Reset the life time of ActiveCarbonFilter
@@ -829,7 +786,7 @@ public:
      *
      */
     /****************************************************************************/
-    void ResetActiveCarbonFilterLifeTime(quint32 setVal);
+    virtual void ResetActiveCarbonFilterLifeTime(quint32 setVal) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Get Current and Voltage status of all the slave devices
@@ -837,7 +794,7 @@ public:
      *  \return bool
      */
     /****************************************************************************/
-    bool GetCurrentVoltageStatus(){return false;}
+    virtual bool GetCurrentVoltageStatus() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Get report error for the specific slave module
@@ -849,7 +806,7 @@ public:
      *  \return ReportError_t
      */
     /****************************************************************************/
-    ReportError_t GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName);
+    virtual ReportError_t GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName) = 0;
 
     /****************************************************************************/
     /*!
@@ -861,7 +818,7 @@ public:
      *  \return sensor's current
      */
     /****************************************************************************/
-    quint16 GetSensorCurrent(const QString& DevName, quint8 Index);
+    virtual quint16 GetSensorCurrent(const QString& DevName, quint8 Index) = 0;
 
     /****************************************************************************/
     /*!
@@ -870,7 +827,7 @@ public:
      *  \return sensor's switch type
      */
     /****************************************************************************/
-    quint8 GetHeaterSwitchType(const QString& DevName);
+    virtual quint8 GetHeaterSwitchType(const QString& DevName) = 0;
 
     /****************************************************************************/
     /*!
@@ -879,15 +836,15 @@ public:
      *  \return return the exec value
      */
     /****************************************************************************/
-    int DelaySomeTime(int DelayTime);
+    virtual int DelaySomeTime(int DelayTime) = 0;
 
 signals:
     //! Forward the 'intitialisation finished' notification
-    void ReportInitializationFinished(quint32, ReturnCode_t);
+    virtual void ReportInitializationFinished(quint32, ReturnCode_t) = 0;
     //! Forward the 'configuration finished' notification
-    void ReportConfigurationFinished(quint32, ReturnCode_t);
+    virtual void ReportConfigurationFinished(quint32, ReturnCode_t) = 0;
     //! Forward the 'normal operation mode started' notification
-    void ReportStartNormalOperationMode(quint32, ReturnCode_t);
+    virtual void ReportStartNormalOperationMode(quint32, ReturnCode_t) = 0;
 
     /****************************************************************************/
     /*!
@@ -900,8 +857,8 @@ signals:
      *  \iparam timeStamp  = Error time stamp
      */
     /****************************************************************************/
-    void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                     quint16 usErrorData, QDateTime timeStamp);
+    virtual void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                     quint16 usErrorData, QDateTime timeStamp) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Forward error information via a signal
@@ -914,45 +871,45 @@ signals:
      *  \iparam strErrorInfo  = Error information
      */
     /****************************************************************************/
-    void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                             quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
+    virtual void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                             quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo) = 0;
 
     //! Forward the 'Destroy finished' to IDeviceProcessing
-    void ReportDestroyFinished();
+    virtual void ReportDestroyFinished() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Emitted when all devices should shut down
      */
     /****************************************************************************/
-    void DeviceShutdown();
+    virtual void DeviceShutdown() = 0;
 
     /****************************************************************************/
     /*!
      *  \brief  Forward the 'level sensor change to 1' to scheduler module
      */
     /****************************************************************************/
-    void ReportLevelSensorStatus1();
+    virtual void ReportLevelSensorStatus1() = 0;
 
     /****************************************************************************/
     /*!
      *  \brief  Forward Filling TimeOut 2Min to scheduler module
      */
     /****************************************************************************/
-    void ReportFillingTimeOut2Min();
+    virtual void ReportFillingTimeOut2Min() = 0;
 
     /****************************************************************************/
     /*!
      *  \brief  Forward Draining TimeOut 2Min to scheduler module
      */
     /****************************************************************************/
-    void ReportDrainingTimeOut2Min();
+    virtual void ReportDrainingTimeOut2Min() = 0;
 
     /*!
      *  \brief  function ReportGetServiceInfo
      * \param  ReturnCode return code
      * \param  ModuleInfo module info
      */
-    void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString&);
+    virtual void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString&) = 0;
     /****************************************************************************/
     /*!
      *  \brief  function ReportSavedServiceInfor
@@ -960,107 +917,54 @@ signals:
      *  \iparam deviceType = device type
      */
     /****************************************************************************/
-    void ReportSavedServiceInfor(const QString& deviceType);
+    virtual void ReportSavedServiceInfor(const QString& deviceType) = 0;
 
-public slots:
+//public slots:
     //! Get error information from DeviceProcessing
-    void OnError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                 quint16 usErrorData, QDateTime timeStamp);
+    virtual void OnError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                 quint16 usErrorData, QDateTime timeStamp) = 0;
 
-private slots:
+//private slots:
     //! Task handling
-    void HandleTasks();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of slot ThreadStarted
-     */
-    /****************************************************************************/
-    void ThreadStarted();
+
 
     //! Get the 'intitialisation finished' notification
-    void OnInitializationFinished(ReturnCode_t);
+    virtual void OnInitializationFinished(ReturnCode_t) = 0;
     //! Get the 'configuration finished' notification
-    void OnConfigurationFinished(ReturnCode_t);
+    virtual void OnConfigurationFinished(ReturnCode_t) = 0;
     //! Forward the 'normal operation mode started' notification
-    void OnStartNormalOperationMode(ReturnCode_t);
+    virtual void OnStartNormalOperationMode(ReturnCode_t) = 0;
     //! Get error information from DeviceProcessing
-    void OnErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                         quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
+    virtual void OnErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                         quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo) = 0;
 
     //! Device control layer diagnostic service acknwoledge
-    void OnDiagnosticServiceClosed(qint16 DiagnosticResult);
+    virtual void OnDiagnosticServiceClosed(qint16 DiagnosticResult) = 0;
 
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnDestroyFinished
      */
     /****************************************************************************/
-    void OnDestroyFinished();
+    virtual void OnDestroyFinished() = 0;
 
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of OnTimeOutSaveServiceInfor
      */
     /****************************************************************************/
-    void OnTimeOutSaveServiceInfor();
+    virtual void OnTimeOutSaveServiceInfor() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of OnTimeOutSaveLifeCycleRecord
      */
     /****************************************************************************/
-    void OnTimeOutSaveLifeCycleRecord();
-
-private:
-    //! Handle the state 'Task request pending'
-    void HandleTaskRequestState();
-
-    DeviceProcessing *mp_DevProc;     //!< Device processing instance
-    QThread *mp_DevProcThread;        //!< Device processing thread
-    QTimer *mp_DevProcTimer;          //!< Device processing timer
-    Qt::HANDLE m_ParentThreadID;      //!< Parent thread ID
-
-    //! Device processing task ID
-    typedef enum {
-        IDEVPROC_TASKID_INIT     = 0x00,    //!< Initialisation
-        IDEVPROC_TASKID_FREE     = 0x01,    //!< Task free, nothing to do
-        IDEVPROC_TASKID_ERROR    = 0x02,    //!< Error state
-        IDEVPROC_TASKID_REQ_TASK = 0x03     //!< A reqest is active
-    } IDeviceProcessingTaskID_t;
-
-    //! Device processing task state
-    typedef enum {
-        IDEVPROC_TASK_STATE_FREE     = 0x00,    //!< Task state free, ready for action request
-        IDEVPROC_TASK_STATE_REQ      = 0x01,    //!< An action was requested, next step will be to forward the command
-        IDEVPROC_TASK_STATE_REQ_SEND = 0x02,    //!< Command was forwarded, wait for acknowledge, check timeout
-        IDEVPROC_TASK_STATE_ERROR    = 0x03     //!< Error, e.g. timeout while waiting for acknowledge, or error CAN-message received
-    } IDeviceProcessingTaskState_t;
-
-    IDeviceProcessingTaskID_t m_taskID;         //!< Task identifier
-    IDeviceProcessingTaskState_t m_taskState;   //!< Task state
-
-    DeviceProcTask::TaskID_t m_reqTaskID;           //!< Task identification
-    DeviceProcTask::TaskPrio_t m_reqTaskPriority;   //!< Task priority
-    quint16 m_reqTaskParameter1;                    //!< Task parameter 1
-    quint16 m_reqTaskParameter2;                    //!< Task parameter 2
-
-    quint32 m_instanceID;                           //!< Instance identification
-    CRotaryValveDevice *m_pRotaryValve;             //!< Rotary Valve device
-    CAirLiquidDevice *m_pAirLiquid;                 //!< Air-liquid device
-    CRetortDevice *m_pRetort;                       //!< Retort device
-    COvenDevice *m_pOven;                           //!< Oven device
-    CPeripheryDevice *m_pPeriphery;                 //!< Periphery device
+    virtual void OnTimeOutSaveLifeCycleRecord() = 0;
 
 
-    QMutex m_IMutex;                //!< Handles thread safety of IDeviceProcessing
-    QMutex m_Mutex;                 //!< Handles thread safety of DeviceProcessing
-    QStateMachine m_machine;        //!< State machine
-    QTimer m_TimerSaveServiceInfor; //!< timer for service info
-    QList<quint32> m_deviceList;    //!< device list
-    bool    m_EnableLowerPressure;  //!< enable lower pressure
-    int m_DevProcTimerInterval;              //!< timer interval for mp_DevProcTimer
-    QTimer m_SaveLifeCycleRecordTimer;
 };
 
 } //namespace
 
-#endif /* IDEVICEPROCESSING_H */
+
+#endif // IDEVICECONTROL_H

@@ -201,10 +201,10 @@ void IDeviceProcessing::OnErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup, 
  *  \return TRUE if the serial number has been filled, otherwise FALSE
  */
 /****************************************************************************/
-bool IDeviceProcessing::GetSerialNumber(QString& SerialNo)
-{
-    return DeviceProcessing::GetSerialNumber(SerialNo);
-}
+//bool IDeviceProcessing::GetSerialNumber(QString& SerialNo)
+//{
+//    return DeviceProcessing::GetSerialNumber(SerialNo);
+//}
 
 /****************************************************************************/
 /*!
@@ -753,7 +753,7 @@ ReturnCode_t IDeviceProcessing::ALSetPressureCtrlOFF()
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALReleasePressure(void)
+ReturnCode_t IDeviceProcessing::ALReleasePressure(const QString& retortId)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
