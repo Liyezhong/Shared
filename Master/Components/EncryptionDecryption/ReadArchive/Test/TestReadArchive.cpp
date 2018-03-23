@@ -77,7 +77,7 @@ void TestReadArchive::utTestNoFiles()
     }
     catch(...)
     {
-        //QFAIL(e.getMsg().toAscii().data());
+        //QFAIL(e.getMsg().toLatin1().data());
     }
     QVERIFY(fp.getFiles().size() == 0);
 }
@@ -99,7 +99,7 @@ void TestReadArchive::utTestPlainFiles()
     }
     catch(...)
     {
-        //QFAIL(e.getMsg().toAscii().data());
+        //QFAIL(e.getMsg().toLatin1().data());
     }
     // test contents
 
@@ -127,7 +127,7 @@ void TestReadArchive::utTestPlainBigFiles()
     }
     catch(...)
     {
-        //QFAIL(e.getMsg().toAscii().data());
+        //QFAIL(e.getMsg().toLatin1().data());
     }
     // test contents
 
@@ -155,7 +155,7 @@ void TestReadArchive::utTestEncryptFiles()
     }
     catch(...)
     {
-        //QFAIL(e.getMsg().toAscii().data());
+        //QFAIL(e.getMsg().toLatin1().data());
     }
     // test contents
 
@@ -183,7 +183,7 @@ void TestReadArchive::utTestEncryptBigFiles()
     }
     catch(...)
     {
-        //QFAIL(e.getMsg().toAscii().data());
+        //QFAIL(e.getMsg().toLatin1().data());
     }
 
     // test contents
@@ -211,7 +211,7 @@ void TestReadArchive::utTestEncryptManyFiles()
     }
     catch(...)
     {
-        //QFAIL(e.getMsg().toAscii().data());
+        //QFAIL(e.getMsg().toLatin1().data());
     }
 
     // test contents

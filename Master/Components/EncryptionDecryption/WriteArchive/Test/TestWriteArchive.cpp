@@ -166,7 +166,7 @@ QString TestWriteArchive::getZipFileName()
 void TestWriteArchive::utTestNoFiles()
 {
     WriteArchive(Archname, QList<QByteArray>(), false);
-    QCOMPARE(getFileContents(Archname), getFileContents(QString(DirPath + "NoFiles").toAscii()));
+    QCOMPARE(getFileContents(Archname), getFileContents(QString(DirPath + "NoFiles").toLatin1()));
 }
 /****************************************************************************/
 /*!
@@ -179,7 +179,7 @@ void TestWriteArchive::utTestPlainFiles()
 
     WriteArchive(Archname, m_workfiles, false);
     QCOMPARE(getFileContents(Archname),
-             getFileContents(QString(DirPath + "PlainFiles").toAscii()));
+             getFileContents(QString(DirPath + "PlainFiles").toLatin1()));
 }
 
 /****************************************************************************/
@@ -193,7 +193,7 @@ void TestWriteArchive::utTestPlainBigFiles()
 
     WriteArchive(Archname, m_workfiles, false);
     QCOMPARE(getFileContents(Archname),
-             getFileContents(QString(DirPath + "PlainBigFiles").toAscii()));
+             getFileContents(QString(DirPath + "PlainBigFiles").toLatin1()));
 }
 
 /****************************************************************************/
@@ -207,7 +207,7 @@ void TestWriteArchive::utTestEncryptFiles()
 
     WriteArchive(Archname, m_workfiles, true);
     QCOMPARE(getFileContents(Archname),
-             getFileContents(QString(DirPath + "EncryptFiles").toAscii()));
+             getFileContents(QString(DirPath + "EncryptFiles").toLatin1()));
 }
 
 /****************************************************************************/
@@ -221,7 +221,7 @@ void TestWriteArchive::utTestEncryptBigFiles()
 
     WriteArchive(Archname, m_workfiles, true);
     QCOMPARE(getFileContents(Archname),
-             getFileContents(QString(DirPath + "EncryptBigFiles").toAscii()));
+             getFileContents(QString(DirPath + "EncryptBigFiles").toLatin1()));
 }
 
 /****************************************************************************/
@@ -241,7 +241,7 @@ void TestWriteArchive::utTestEncryptManyFiles()
 
     WriteArchive(Archname, m_workfiles, true);
     QCOMPARE(getFileContents(Archname),
-             getFileContents(QString(DirPath + "EncryptManyFiles").toAscii()));
+             getFileContents(QString(DirPath + "EncryptManyFiles").toLatin1()));
 }
 
 }               // end namespace EncryptionDecryption

@@ -13,7 +13,7 @@ SUBDIRS  =  $$PLATFORM_COMPONENTS_PATH/NetworkComponents/Build/NetworkComponents
             $$PLATFORM_COMPONENTS_PATH/NetCommands/Build/NetCommands.pro \
             $$PLATFORM_COMPONENTS_PATH/Global/Build/Global.pro \
             $$PLATFORM_COMPONENTS_PATH/DataManager/Build/DataManager.pro \
-            ../../Himalaya/Shared/Master/Components/HimalayaDataContainer/Build/HimalayaDataContainer.pro \
+            ../../Shared/Common/Components/HimalayaDataContainer/Build/HimalayaDataContainer.pro \
             REServerConnectorTest.pro \
             RCConfigurationWrapperTest.pro \
             MasterConnectorTest.pro \

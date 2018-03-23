@@ -84,3 +84,31 @@ defineTest(UseLib){
     export(LIBS)
     export(PRE_TARGETDEPS)
 }
+
+
+SHARED = ../../../../../Shared
+MASTER = ../../../../../Master
+
+defineTest(UseDepLibs)
+{
+        Args=$$ARGS
+        LIBS += -Wl,--start-group
+        for(TheLib, Args) {
+                THELIBPATH       = $${MASTER}/$$TheLib/Build/lib_$$CONFIG_SUFFIX
+                PRE_TARGETDEPS  += $${THELIBPATH}/lib$${TheLib}.a
+                LIBS            += $${THELIBPATH}/lib$${TheLib}.a
+        }
+
+        PRE_TARGETDEPS  += $${SHARED}/Common/Components/HimalayaDataContainer/Build/lib_$$CONFIG_SUFFIX/libHimalayaDataContainer.a
+        LIBS            += $${SHARED}/Common/Components/HimalayaDataContainer/Build/lib_$$CONFIG_SUFFIX/libHimalayaDataContainer.a
+        PRE_TARGETDEPS  += $${MASTER}/Components/HimalayaDataManager/Build/lib_$$CONFIG_SUFFIX/libHimalayaDataManager.a
+        LIBS            += $${MASTER}/Components/HimalayaDataManager/Build/lib_$$CONFIG_SUFFIX/libHimalayaDataManager.a
+        PRE_TARGETDEPS  += $${MASTER}/Components/HimalayaMasterThread/Build/lib_$$CONFIG_SUFFIX/libHimalayaMasterThread.a
+        LIBS            += $${MASTER}/Components/HimalayaMasterThread/Build/lib_$$CONFIG_SUFFIX/libHimalayaMasterThread.a
+        PRE_TARGETDEPS  += $${MASTER}/Components/HimalayaGuiController/Build/lib_$$CONFIG_SUFFIX/libHimalayaGuiController.a
+        LIBS            += $${MASTER}/Components/HimalayaGuiController/Build/lib_$$CONFIG_SUFFIX/libHimalayaGuiController.a
+
+        LIBS += -Wl,--end-group
+        export(LIBS)
+        export(PRE_TARGETDEPS)
+}

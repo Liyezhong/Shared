@@ -8,4 +8,4 @@ HEADERS += TestAbstractFactory.h
 
 SOURCES += TestAbstractFactory.cpp
 
-UseLibs(Global)
+UseDepLibs(Global)

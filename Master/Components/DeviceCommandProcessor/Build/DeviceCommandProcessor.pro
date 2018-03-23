@@ -12,12 +12,12 @@ HEADERS +=  ../Include/*.h \
 SOURCES +=  ../Source/*.cpp \
             ../Source/Commands/*.cpp
 
-INCLUDEPATH += ../../../../Common/Components
+INCLUDEPATH += ../../../..../Shared/Common/Components
 INCLUDEPATH += $$PWD/../../../../Components
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components
-INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components \
+INCLUDEPATH += ../../../../../Master/Components
+INCLUDEPATH += ../../../../../Shared/Master/Components \
 
-DEPENDPATH +=  ../../../../../Himalaya/Shared/Master/Components \
+DEPENDPATH +=  ../../../../../Shared/Master/Components \
 
 
 

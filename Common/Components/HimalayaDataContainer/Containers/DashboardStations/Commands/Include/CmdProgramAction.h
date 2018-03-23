@@ -59,7 +59,7 @@ public:
      *  \return from CmdProgramAction
      */
     /****************************************************************************/
-    CmdProgramAction(int retortId, int timeout, const QString& programID, DataManager::ProgramActionType_t actionType,
+    CmdProgramAction(const QString& retortName, int timeout, const QString& programID, DataManager::ProgramActionType_t actionType,
     int delayTime, int runDuration, const QString& reagentExpiredFlag);
     /*!
 	* \brief destructor
@@ -111,11 +111,11 @@ public:
     /****************************************************************************/
     inline const QString& GetReagentExpiredFlag()const {return m_ReagentExpiredFlag;}    
 
-    inline int GetRetortId() const {return m_RetortId;}
+    inline QString GetRetortName() const {return m_RetortName;}
 
 virtual QString ToString()const
 {
-    return QString("RetortId{%1}ProgramID{%2}ActionType{%3}DelayTime{%4}ProgramRunDuration{%5}ReangentExpiredFlag{%6}").arg(m_RetortId).arg(m_ProgramID).arg(m_ActionType).arg(m_DelayTime).arg(m_ProgramRunDuration).arg(m_ReagentExpiredFlag);
+    return QString("RetortId{%1}ProgramID{%2}ActionType{%3}DelayTime{%4}ProgramRunDuration{%5}ReangentExpiredFlag{%6}").arg(m_RetortName).arg(m_ProgramID).arg(m_ActionType).arg(m_DelayTime).arg(m_ProgramRunDuration).arg(m_ReagentExpiredFlag);
 }
 
 private:
@@ -129,7 +129,7 @@ private:
 	*/
     const CmdProgramAction & operator = (const CmdProgramAction &); ///< Not implemented.
 private:    
-    int m_RetortId;
+    QString m_RetortName;
     QString      m_ProgramID;       ///<  Definition/Declaration of variable m_ProgramID
     DataManager::ProgramActionType_t m_ActionType;       ///<  Definition/Declaration of variable m_ActionType
     int m_DelayTime;       ///<  Definition/Declaration of variable m_DelayTime
@@ -151,7 +151,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramAction &C
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << Cmd.m_RetortId;
+    Stream << Cmd.m_RetortName;
     Stream << Cmd.m_ProgramID;
     Stream << (int)Cmd.m_ActionType;
     Stream << Cmd.m_DelayTime;
@@ -174,7 +174,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramAction &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
-    Stream >> Cmd.m_RetortId;
+    Stream >> Cmd.m_RetortName;
     Stream >> Cmd.m_ProgramID;
     int temp;
     Stream >> temp;

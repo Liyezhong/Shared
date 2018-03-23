@@ -11,10 +11,10 @@ QT += xmlpatterns
 QT += network
 
 TARGET = utTestCmdInterface
-
-INCLUDEPATH += ../../../ \
- ../../../../../../../Platform/Master/Components/
-
+INCLUDEPATH += ../../../
+INCLUDEPATH += ../../../../../Master/Components/
+INCLUDEPATH += ../../../../../Shared/Common/Components/
+INCLUDEPATH += ../../../../../Master/Include
 DEPENDPATH += ../../../ \
 
 

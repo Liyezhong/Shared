@@ -40,7 +40,7 @@ for(TheComponent, PLATFORM_COMPONENTS) {
     LIBS += $$THELIBPATH/lib$${TheComponent}.a
 }
 
-LIBS += ../../Himalaya/Shared/Master/Components/HimalayaDataContainer/Build/lib_$${CONFIG_SUFFIX}/libHimalayaDataContainer.a
+LIBS += ../../../Shared/Common/Components/HimalayaDataContainer/Build/lib_$${CONFIG_SUFFIX}/libHimalayaDataContainer.a
 
 LIBS += -Wl,--end-group
 

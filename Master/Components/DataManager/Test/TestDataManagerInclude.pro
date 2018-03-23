@@ -7,16 +7,18 @@ QT += network
 TARGET = utTestDataManagerInclude
 
 INCLUDEPATH += ../../../
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
+INCLUDEPATH += ../../../../../Master/Components/
+INCLUDEPATH += ../../../../../Shared/Common/Components/
+INCLUDEPATH += ../../../../../Master/Include
 
 DEPENDPATH += ../../../
 
 SOURCES = TestDataManagerInclude.cpp
 
-UseDepLibs(Global DataLogging Threads NetCommands DeviceControl DataManager RemoteCareManager \
+UseDepLibs1(Global DataLogging Threads NetCommands DeviceControl DataManager RemoteCareManager \
 		   RemoteCareController HeartBeatManager EventHandler GPIOManager ExternalProcessController \
                    NetworkComponents StateMachines PasswordManager SWUpdateManager ExportController EncryptionDecryption)
+
+#UseDepLibs()
 
 LIBS += -ldl

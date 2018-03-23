@@ -66,7 +66,7 @@ void TestAbstractFile::writeFiles(AbstractFile* fp)
     foreach(QString name, m_workfiles)
     {
         fp->open(name);
-        fp->write(name.toAscii());
+        fp->write(name.toLatin1());
         fp->close();
     }
 }
@@ -99,7 +99,7 @@ void TestAbstractFile::utTestPlainFiles()
 
     foreach(QString name, m_workfiles)
     {
-        QCOMPARE(getFileContents(name), name.toAscii());
+        QCOMPARE(getFileContents(name), name.toLatin1());
     }
 }
 
@@ -117,7 +117,7 @@ void TestAbstractFile::utTestRAMFiles()
 
     foreach(QString name, result)
     {
-        QCOMPARE(result[name], name.toAscii());
+        QCOMPARE(result[name], name.toLatin1());
     }
 
     // qSort needs a reference to a container, so explicit assignments

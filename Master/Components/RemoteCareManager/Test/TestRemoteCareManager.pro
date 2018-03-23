@@ -12,7 +12,7 @@ DEPENDPATH += ../../
 
 UseLibs(DataLogging DataManager SWUpdateManager EventHandler ExternalProcessController Global NetworkComponents StateMachines RemoteCareController RemoteCareManager NetCommands Threads GPIOManager HeartBeatManager)
 
-LIBS += ../../../../../Himalaya/Shared/Master/Components/HimalayaDataContainer/Build/lib_$${CONFIG_SUFFIX}/libHimalayaDataContainer.a
+LIBS += ../../../../Shared/Common/Components/HimalayaDataContainer/Build/lib_$${CONFIG_SUFFIX}/libHimalayaDataContainer.a
 
 RESOURCES += \
     ../Resources/Resources.qrc
