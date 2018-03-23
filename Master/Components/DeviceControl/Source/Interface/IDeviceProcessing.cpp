@@ -753,7 +753,7 @@ ReturnCode_t IDeviceProcessing::ALSetPressureCtrlOFF()
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALReleasePressure(const QString& retortId)
+ReturnCode_t IDeviceProcessing::ALReleasePressure()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {

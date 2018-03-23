@@ -51,8 +51,8 @@ class MockDeviceControl : public QObject, public IDeviceControl {
       ReturnCode_t());
   MOCK_METHOD0(ALSetPressureCtrlOFF,
       ReturnCode_t());
-  MOCK_METHOD1(ALReleasePressure,
-      ReturnCode_t(const QString&));
+  MOCK_METHOD0(ALReleasePressure,
+      ReturnCode_t());
   MOCK_METHOD1(ALPressure,
       ReturnCode_t(float));
   MOCK_METHOD1(ALVaccum,
@@ -329,6 +329,7 @@ signals:
      */
     /****************************************************************************/
     void ReportSavedServiceInfor(const QString& deviceType);
+
 
 };
 

@@ -23,9 +23,9 @@ class IDeviceControl
 public:
     virtual ~IDeviceControl(){}
     //! Returns the serial number from config file
-    static bool GetSerialNumber(QString& SerialNo){
+    inline static bool GetSerialNumber(QString& SerialNo){
         return DeviceProcessing::GetSerialNumber(SerialNo);}
-
+    inline virtual IDeviceControl* WithSender(const QString& sender){m_Sender = sender; return this;}
     //! Emergency stop
     virtual void EmergencyStop() = 0;   // should be called if the device's cover was opened by the user
     //! Switch to standby mode
@@ -73,7 +73,7 @@ public:
      *  \return from ALReleasePressure
      */
     /****************************************************************************/
-    virtual ReturnCode_t ALReleasePressure(const QString& retortId) = 0;
+    virtual ReturnCode_t ALReleasePressure() = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALPressure
@@ -938,7 +938,7 @@ signals:
     virtual void OnErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                          quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo) = 0;
 
-    //! Device control layer diagnostic service acknwoledge
+    //! Device control layer diagnostic servi    QString m_Sender;ce acknwoledge
     virtual void OnDiagnosticServiceClosed(qint16 DiagnosticResult) = 0;
 
     /****************************************************************************/
@@ -961,6 +961,8 @@ signals:
     /****************************************************************************/
     virtual void OnTimeOutSaveLifeCycleRecord() = 0;
 
+protected:
+    QString m_Sender;
 
 };
 

@@ -4,10 +4,10 @@
 
 INCLUDEPATH += /usr/local/include
 
-PRE_TARGETDEPS  += /usr/local/lib/gmock/libgmock.a
-LIBS            += /usr/local/lib/gmock/libgmock.a
-PRE_TARGETDEPS  += /usr/local/lib/gtest/libgtest.a
-LIBS            += /usr/local/lib/gtest/libgtest.a
+PRE_TARGETDEPS  += /usr/local/lib/libgmock.a
+LIBS            += /usr/local/lib/libgmock.a
+PRE_TARGETDEPS  += /usr/local/lib/libgtest.a
+LIBS            += /usr/local/lib/libgtest.a
 
 
 

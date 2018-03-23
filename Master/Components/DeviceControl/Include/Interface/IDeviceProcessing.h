@@ -67,7 +67,7 @@ public:
     ~IDeviceProcessing();
 
     //! Returns the serial number from config file
-    static bool GetSerialNumber(QString& SerialNo){return DeviceProcessing::GetSerialNumber(SerialNo);}
+//    static bool GetSerialNumber(QString& SerialNo){return DeviceProcessing::GetSerialNumber(SerialNo);}
 
     //! Emergency stop
     virtual void EmergencyStop();   // should be called if the device's cover was opened by the user
@@ -116,7 +116,7 @@ public:
      *  \return from ALReleasePressure
      */
     /****************************************************************************/
-    ReturnCode_t ALReleasePressure(const QString& retortId);
+    ReturnCode_t ALReleasePressure();
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALPressure
@@ -1010,6 +1010,7 @@ private slots:
     /****************************************************************************/
     void OnTimeOutSaveLifeCycleRecord();
 
+
 private:
     //! Handle the state 'Task request pending'
     void HandleTaskRequestState();
@@ -1059,6 +1060,7 @@ private:
     bool    m_EnableLowerPressure;  //!< enable lower pressure
     int m_DevProcTimerInterval;              //!< timer interval for mp_DevProcTimer
     QTimer m_SaveLifeCycleRecordTimer;
+
 };
 
 } //namespace
