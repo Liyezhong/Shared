@@ -34,3 +34,18 @@ defineTest(UseDepLibs1)
         export(LIBS)
         export(PRE_TARGETDEPS)
 }
+
+defineTest(UseLibs1)
+{
+        Args=$$ARGS
+        LIBS += -Wl,--start-group
+        for(TheLib, Args) {
+                THELIBPATH       = $$EXTRACOMPONENTDIR/$$TheLib/Build/lib_$$CONFIG_SUFFIX
+                PRE_TARGETDEPS  += $$THELIBPATH/lib$${TheLib}.a
+                LIBS            += $$THELIBPATH/lib$${TheLib}.a
+        }
+
+        LIBS += -Wl,--end-group
+        export(LIBS)
+        export(PRE_TARGETDEPS)
+}

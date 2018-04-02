@@ -21,7 +21,8 @@ CONFIG += debug_and_release
 #CONFIG += build_all
 
 INCLUDEPATH += ../..
-INCLUDEPATH += ../../../../../Shared/Common/Components
+INCLUDEPATH += ../../../../../Shared/Common/Components \
+               ../../../../../Shared/ExternalPackages/xsde/libxsde/
 INCLUDEPATH += ../../../../../
 DEPENDPATH += ../..
 

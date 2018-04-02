@@ -68,7 +68,7 @@ public:
 
     //! Returns the serial number from config file
 //    static bool GetSerialNumber(QString& SerialNo){return DeviceProcessing::GetSerialNumber(SerialNo);}
-
+    bool GetDeviceConfig(hwconfig* config) override;
     //! Emergency stop
     virtual void EmergencyStop();   // should be called if the device's cover was opened by the user
     //! Switch to standby mode

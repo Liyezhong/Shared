@@ -5,11 +5,12 @@
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/Devices/BaseDevice.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
-
+#include "DeviceControl/hwconfig/hwconfig.hpp"
+#include <functional>
 
 namespace DeviceControl
 {
-#define UNDEFINED_VALUE (999)  //!< undefine value. used for invlid sensor's data
+#define UNDEFINED_VALUE (999) //!< undefine value. used for invlid sensor's data
 /****************************************************************************/
 /*!
  *  \brief  This is the interface class of the device control layer.
@@ -18,20 +19,191 @@ namespace DeviceControl
  *      functionality.
  */
 /****************************************************************************/
-class IDeviceControl
+#if 0
+typedef struct
 {
+    QString Name;
+    uint InstanceId;
+}DeviceConfig_t;
+
+typedef struct
+{
+    int Id;
+    QString Name;
+    QList<DeviceConfig_t*> Devices;
+}RetortConfig_t;
+
+typedef QSharedPointer<DeviceControl::RetortConfig_t> RetortConfigShPtr_t;
+
+
+typedef struct InstrumentConfig
+{
+private:
+    QString m_serialNo;
+    QList<DeviceControl::RetortConfigShPtr_t> m_retorts;
+    const QString m_configFilename = "hw_specification.xml";
 public:
-    virtual ~IDeviceControl(){}
+    explicit InstrumentConfig ()
+    {
+        m_retorts.clear();
+    }
+
+    void Initialize()
+    {
+        int errorLine;
+        int errorColumn;
+
+        QString errorStr;
+
+
+        QDomDocument domDocument;
+
+        auto fileName = Global::SystemPaths::Instance().GetSettingsPath() + "/" + m_configFilename;
+
+        QFile file(fileName);
+
+        if (!file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QString ErrorString = QObject::tr("Cannot read file %1:\n%2.")
+                                   .arg(fileName)
+                                   .arg(file.errorString());
+        }
+
+        if (!domDocument.setContent(&file, true, &errorStr, &errorLine,
+                                    &errorColumn))
+        {
+            QString ErrorString = QObject::tr("Parse error at line %1, column %2:\n%3")
+                                     .arg(errorLine)
+                                     .arg(errorColumn)
+                                     .arg(errorStr);
+//            FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
+
+        }
+
+        QDomElement root = domDocument.documentElement();
+        if (root.tagName() != "hwconfig")
+        {
+            QString ErrorString = QObject::tr("The file is not a himalaya hardware config file. Tag 'hwconfig' missed");
+//            FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
+        }
+        else if (root.hasAttribute("version")
+                   && root.attribute("version") != "1.0")
+        {
+            QString ErrorString = QObject::tr("The himalaya hardware config files' version is not valid.");
+//            FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
+        }
+
+        QDomElement child = root.firstChildElement("parameter_master");
+        if(child.isNull())
+        {
+
+            return;
+        }
+
+        QDomElement childSerialNb;
+
+        //read the serial number
+        childSerialNb=  child.firstChildElement("serial_number");
+        if(childSerialNb.isNull())
+        {
+//            FILE_LOG_L(laINIT, llERROR) << " Serial number incorrect.";
+        }
+        else
+        {
+            m_serialNo = childSerialNb.attribute("serialno");
+        }
+
+
+        auto retortsChild = child.firstChildElement("retorts");
+        if(retortsChild.isNull())
+        {
+            return;
+        }
+
+
+        for(QDomElement retortNode = retortsChild.firstChildElement("retort"); retortNode != retortsChild.lastChildElement("retort"); retortNode = retortsChild.nextSiblingElement("retort") )
+        {
+            auto retortName = retortNode.attribute("name");
+            auto index = retortNode.attribute("index").toInt();
+            auto devicesNode = retortNode.firstChildElement("devices");
+            RetortConfig_t* retort = new RetortConfig_t();
+            retort->Name = retortName;
+            retort->Id = index;
+
+            for(QDomElement deviceNode = devicesNode.firstChildElement("device"); deviceNode != devicesNode.lastChildElement("device"); deviceNode = devicesNode.nextSiblingElement("device"))
+            {
+                auto ok = true;
+                auto deviceName = deviceNode.attribute("name");
+                auto instanceId = deviceNode.attribute("id").toUInt(&ok, 16);
+
+                DeviceConfig_t* device = new DeviceConfig_t();
+                device->InstanceId = instanceId;
+                device->Name = deviceName;
+                retort->Devices.push_back(device);
+            }
+
+             m_retorts.push_back(RetortConfigShPtr_t(retort));
+        }
+    }
+
+    bool getIntrumentConfig(QList<RetortConfigShPtr_t>& config)
+    {
+        if(m_retorts.count() > 0)
+        {
+            config = m_retorts;
+            return true;
+        }
+
+        return false;
+    }
+
+}InstrumentConfig_t;
+#endif
+
+class IDeviceControl
+{         
+  public:
+    virtual ~IDeviceControl() {}
     //! Returns the serial number from config file
-    inline static bool GetSerialNumber(QString& SerialNo){
-        return DeviceProcessing::GetSerialNumber(SerialNo);}
-    inline virtual IDeviceControl* WithSender(const QString& sender){m_Sender = sender; return this;}
+    inline static bool GetSerialNumber(QString &SerialNo)
+    {
+        return DeviceProcessing::GetSerialNumber(SerialNo);
+    }   
+
+//    static QMap<QString, std::function<DeviceControl::IDeviceControl*()>>* m_pMapDeviceControlCreator;
+//    static std::function<DeviceControl::IDeviceControl*()> DeviceControlCreator(const QString& mode)
+//    {
+//        if(m_pMapDeviceControlCreator == NULL)
+//        {
+//           m_pMapDeviceControlCreator = new QMap<QString, std::function<DeviceControl::IDeviceControl*()>>();
+//        }
+//        if(m_pMapDeviceControlCreator->contains(mode))
+//        {
+//            return m_pMapDeviceControlCreator->value(mode);
+//        }
+//        return NULL;
+//    }
+
+//    static void RegisterDeviceControl(const QString& mode, std::function<DeviceControl::IDeviceControl*()> creator)
+//    {
+//        if(!m_pMapDeviceControlCreator->contains(mode))
+//            m_pMapDeviceControlCreator->insert(mode, creator);
+//    }
+
+//    static
+
+    virtual bool GetDeviceConfig(hwconfig* config) = 0;
+    inline virtual IDeviceControl *WithSender(const QString &sender)
+    {
+        m_Sender = sender;
+        return this;
+    }
     //! Emergency stop
-    virtual void EmergencyStop() = 0;   // should be called if the device's cover was opened by the user
+    virtual void EmergencyStop() = 0; // should be called if the device's cover was opened by the user
     //! Switch to standby mode
-    virtual void Standby() = 0;         // should be called to change to standby mode
+    virtual void Standby() = 0; // should be called to change to standby mode
     //! Clean up the environment
-    virtual void Destroy() = 0;         // should be called to finish all the activities
+    virtual void Destroy() = 0; // should be called to finish all the activities
 
     //! Start device control layer configuration
     virtual ReturnCode_t StartConfigurationService() = 0;
@@ -40,15 +212,15 @@ public:
     //! Start device control layer diagnstic service
     virtual ReturnCode_t StartDiagnosticService() = 0;
     //! Finisch device control layer diagnostic service
-   virtual  ReturnCode_t CloseDiagnosticService() = 0;
+    virtual ReturnCode_t CloseDiagnosticService() = 0;
 
     //! Start adjustment service
     virtual ReturnCode_t StartAdjustmentService() = 0;
 
     //! Returns Device derived class pointer specified by instanceID
-    virtual CBaseDevice* GetDevice(quint32 InstanceID) = 0;
+    virtual CBaseDevice *GetDevice(quint32 InstanceID) = 0;
     //! Return the pointer to the CBaseModule which is next in list
-    virtual CBaseModule* GetNode(bool First) = 0;
+    virtual CBaseModule *GetNode(bool First) = 0;
     //Air liquid device funcs
     /****************************************************************************/
     /*!
@@ -111,7 +283,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    virtual ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE, const QString& ReagentGrpID = "RG2") = 0;
+    virtual ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE, const QString &ReagentGrpID = "RG2") = 0;
 
     /****************************************************************************/
     /*!
@@ -358,7 +530,7 @@ public:
     //! Execute the move to intial position of the RV
     virtual ReturnCode_t RVReqMoveToInitialPosition(RVPosition_t RVPosition = RV_UNDEF) = 0;
     //! Position the oven cover
-    virtual ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition) = 0;
+    virtual ReturnCode_t RVReqMoveToRVPosition(RVPosition_t RVPosition) = 0;
     //! Request actual oven cover position
     virtual RVPosition_t RVReqActRVPosition() = 0;
 
@@ -694,7 +866,7 @@ public:
      *  \return from GetFunctionModuleRef
      */
     /****************************************************************************/
-    virtual CFunctionModule* GetFunctionModuleRef(quint32 InstanceID, const QString &Key) = 0;
+    virtual CFunctionModule *GetFunctionModuleRef(quint32 InstanceID, const QString &Key) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function IDGetSlaveCurrent
@@ -725,7 +897,7 @@ public:
      *  \return BaseModule
      */
     /****************************************************************************/
-    virtual CBaseModule* GetBaseModule(HimSlaveType_t Type) = 0;
+    virtual CBaseModule *GetBaseModule(HimSlaveType_t Type) = 0;
 
     /****************************************************************************/
     /*!
@@ -778,7 +950,7 @@ public:
      *  \param  deviceType device type
      *
      */
-    virtual void NotifySavedServiceInfor(const QString& deviceType) = 0;
+    virtual void NotifySavedServiceInfor(const QString &deviceType) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Reset the life time of ActiveCarbonFilter
@@ -806,7 +978,7 @@ public:
      *  \return ReportError_t
      */
     /****************************************************************************/
-    virtual ReportError_t GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName) = 0;
+    virtual ReportError_t GetSlaveModuleReportError(quint8 errorCode, const QString &devName, quint32 sensorName) = 0;
 
     /****************************************************************************/
     /*!
@@ -818,7 +990,7 @@ public:
      *  \return sensor's current
      */
     /****************************************************************************/
-    virtual quint16 GetSensorCurrent(const QString& DevName, quint8 Index) = 0;
+    virtual quint16 GetSensorCurrent(const QString &DevName, quint8 Index) = 0;
 
     /****************************************************************************/
     /*!
@@ -827,7 +999,7 @@ public:
      *  \return sensor's switch type
      */
     /****************************************************************************/
-    virtual quint8 GetHeaterSwitchType(const QString& DevName) = 0;
+    virtual quint8 GetHeaterSwitchType(const QString &DevName) = 0;
 
     /****************************************************************************/
     /*!
@@ -838,7 +1010,7 @@ public:
     /****************************************************************************/
     virtual int DelaySomeTime(int DelayTime) = 0;
 
-signals:
+  signals:
     //! Forward the 'intitialisation finished' notification
     virtual void ReportInitializationFinished(quint32, ReturnCode_t) = 0;
     //! Forward the 'configuration finished' notification
@@ -858,7 +1030,7 @@ signals:
      */
     /****************************************************************************/
     virtual void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                     quint16 usErrorData, QDateTime timeStamp) = 0;
+                             quint16 usErrorData, QDateTime timeStamp) = 0;
     /****************************************************************************/
     /*!
      *  \brief  Forward error information via a signal
@@ -872,7 +1044,7 @@ signals:
      */
     /****************************************************************************/
     virtual void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                             quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo) = 0;
+                                     quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo) = 0;
 
     //! Forward the 'Destroy finished' to IDeviceProcessing
     virtual void ReportDestroyFinished() = 0;
@@ -909,7 +1081,7 @@ signals:
      * \param  ReturnCode return code
      * \param  ModuleInfo module info
      */
-    virtual void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString&) = 0;
+    virtual void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString &) = 0;
     /****************************************************************************/
     /*!
      *  \brief  function ReportSavedServiceInfor
@@ -917,16 +1089,15 @@ signals:
      *  \iparam deviceType = device type
      */
     /****************************************************************************/
-    virtual void ReportSavedServiceInfor(const QString& deviceType) = 0;
+    virtual void ReportSavedServiceInfor(const QString &deviceType) = 0;
 
-//public slots:
+public slots:
     //! Get error information from DeviceProcessing
     virtual void OnError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                 quint16 usErrorData, QDateTime timeStamp) = 0;
+                         quint16 usErrorData, QDateTime timeStamp) = 0;
 
-//private slots:
+    //private slots:
     //! Task handling
-
 
     //! Get the 'intitialisation finished' notification
     virtual void OnInitializationFinished(ReturnCode_t) = 0;
@@ -936,7 +1107,7 @@ signals:
     virtual void OnStartNormalOperationMode(ReturnCode_t) = 0;
     //! Get error information from DeviceProcessing
     virtual void OnErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                         quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo) = 0;
+                                 quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo) = 0;
 
     //! Device control layer diagnostic servi    QString m_Sender;ce acknwoledge
     virtual void OnDiagnosticServiceClosed(qint16 DiagnosticResult) = 0;
@@ -961,12 +1132,10 @@ signals:
     /****************************************************************************/
     virtual void OnTimeOutSaveLifeCycleRecord() = 0;
 
-protected:
+  protected:
     QString m_Sender;
-
 };
 
 } //namespace
-
 
 #endif // IDEVICECONTROL_H

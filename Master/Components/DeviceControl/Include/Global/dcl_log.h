@@ -108,7 +108,7 @@ typedef enum { laUNDEF       = 0x0000, //!< laUNDEF
  */
 /****************************************************************************/
 template <typename T>
-class Log
+class Log : public QMessageLogger
 {
 public:
     Log();

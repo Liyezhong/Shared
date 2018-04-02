@@ -11,7 +11,6 @@ LIBS            += /usr/local/lib/libgtest.a
 
 
 
-
 EXTRACOMPONENTDIR = ../..
 
 # this function adds all libraries passed as arguments to the linker and dependency list
@@ -23,6 +22,7 @@ defineTest(UseDepLibs){
         PRE_TARGETDEPS  += $$THELIBPATH/lib$${TheLib}.a
         LIBS            += $$THELIBPATH/lib$${TheLib}.a
     }
+
 
     LIBS += -Wl,--end-group
     export(LIBS)

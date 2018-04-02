@@ -86,8 +86,8 @@ defineTest(UseLib){
 }
 
 
-SHARED = ../../../../../Shared
-MASTER = ../../../../../Master
+SHARED = $$PWD/../../../Shared
+MASTER = $$PWD/../../../Master
 
 defineTest(UseDepLibs)
 {

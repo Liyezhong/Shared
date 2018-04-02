@@ -45,6 +45,8 @@
 #include <DeviceControl/Include/Devices/ArchiveServiceInforState.h>
 #include <unistd.h>
 #include <QFinalState>
+#include "Global/Include/SystemPaths.h"
+#include "DeviceControl/hwconfig/hwconfig-pimpl.hpp"
 
 namespace DeviceControl
 {
@@ -2760,6 +2762,47 @@ int IDeviceProcessing::DelaySomeTime(int DelayTime)
         ret = event.exec();
     }
     return ret;
+}
+
+bool IDeviceProcessing::GetDeviceConfig(hwconfig* config)
+{
+    using xml_schema::parser_error;
+    parser_error e;
+    hwconfig_paggr hw_p;
+    xml_schema::document_pimpl hw_doc_p(hw_p.root_parser(),hw_p.root_name());
+    if((e = hw_doc_p._error()))
+    {
+        return false;
+
+    }
+    hw_p.pre();
+    if((e = hw_p._error()))
+    {
+        return false;
+    }
+    auto filename = Global::SystemPaths::Instance().GetSettingsPath() + "/hw_specification.xml";
+    QFile hwconfigFile(filename);
+    if(!hwconfigFile.open(QFile::ReadOnly | QFile::Text))
+    {
+        return false;
+    }
+
+    QTextStream in(&hwconfigFile);
+
+std::string str= in.readAll().toStdString();
+    hw_doc_p.parse(str.c_str());
+    if((e = hw_doc_p._error()))
+    {
+        return false;
+    }
+    config = hw_p.post();
+    if((e = hw_p._error()))
+    {
+        return false;
+
+    };
+
+    return true;
 }
 
 } // namespace

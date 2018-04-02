@@ -15,10 +15,11 @@ DEPENDPATH += ../../../
 
 SOURCES = TestDataManagerInclude.cpp
 
+UseLibs1(Scheduler)
 UseDepLibs1(Global DataLogging Threads NetCommands DeviceControl DataManager RemoteCareManager \
 		   RemoteCareController HeartBeatManager EventHandler GPIOManager ExternalProcessController \
                    NetworkComponents StateMachines PasswordManager SWUpdateManager ExportController EncryptionDecryption)
 
-#UseDepLibs()
+
 
 LIBS += -ldl

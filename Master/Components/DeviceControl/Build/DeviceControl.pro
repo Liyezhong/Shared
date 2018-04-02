@@ -6,7 +6,8 @@ TARGET = DeviceControl
 
 DEFINES += PRE_ALFA_TEST
 DEFINES += HAL_CV_TEST
-INCLUDEPATH += ../../../../../Shared/Common/Components
+INCLUDEPATH += ../../../../../Shared/Common/Components\
+
 
 HEADERS +=  ../Include/CanCommunication/*.h \
             ../Include/CanCommunication/CanTcpCommunication/*.h \
@@ -16,7 +17,10 @@ HEADERS +=  ../Include/CanCommunication/*.h \
             ../Include/Devices/*.h \
             ../Include/Global/*.h \
             ../Include/Interface/*.h \
-            ../../../../../Shared/Common/Components/FunctionModules/*.h
+            ../Include/Simulation/*.h \
+            ../../../../../Shared/Common/Components/FunctionModules/*.h \
+            ../hwconfig/*.hpp
+    DeviceModuleModel.h
 
 SOURCES +=  ../Source/CanCommunication/*.cpp \
             ../Source/CanCommunication/CanTcpCommunication/*.cpp \
@@ -24,6 +28,11 @@ SOURCES +=  ../Source/CanCommunication/*.cpp \
             ../Source/Configuration/*.cpp \
             ../Source/DeviceProcessing/*.cpp \
             ../Source/Devices/*.cpp \
-            ../Source/Interface/*.cpp
+            ../Source/Interface/*.cpp \
+            ../Source/Simulation/*.cpp \
+            ../hwconfig/*.cpp
+    DeviceModuleModel.cpp
+
 
 QMAKE_CXXFLAGS += -Wall -Wno-strict-aliasing
+

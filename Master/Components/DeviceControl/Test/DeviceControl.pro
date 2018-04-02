@@ -7,3 +7,4 @@ TEMPLATE = subdirs
 SUBDIRS += TestIDeviceProcessing.pro
 
 CONFIG += ordered
+
