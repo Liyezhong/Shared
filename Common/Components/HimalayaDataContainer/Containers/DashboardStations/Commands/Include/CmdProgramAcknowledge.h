@@ -51,7 +51,7 @@ public:
      *  \return from CmdProgramAcknowledge
      */
     /****************************************************************************/
-    CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType, QString retortName = "Common");
+    CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType, const QString& RetortName = QString("Common"));
     ~CmdProgramAcknowledge();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -62,12 +62,13 @@ public:
      */
     /****************************************************************************/
     inline DataManager::ProgramAcknownedgeType_t AcknownedgeType() const {return m_AcknownedgeType;}
+    inline const QString& GetRetortName() const {return m_RetortName;}
  private:
     CmdProgramAcknowledge(const CmdProgramAcknowledge &);                     ///< Not implemented.
     const CmdProgramAcknowledge & operator = (const CmdProgramAcknowledge &); ///< Not implemented.
 private:
-    DataManager::ProgramAcknownedgeType_t m_AcknownedgeType;       ///<  Definition/Declaration of variable m_AcknownedgeType
     QString m_RetortName;
+    DataManager::ProgramAcknownedgeType_t m_AcknownedgeType;       ///<  Definition/Declaration of variable m_AcknownedgeType
     
 }; // end class CmdProgramAcknowledge
 
@@ -85,8 +86,8 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramAcknowled
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << (int)(Cmd.m_AcknownedgeType);
     Stream << Cmd.m_RetortName;
+    Stream << (int)(Cmd.m_AcknownedgeType);
     return Stream;
 }
 
@@ -104,10 +105,10 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramAcknowledge &Cm
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
+    Stream >> Cmd.m_RetortName;
     int temp;
     Stream >> temp;
     Cmd.m_AcknownedgeType = (DataManager::ProgramAcknownedgeType_t)temp;
-    Stream >> Cmd.m_RetortName;
     return Stream;
 }
 } // end namespace MsgClasses

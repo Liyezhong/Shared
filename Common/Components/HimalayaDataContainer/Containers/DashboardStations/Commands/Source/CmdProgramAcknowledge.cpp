@@ -24,10 +24,10 @@ namespace MsgClasses {
 QString CmdProgramAcknowledge::NAME = "MsgClasses::CmdProgramAcknowledge";
 
 
-CmdProgramAcknowledge::CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType, QString retortName) :
+CmdProgramAcknowledge::CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType, const QString& RetortName) :
     Command(Timeout),
-    m_AcknownedgeType(acknownedgeType),
-    m_RetortName(retortName)
+    m_RetortName(RetortName),
+    m_AcknownedgeType(acknownedgeType)
 {
 }
 

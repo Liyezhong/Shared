@@ -54,7 +54,7 @@ public:
      *  \return from CmdCurrentProgramStepInfor
      */
     /****************************************************************************/
-    CmdCurrentProgramStepInfor(int timeout, QString& retortName, const QString& stepName, int curProgramStepIndex, int curRemainingTime);
+    CmdCurrentProgramStepInfor(int timeout, const QString& retortName, const QString& stepName, int curProgramStepIndex, int curRemainingTime);
     ~CmdCurrentProgramStepInfor();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -81,14 +81,16 @@ public:
      */
     /****************************************************************************/
     inline int CurProgramStepIndex() const {return m_CurProgramStepIndex;}
+
+    inline const QString& RetortName() const {return m_RetortName;}
 private:
     CmdCurrentProgramStepInfor(const CmdCurrentProgramStepInfor &);                     ///< Not implemented.
     const CmdCurrentProgramStepInfor & operator = (const CmdCurrentProgramStepInfor &); ///< Not implemented.
 private:
     QString m_StepName;       ///<  Definition/Declaration of variable m_StepName
+    QString m_RetortName;           ///<  Definition/Declaration of variable m_RetortName;
     int m_CurProgramStepIndex;       ///<  Definition/Declaration of variable m_CurProgramStepIndex
     int   m_CurRemainingTime;       ///<  Definition/Declaration of variable m_CurRemainingTime
-    QString m_RetortName;
     
 }; // end class CmdCurrentProgramStepInfor
 
@@ -107,6 +109,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdCurrentProgramSt
     Cmd.CopyToStream(Stream);
     // copy internal data
     Stream << Cmd.m_StepName;
+    Stream << Cmd.m_RetortName;
     Stream << Cmd.m_CurProgramStepIndex;
     Stream << Cmd.m_CurRemainingTime;
 
@@ -128,6 +131,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdCurrentProgramStepInfo
     Cmd.CopyFromStream(Stream);
     // copy internal data
     Stream >> Cmd.m_StepName;
+    Stream >> Cmd.m_RetortName;
     Stream >> Cmd.m_CurProgramStepIndex;
     Stream >> Cmd.m_CurRemainingTime;
     return Stream;
