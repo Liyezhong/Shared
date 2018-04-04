@@ -54,7 +54,7 @@ public:
      *  \return from CmdCurrentProgramStepInfor
      */
     /****************************************************************************/
-    CmdCurrentProgramStepInfor(int timeout, const QString& stepName, int curProgramStepIndex, int curRemainingTime);
+    CmdCurrentProgramStepInfor(int timeout, const QString& retortName, const QString& stepName, int curProgramStepIndex, int curRemainingTime);
     ~CmdCurrentProgramStepInfor();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -81,13 +81,16 @@ public:
      */
     /****************************************************************************/
     inline int CurProgramStepIndex() const {return m_CurProgramStepIndex;}
+
+    inline const QString& RetortName() const {return m_RetortName;}
 private:
     CmdCurrentProgramStepInfor(const CmdCurrentProgramStepInfor &);                     ///< Not implemented.
     const CmdCurrentProgramStepInfor & operator = (const CmdCurrentProgramStepInfor &); ///< Not implemented.
 private:
-    QString m_StepName;       ///<  Definition/Declaration of variable m_StepName
-    int m_CurProgramStepIndex;       ///<  Definition/Declaration of variable m_CurProgramStepIndex
-    int   m_CurRemainingTime;       ///<  Definition/Declaration of variable m_CurRemainingTime
+    QString m_StepName;       ///<  Definition/Declaration of variable m_StepName
+    QString m_RetortName;           ///<  Definition/Declaration of variable m_RetortName;
+    int m_CurProgramStepIndex;       ///<  Definition/Declaration of variable m_CurProgramStepIndex
+    int   m_CurRemainingTime;       ///<  Definition/Declaration of variable m_CurRemainingTime
     
 }; // end class CmdCurrentProgramStepInfor
 

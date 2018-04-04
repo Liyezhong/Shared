@@ -51,7 +51,7 @@ public:
      *  \return from CmdProgramAcknowledge
      */
     /****************************************************************************/
-    CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType);
+    CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType, const QString& RetortName = QString("Common"));
     ~CmdProgramAcknowledge();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -62,11 +62,13 @@ public:
      */
     /****************************************************************************/
     inline DataManager::ProgramAcknownedgeType_t AcknownedgeType() const {return m_AcknownedgeType;}
+    inline const QString& GetRetortName() const {return m_RetortName;}
  private:
     CmdProgramAcknowledge(const CmdProgramAcknowledge &);                     ///< Not implemented.
     const CmdProgramAcknowledge & operator = (const CmdProgramAcknowledge &); ///< Not implemented.
 private:
-    DataManager::ProgramAcknownedgeType_t m_AcknownedgeType;       ///<  Definition/Declaration of variable m_AcknownedgeType
+    QString m_RetortName;
+    DataManager::ProgramAcknownedgeType_t m_AcknownedgeType;       ///<  Definition/Declaration of variable m_AcknownedgeType
     
 }; // end class CmdProgramAcknowledge
 
