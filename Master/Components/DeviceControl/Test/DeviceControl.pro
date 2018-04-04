@@ -4,7 +4,8 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += TestIDeviceProcessing.pro
+SUBDIRS += TestIDeviceProcessing.pro \
+           TestDeviceControlSim.pro
 
 CONFIG += ordered
 

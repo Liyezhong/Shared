@@ -11,12 +11,13 @@ INCLUDEPATH += ../..
 INCLUDEPATH += ../Include
 INCLUDEPATH += ../../../../Common/Components/ \
                ../hwconfig/ \
-               ../hwconfig/libxsde
+               ../../../../../Shared/ExternalPackages/xsde/libxsde
 
 SOURCES += TestIDeviceProcessing.cpp
 
 HEADERS += ../Include/Interface/*.h
 HEADERS += ../Include/Global/*.h
+
 
 #LIBS += -L$$PWD/../hwconfig/libxsde/xsde/libxsde.a
 #PRE_TARGETDEPS += ../hwconfig/libxsde/xsde/libxsde.a
@@ -24,9 +25,9 @@ HEADERS += ../Include/Global/*.h
 
 UseLibs(Global DataManager DeviceControl)
 
-unix:!macx: LIBS += -L$$PWD/../hwconfig/libxsde/xsde/ -lxsde
+unix:!macx: LIBS += -L../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/ -lxsde
 
-INCLUDEPATH += $$PWD/../hwconfig/libxsde/xsde
-DEPENDPATH += $$PWD/../hwconfig/libxsde/xsde
+INCLUDEPATH += $../../../../../Shared/ExternalPackages/xsde/libxsde
+DEPENDPATH += $../../../../../Shared/ExternalPackages/xsde/libxsde
 
-unix:!macx: PRE_TARGETDEPS += $$PWD/../hwconfig/libxsde/xsde/libxsde.a
+unix:!macx: PRE_TARGETDEPS += ../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/libxsde.a

@@ -51,7 +51,7 @@ public:
      *  \return from CmdProgramAcknowledge
      */
     /****************************************************************************/
-    CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType);
+    CmdProgramAcknowledge(int Timeout, DataManager::ProgramAcknownedgeType_t acknownedgeType, QString retortName = "Common");
     ~CmdProgramAcknowledge();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -66,7 +66,8 @@ public:
     CmdProgramAcknowledge(const CmdProgramAcknowledge &);                     ///< Not implemented.
     const CmdProgramAcknowledge & operator = (const CmdProgramAcknowledge &); ///< Not implemented.
 private:
-    DataManager::ProgramAcknownedgeType_t m_AcknownedgeType;       ///<  Definition/Declaration of variable m_AcknownedgeType
+    DataManager::ProgramAcknownedgeType_t m_AcknownedgeType;       ///<  Definition/Declaration of variable m_AcknownedgeType
+    QString m_RetortName;
     
 }; // end class CmdProgramAcknowledge
 
@@ -85,6 +86,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramAcknowled
     Cmd.CopyToStream(Stream);
     // copy internal data
     Stream << (int)(Cmd.m_AcknownedgeType);
+    Stream << Cmd.m_RetortName;
     return Stream;
 }
 
@@ -105,6 +107,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramAcknowledge &Cm
     int temp;
     Stream >> temp;
     Cmd.m_AcknownedgeType = (DataManager::ProgramAcknownedgeType_t)temp;
+    Stream >> Cmd.m_RetortName;
     return Stream;
 }
 } // end namespace MsgClasses

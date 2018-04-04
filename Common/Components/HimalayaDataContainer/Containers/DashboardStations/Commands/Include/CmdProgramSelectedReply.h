@@ -58,7 +58,7 @@ public:
      *  \return from CmdProgramSelectedReply
      */
     /****************************************************************************/
-    CmdProgramSelectedReply(int timeout, int retortId, int timeProposed,
+    CmdProgramSelectedReply(int timeout, QString retortId, int timeProposed,
                       int paraffinMeltCostedtime,
                       int costedTimeBeforeParaffin,
                       int whichStepHasNoSafeReagent,
@@ -126,12 +126,12 @@ public:
     /****************************************************************************/
     inline int GetFirstProgramStepIndex()const {return m_firstProgramStepIndex;}
 
-    inline int GetRetortId() const{return m_RetortId;}
+    inline QString GetRetortName() const{return m_RetortId;}
 private:
     CmdProgramSelectedReply(const CmdProgramSelectedReply &);                     ///< Not implemented.
     const CmdProgramSelectedReply & operator = (const CmdProgramSelectedReply &); ///< Not implemented.
 private:
-    int m_RetortId;
+    QString m_RetortId;
     int m_TimeProposed;///< the costed time for selected program, seconds
     int m_CostedTimeBeforeParaffin; ///< seconds
     int m_ParaffinMeltCostedtime; ///< seconds

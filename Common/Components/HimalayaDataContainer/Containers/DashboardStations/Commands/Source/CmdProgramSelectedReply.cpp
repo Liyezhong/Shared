@@ -24,7 +24,7 @@ namespace MsgClasses {
 QString CmdProgramSelectedReply::NAME = "MsgClasses::CmdProgramSelectedReply";
 
 
-CmdProgramSelectedReply::CmdProgramSelectedReply(int timeout, int retortId, int timeProposed,
+CmdProgramSelectedReply::CmdProgramSelectedReply(int timeout, QString retortId, int timeProposed,
                                              int paraffinMeltCostedtime,
                                              int costedTimeBeforeParaffin,
                                              int whichStepHasNoSafeReagent,
