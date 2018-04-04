@@ -109,6 +109,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdCurrentProgramSt
     Cmd.CopyToStream(Stream);
     // copy internal data
     Stream << Cmd.m_StepName;
+    Stream << Cmd.m_RetortName;
     Stream << Cmd.m_CurProgramStepIndex;
     Stream << Cmd.m_CurRemainingTime;
 
@@ -130,6 +131,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdCurrentProgramStepInfo
     Cmd.CopyFromStream(Stream);
     // copy internal data
     Stream >> Cmd.m_StepName;
+    Stream >> Cmd.m_RetortName;
     Stream >> Cmd.m_CurProgramStepIndex;
     Stream >> Cmd.m_CurRemainingTime;
     return Stream;

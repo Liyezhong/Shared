@@ -86,6 +86,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramAcknowled
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
+    Stream << Cmd.m_RetortName;
     Stream << (int)(Cmd.m_AcknownedgeType);
     return Stream;
 }
@@ -104,6 +105,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramAcknowledge &Cm
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
+    Stream >> Cmd.m_RetortName;
     int temp;
     Stream >> temp;
     Cmd.m_AcknownedgeType = (DataManager::ProgramAcknownedgeType_t)temp;
