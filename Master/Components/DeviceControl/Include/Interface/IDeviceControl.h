@@ -170,29 +170,7 @@ class IDeviceControl
         return DeviceProcessing::GetSerialNumber(SerialNo);
     }   
 
-//    static QMap<QString, std::function<DeviceControl::IDeviceControl*()>>* m_pMapDeviceControlCreator;
-//    static std::function<DeviceControl::IDeviceControl*()> DeviceControlCreator(const QString& mode)
-//    {
-//        if(m_pMapDeviceControlCreator == NULL)
-//        {
-//           m_pMapDeviceControlCreator = new QMap<QString, std::function<DeviceControl::IDeviceControl*()>>();
-//        }
-//        if(m_pMapDeviceControlCreator->contains(mode))
-//        {
-//            return m_pMapDeviceControlCreator->value(mode);
-//        }
-//        return NULL;
-//    }
-
-//    static void RegisterDeviceControl(const QString& mode, std::function<DeviceControl::IDeviceControl*()> creator)
-//    {
-//        if(!m_pMapDeviceControlCreator->contains(mode))
-//            m_pMapDeviceControlCreator->insert(mode, creator);
-//    }
-
-//    static
-
-    virtual bool GetDeviceConfig(hwconfig* config) = 0;
+    virtual hwconfigType * GetDeviceConfig() const = 0;
     inline virtual IDeviceControl *WithSender(const QString &sender)
     {
         m_Sender = sender;
@@ -1134,6 +1112,7 @@ public slots:
 
   protected:
     QString m_Sender;
+    static hwconfigType* m_pDeviceConfig;
 };
 
 } //namespace

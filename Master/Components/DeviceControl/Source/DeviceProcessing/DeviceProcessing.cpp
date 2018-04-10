@@ -1265,8 +1265,10 @@ void DeviceProcessing::HandleTaskAdjustment(DeviceProcTask* pActiveTask)
         sTest = 1;
     }
 
+
     if(m_pAdjustmentService == 0)
     {
+
         m_pAdjustmentService = new CAdjustmentService(this, &m_canCommunicator, &m_ObjectTree);
     }
 

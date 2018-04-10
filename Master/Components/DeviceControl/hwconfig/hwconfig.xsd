@@ -1,0 +1,315 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xs:element name="hwconfig" type="hwconfigType"/>
+  <xs:complexType name="can_interfaceType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="interface"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="tcp_interfaceType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="usage"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="serial_numberType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="serialno"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="deviceType" mixed="true">
+    <xs:sequence>
+      <xs:element type="functionmodulesType" name="functionmodules" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>    &lt;functionmodule key="AL_fan_digital_output" fct_instanceID="0x5000F"/&gt;    &lt;functionmodule key="AL_fan_digital_output" fct_instanceID="0x5000F"/&gt;</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="id" use="optional"/>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+    <xs:attribute type="xs:string" name="dev_instanceID" use="optional"/>
+    <xs:attribute type="xs:byte" name="optional" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="devicesType">
+    <xs:sequence>
+      <xs:element type="deviceType" name="device" maxOccurs="unbounded" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation> This section lists all devices, which should be created at configuration procedure  the key entries at the function_module section must match the QStrings at DeviceProcessing.cpp  the fct_instanceID entries must match the function module's channel &lt;12..19&gt;, the parent's NodeIndex &lt;8...11&gt;, and the NodeType &lt;0...7&gt;  *************************************************************************************************
+        
+************************************************************************************************* </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="retortType">
+    <xs:sequence>
+      <xs:element type="devicesType" name="devices"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:byte" name="index" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="retortsType">
+    <xs:sequence>
+      <xs:element type="retortType" name="retort" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="parameter_masterType">
+    <xs:sequence>
+      <xs:element type="can_interfaceType" name="can_interface"/>
+      <xs:element type="tcp_interfaceType" name="tcp_interface"/>
+      <xs:element type="xs:byte" name="nodetype"/>
+      <xs:element type="xs:byte" name="nodeindex"/>
+      <xs:element type="serial_numberType" name="serial_number"/>
+      <xs:element type="retortsType" name="retorts"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="folded"/>
+  </xs:complexType>
+  <xs:complexType name="rotationType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="type"/>
+        <xs:attribute type="xs:string" name="direction"/>
+        <xs:attribute type="xs:short" name="steps_revolution"/>
+        <xs:attribute type="xs:short" name="position_min"/>
+        <xs:attribute type="xs:short" name="position_max"/>
+        <xs:attribute type="xs:byte" name="speed_min"/>
+        <xs:attribute type="xs:short" name="speed_max"/>
+        <xs:attribute type="xs:byte" name="run_cs"/>
+        <xs:attribute type="xs:byte" name="stop_cs"/>
+        <xs:attribute type="xs:short" name="stop_cs_delay"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="reference_runType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="ref_position"/>
+        <xs:attribute type="xs:short" name="max_distance"/>
+        <xs:attribute type="xs:int" name="timeout"/>
+        <xs:attribute type="xs:byte" name="reverse_distance"/>
+        <xs:attribute type="xs:byte" name="slow_speed"/>
+        <xs:attribute type="xs:short" name="high_speed"/>
+        <xs:attribute type="xs:byte" name="refpos_offset"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="encoderType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="type"/>
+        <xs:attribute type="xs:short" name="resolution"/>
+        <xs:attribute type="xs:string" name="rotation"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="configurationType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="polarity" use="optional"/>
+        <xs:attribute type="xs:byte" name="sample_rate" use="optional"/>
+        <xs:attribute type="xs:byte" name="debounce" use="optional"/>
+        <xs:attribute type="xs:byte" name="temp_tolerance" use="optional"/>
+        <xs:attribute type="xs:short" name="sampling_period" use="optional"/>
+        <xs:attribute type="xs:short" name="fan_speed" use="optional"/>
+        <xs:attribute type="xs:short" name="fan_threshold" use="optional"/>
+        <xs:attribute type="xs:short" name="current_gain" use="optional"/>
+        <xs:attribute type="xs:short" name="heater_current" use="optional"/>
+        <xs:attribute type="xs:short" name="heater_threshold" use="optional"/>
+        <xs:attribute type="xs:short" name="current_deviation" use="optional"/>
+        <xs:attribute type="xs:short" name="current_min_230_serial" use="optional"/>
+        <xs:attribute type="xs:short" name="current_max_230_serial" use="optional"/>
+        <xs:attribute type="xs:short" name="current_min_100_serial" use="optional"/>
+        <xs:attribute type="xs:short" name="current_max_100_serial" use="optional"/>
+        <xs:attribute type="xs:short" name="current_min_100_parallel" use="optional"/>
+        <xs:attribute type="xs:short" name="current_max_100_parallel" use="optional"/>
+        <xs:attribute type="xs:byte" name="pressure_tolerance" use="optional"/>
+        <xs:attribute type="xs:byte" name="fan_current_gain" use="optional"/>
+        <xs:attribute type="xs:short" name="fan_current" use="optional"/>
+        <xs:attribute type="xs:short" name="pump_current" use="optional"/>
+        <xs:attribute type="xs:short" name="pump_threshold" use="optional"/>
+        <xs:attribute type="xs:byte" name="enabled" use="optional"/>
+        <xs:attribute type="xs:byte" name="inactiv_shutdown" use="optional"/>
+        <xs:attribute type="xs:byte" name="inactiv_emcy" use="optional"/>
+        <xs:attribute type="xs:byte" name="outval_inactiv" use="optional"/>
+        <xs:attribute type="xs:byte" name="livetime_limit" use="optional"/>
+        <xs:attribute type="xs:byte" name="timestamp" use="optional"/>
+        <xs:attribute type="xs:byte" name="threshold" use="optional"/>
+        <xs:attribute type="xs:byte" name="interval" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="limitswitchType">
+    <xs:sequence>
+      <xs:element type="configurationType" name="configuration"/>
+    </xs:sequence>
+    <xs:attribute type="xs:byte" name="index" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="position_codeType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="value" use="optional"/>
+        <xs:attribute type="xs:byte" name="stop" use="optional"/>
+        <xs:attribute type="xs:string" name="stop_dir" use="optional"/>
+        <xs:attribute type="xs:byte" name="position" use="optional"/>
+        <xs:attribute type="xs:byte" name="width" use="optional"/>
+        <xs:attribute type="xs:byte" name="deviation" use="optional"/>
+        <xs:attribute type="xs:byte" name="dir_check" use="optional"/>
+        <xs:attribute type="xs:byte" name="hit_skip" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="limitswitchesType">
+    <xs:sequence>
+      <xs:element type="limitswitchType" name="limitswitch" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="position_codeType" name="position_code" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="position_coverageType">
+    <xs:sequence>
+      <xs:element type="encoderType" name="encoder"/>
+      <xs:element type="limitswitchesType" name="limitswitches"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="supervisionType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="steploss_warn_limit"/>
+        <xs:attribute type="xs:byte" name="steploss_error_limit"/>
+        <xs:attribute type="xs:short" name="current_limit"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="driverType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="type"/>
+        <xs:attribute type="xs:string" name="reg_chopConf"/>
+        <xs:attribute type="xs:string" name="reg_smartEn"/>
+        <xs:attribute type="xs:string" name="reg_sgcsConf"/>
+        <xs:attribute type="xs:string" name="reg_drvConf"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="motion_profileType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="speed_min" use="optional"/>
+        <xs:attribute type="xs:short" name="speed_max" use="optional"/>
+        <xs:attribute type="xs:short" name="acc" use="optional"/>
+        <xs:attribute type="xs:short" name="dec" use="optional"/>
+        <xs:attribute type="xs:byte" name="acc_time" use="optional"/>
+        <xs:attribute type="xs:byte" name="dec_time" use="optional"/>
+        <xs:attribute type="xs:byte" name="micro_steps" use="optional"/>
+        <xs:attribute type="xs:byte" name="ramp_type" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="motion_profilesType">
+    <xs:sequence>
+      <xs:element type="motion_profileType" name="motion_profile" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="functionmoduleType" mixed="true">
+    <xs:sequence>
+      <xs:element type="rotationType" name="rotation" minOccurs="0"/>
+      <xs:element type="reference_runType" name="reference_run" minOccurs="0"/>
+      <xs:element type="position_coverageType" name="position_coverage" minOccurs="0"/>
+      <xs:element type="supervisionType" name="supervision" minOccurs="0"/>
+      <xs:element type="driverType" name="driver" minOccurs="0"/>
+      <xs:element type="motion_profilesType" name="motion_profiles" minOccurs="0"/>
+      <xs:element type="configurationType" name="configuration" minOccurs="0"/>
+      <xs:element type="pid_controllersType" name="pid_controllers" minOccurs="0"/>
+      <xs:element type="pwm_controllerType" name="pwm_controller" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+    <xs:attribute type="xs:string" name="key" use="optional"/>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:byte" name="interface" use="optional"/>
+    <xs:attribute type="xs:string" name="fct_instanceID" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="pid_controllerType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:short" name="max_temperature" use="optional"/>
+        <xs:attribute type="xs:short" name="controller_gain" use="optional"/>
+        <xs:attribute type="xs:short" name="reset_time" use="optional"/>
+        <xs:attribute type="xs:byte" name="derivative_time" use="optional"/>
+        <xs:attribute type="xs:byte" name="max_pressure" use="optional"/>
+        <xs:attribute type="xs:byte" name="min_pressure" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="pid_controllersType">
+    <xs:sequence>
+      <xs:element type="pid_controllerType" name="pid_controller"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="functionmodulesType">
+    <xs:sequence>
+      <xs:element type="functionmoduleType" name="functionmodule" maxOccurs="unbounded" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation><![CDATA[
+              <functionmodule type="digital_out" key="pump_fan" name="pump_fan" interface="5">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+  
+              <functionmodule type="digital_out" key="local_alarm_ctrl" name="local_alarm_ctrl" interface="11">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+              <functionmodule type="digital_out" key="local_alarm_set" name="local_alarm_set" interface="12">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+              <functionmodule type="digital_out" key="local_alarm_clear" name="local_alarm_clear" interface="13">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+]]></xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="slaveType">
+    <xs:sequence>
+      <xs:element type="xs:byte" name="nodetype"/>
+      <xs:element type="xs:byte" name="nodeindex"/>
+      <xs:element type="functionmodulesType" name="functionmodules"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+    <xs:attribute type="xs:string" name="key" use="optional"/>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:byte" name="virtual" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="pwm_controllerType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:short" name="max_actuating_value"/>
+        <xs:attribute type="xs:short" name="min_actuating_value"/>
+        <xs:attribute type="xs:byte" name="max_pwm_duty"/>
+        <xs:attribute type="xs:byte" name="min_pwm_duty"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="parameter_slavesType">
+    <xs:sequence>
+      <xs:element type="slaveType" name="slave" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="hwconfigType">
+    <xs:sequence>
+      <xs:element type="parameter_masterType" name="parameter_master"/>
+      <xs:element type="parameter_slavesType" name="parameter_slaves">
+        <xs:annotation>
+          <xs:documentation> ************************************************************************************************* </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="devicesType" name="devices"/>
+    </xs:sequence>
+    <xs:attribute type="xs:float" name="version"/>
+  </xs:complexType>
+</xs:schema>
+

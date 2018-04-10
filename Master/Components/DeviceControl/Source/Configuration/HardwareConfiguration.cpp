@@ -2028,34 +2028,35 @@ QString HardwareConfiguration::GetLabelFromObjectType(const CModuleConfig::CANOb
 /****************************************************************************/
 quint32 HardwareConfiguration::GetDeviceIDFromValue(quint32 DeviceValue)
 {
-    quint32 DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
+//    quint32 DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
 
-    switch (DeviceValue)
-    {
-        case 0x000080C0:
-            DevInstanceID = DEVICE_INSTANCE_ID_ROTARY_VALVE;
-            break;
-        case 0x000080C1:
-            DevInstanceID = DEVICE_INSTANCE_ID_AIR_LIQUID;
-        break;
-        case 0x000080C2:
-            DevInstanceID = DEVICE_INSTANCE_ID_OVEN;   //!< Oven
-        break;
-        case 0x000080C3:
-            DevInstanceID = DEVICE_INSTANCE_ID_RETORT; //!< Retort
-        break;
-        case 0x000080C4:
-            DevInstanceID = DEVICE_INSTANCE_ID_MAIN_CONTROL; //!< Main contorl
-        break;
-        case 0x000080C6:
-            DevInstanceID = DEVICE_INSTANCE_ID_OTHER_DEVICE; //!< Other device
-        break;
-        default:
-            DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
-            break;
-    }
+//    switch (DeviceValue)
+//    {
+//        case 0x000080C0:
+//            DevInstanceID = DEVICE_INSTANCE_ID_ROTARY_VALVE;
+//            break;
+//        case 0x000080C1:
+//            DevInstanceID = DEVICE_INSTANCE_ID_AIR_LIQUID;
+//        break;
+//        case 0x000080C2:
+//            DevInstanceID = DEVICE_INSTANCE_ID_OVEN;   //!< Oven
+//        break;
+//        case 0x000080C3:
+//            DevInstanceID = DEVICE_INSTANCE_ID_RETORT; //!< Retort
+//        break;
+//        case 0x000080C4:
+//            DevInstanceID = DEVICE_INSTANCE_ID_MAIN_CONTROL; //!< Main contorl
+//        break;
+//        case 0x000080C6:
+//            DevInstanceID = DEVICE_INSTANCE_ID_OTHER_DEVICE; //!< Other device
+//        break;
+//        default:
+//            DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
+//            break;
+//    }
 
-    return DevInstanceID;
+//    return DevInstanceID;
+    return DeviceValue;
 }
 
 /*****************************************************************************/

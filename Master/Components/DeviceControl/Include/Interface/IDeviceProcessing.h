@@ -68,7 +68,7 @@ public:
 
     //! Returns the serial number from config file
 //    static bool GetSerialNumber(QString& SerialNo){return DeviceProcessing::GetSerialNumber(SerialNo);}
-    bool GetDeviceConfig(hwconfig* config) override;
+    hwconfigType * GetDeviceConfig() const override;
     //! Emergency stop
     virtual void EmergencyStop();   // should be called if the device's cover was opened by the user
     //! Switch to standby mode
@@ -1010,10 +1010,18 @@ private slots:
     /****************************************************************************/
     void OnTimeOutSaveLifeCycleRecord();
 
+public:
+    typedef struct AbstractDevice
+    {
+        QString Type;
+        quint32 InstanceId;
+    }AbstractDevice_t;
 
 private:
     //! Handle the state 'Task request pending'
     void HandleTaskRequestState();
+    bool ReadDeviceConfig();
+    void CreateDeviceMapping();
 
     DeviceProcessing *mp_DevProc;     //!< Device processing instance
     QThread *mp_DevProcThread;        //!< Device processing thread
@@ -1045,22 +1053,28 @@ private:
     quint16 m_reqTaskParameter2;                    //!< Task parameter 2
 
     quint32 m_instanceID;                           //!< Instance identification
-    CRotaryValveDevice *m_pRotaryValve;             //!< Rotary Valve device
-    CAirLiquidDevice *m_pAirLiquid;                 //!< Air-liquid device
-    CRetortDevice *m_pRetort;                       //!< Retort device
-    COvenDevice *m_pOven;                           //!< Oven device
-    CPeripheryDevice *m_pPeriphery;                 //!< Periphery device
+    QMap<QString, CRotaryValveDevice*> m_pRotaryValves;             //!< Rotary Valve device
+    QMap<QString, CAirLiquidDevice*> m_pAirLiquids;                 //!< Air-liquid device
+    QMap<QString, CRetortDevice*> m_pRetorts;                       //!< Retort device
+    QMap<QString, COvenDevice*> m_pOvens;                           //!< Oven device
+    QMap<QString, CPeripheryDevice*>m_pPeripherys;                 //!< Periphery device
 
+//    CRotaryValveDevice* m_pRotaryValve;             //!< Rotary Valve device
+//    CAirLiquidDevice* m_pAirLiquid;                 //!< Air-liquid device
+//    CRetortDevice* m_pRetort;                       //!< Retort device
+//    COvenDevice* m_pOven;                           //!< Oven device
+//    CPeripheryDevice* m_pPeriphery;                 //!< Periphery device
 
     QMutex m_IMutex;                //!< Handles thread safety of IDeviceProcessing
     QMutex m_Mutex;                 //!< Handles thread safety of DeviceProcessing
     QStateMachine m_machine;        //!< State machine
     QTimer m_TimerSaveServiceInfor; //!< timer for service info
-    QList<quint32> m_deviceList;    //!< device list
+    QMap<QString, QList<AbstractDevice_t>> m_callerDeviceMap;
+    QList<quint32> m_deviceList;     //!< device list
     bool    m_EnableLowerPressure;  //!< enable lower pressure
     int m_DevProcTimerInterval;              //!< timer interval for mp_DevProcTimer
     QTimer m_SaveLifeCycleRecordTimer;
-
+    const QString hwconfigFilename;
 };
 
 } //namespace

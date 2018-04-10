@@ -6,6 +6,7 @@
 #include "Global/Include/GlobalDefines.h"
 #include <Global/Include/SystemPaths.h>
 #include <Global/Include/Utils.h>
+#include <QMap>
 
 // Run exec for a maximum of TIMEOUT msecs
 #define QCOREAPPLICATION_EXEC(TIMEOUT) \
@@ -83,11 +84,15 @@ private slots:
     void caseRTLock();
     void casePerMainRelay();
     void caseGetRecentValues();
-    void caseGetDeviceConfig();
+    void utGetHwconfig();
+    void utVerifyDeviceMap();
+    void utFailure_if_caller_is_not_set();
+    void utSuccess_if_caller_is_set();
     void cleanupTestCase();
 
 public:
     IDeviceProcessing *p_IDeviceProcessing;
+    QMap<QString, QList<IDeviceProcessing::AbstractDevice_t>> m_callerDeviceMap;
 private:
     bool m_ConfigFinished;
 };
@@ -197,22 +202,68 @@ void TestIDeviceProcessing::caseGetRecentValues()
 //    QCOMPARE(p_IDeviceProcessing->IDSetAlarm(1), DCL_ERR_FCT_CALL_SUCCESS);
 }
 
-void TestIDeviceProcessing::caseGetDeviceConfig()
+void TestIDeviceProcessing::utGetHwconfig()
 {
-    hwconfig* phwconfig = nullptr;
-    p_IDeviceProcessing->GetDeviceConfig(phwconfig);
 
+    auto config = p_IDeviceProcessing->GetDeviceConfig();
 
-    for(DeviceControl::retorts::retort_const_iterator itor = phwconfig->parameter_master().retorts().retort().begin(); itor != phwconfig->parameter_master().retorts().retort().end(); itor++)
+    QVERIFY2((*(*config->parameter_master().retorts().retort().begin()).devices().device().begin()).name() == "RotaryValveDevice", "Failure");
+    for(auto retort = config->parameter_master().retorts().retort().begin(); retort != config->parameter_master().retorts().retort().end(); retort++)
     {
-        auto retortName = itor->name();
+        qDebug() << "Retort Name: " + QString::fromStdString((*retort).name());
+        QList<IDeviceProcessing::AbstractDevice_t> devcieList;
+        for(auto device = (*retort).devices().device().begin(); device != (*retort).devices().device().end(); device++)
+        {
+            IDeviceProcessing::AbstractDevice_t dev;
+            dev.Type = QString::fromStdString((*device).name());
+            bool ok = true;
+            dev.InstanceId = QString::fromStdString((*device).id()).toUInt(&ok, 16);
+            devcieList.append(dev);
+            qDebug() << "Device Name: " + QString::fromStdString((*device).name()) + " InstanceId: " + QString::fromStdString((*device).id());
+        }
+        m_callerDeviceMap.insert(QString::fromStdString((*retort).name()), devcieList);
     }
+}
 
+void TestIDeviceProcessing::utVerifyDeviceMap()
+{
+    qDebug()<< "VerfiyDeviceMap";
+
+    std::for_each(m_callerDeviceMap.keyBegin(), m_callerDeviceMap.keyEnd(), []( QString retort)
+    {
+
+            qDebug() << retort;
+//            qDebug() << dev.InstanceId;
+
+
+    });
+
+    std::for_each(m_callerDeviceMap.begin(), m_callerDeviceMap.end(), []( QList<IDeviceProcessing::AbstractDevice_t>& device)
+    {
+        std::for_each(device.begin(), device.end(), [](IDeviceProcessing::AbstractDevice_t dev)
+        {
+            qDebug() << dev.Type;
+            qDebug() << QString::number(dev.InstanceId, 16);
+        });
+
+    });
+
+    QVERIFY2(m_callerDeviceMap.count() > 0, "Failure");
+}
+
+void TestIDeviceProcessing::utFailure_if_caller_is_not_set()
+{
+    QCOMPARE(p_IDeviceProcessing->ALFilling(100, false, false), DCL_ERR_FCT_CALL_SUCCESS);
+}
+
+void TestIDeviceProcessing::utSuccess_if_caller_is_set()
+{
+    QCOMPARE(p_IDeviceProcessing->WithSender("RetortA")->ALFilling(100, false, false), DCL_ERR_FCT_CALL_SUCCESS);
 }
 
 void TestIDeviceProcessing::cleanupTestCase()
 {
-//
+
 }
 
 } // end namespace

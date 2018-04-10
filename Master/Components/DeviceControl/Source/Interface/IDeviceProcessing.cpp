@@ -47,13 +47,14 @@
 #include <QFinalState>
 #include "Global/Include/SystemPaths.h"
 #include "DeviceControl/hwconfig/hwconfig-pimpl.hpp"
+#include <QSharedPointer>
 
 namespace DeviceControl
 {
 //2* 60 * 60 * 1000;
 const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2 * 60 * 60 * 1000;  //!< 2 hours
 const int INTERVAL_SAVE_LIFE_CYCLE_RECORD =  10 * 60 * 1000;  //!< 10 mintues
-/****************************************************************************/
+hwconfigType* IDeviceControl::m_pDeviceConfig = NULL;/****************************************************************************/
 /*!
  *  \brief  Constructor of the class IDeviceProcessing
  *  \param DevProcTimerInterval  timer interval by ms
@@ -63,16 +64,13 @@ IDeviceProcessing::IDeviceProcessing(int DevProcTimerInterval) :
         m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
         m_reqTaskParameter1(0), m_reqTaskParameter2(0), m_machine(this), m_TimerSaveServiceInfor(this),
         m_DevProcTimerInterval(DevProcTimerInterval),
-        m_SaveLifeCycleRecordTimer(this)
+        m_SaveLifeCycleRecordTimer(this),
+        hwconfigFilename("hw_specification.xml")
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
     m_instanceID = DEVICE_INSTANCE_ID_DEVPROC;
-    m_pRotaryValve = NULL;
-    m_pAirLiquid = NULL;
-    m_pRetort = NULL;
-    m_pOven = NULL;
-    m_pPeriphery = NULL;
+
     /* activate the logging */
     FILE* pFile = fopen("device_control.log", "w");
     Output2FILE::Stream() = pFile;
@@ -111,12 +109,7 @@ IDeviceProcessing::IDeviceProcessing(int DevProcTimerInterval) :
                      this, ReportGetServiceInfo(ReturnCode_t, const DataManager::CModule&, const QString&));
     m_ParentThreadID = QThread::currentThreadId();
 
-    m_deviceList <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
-                  << DEVICE_INSTANCE_ID_AIR_LIQUID
-                  << DEVICE_INSTANCE_ID_OVEN
-                  << DEVICE_INSTANCE_ID_RETORT
-                  << DEVICE_INSTANCE_ID_MAIN_CONTROL
-                  << DEVICE_INSTANCE_ID_OTHER_DEVICE;
+    CreateDeviceMapping();
 
     m_EnableLowerPressure = Global::Workaroundchecking("LOWER_PRESSURE");
 }
@@ -135,6 +128,13 @@ IDeviceProcessing::~IDeviceProcessing()
         delete mp_DevProcTimer;
         delete mp_DevProcThread;
         delete mp_DevProc;
+        delete m_pDeviceConfig;
+//        m_pRotaryValves.clear();
+//        m_pAirLiquids.clear();
+//        m_pRetorts.clear();
+//        m_pOvens.clear();
+//        m_pPeripherys.clear();
+
     }
     catch (...)
     {
@@ -355,43 +355,49 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing::RouteConfigurationFinished: " << (int) HdlInfo;
     if((HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)||(HdlInfo == DCL_ERR_TIMEOUT))
     {
-        quint32 id;
-        foreach (id, m_deviceList)
+        // find the mapped device type
+        for(auto itor = m_callerDeviceMap.begin(); itor != m_callerDeviceMap.end(); itor++)
         {
-            CBaseDevice *pDevice = mp_DevProc->GetDevice(id);
-            if (pDevice && pDevice->GetMainState() == CBaseDevice::DEVICE_MAIN_STATE_IDLE)
+            auto caller = itor.key();
+
+            foreach(auto value, itor.value())
             {
-                QString Name = "";
-                switch(id)
+                CBaseDevice *pDevice = mp_DevProc->GetDevice(value.InstanceId);
+
+                if (pDevice != NULL && pDevice->GetMainState() != CBaseDevice::DEVICE_MAIN_STATE_IDLE)
+                    continue;
+
+                m_deviceList << value.InstanceId;
+                // create device instance by type
+                if(value.Type.contains("RotaryValveDevice"))
                 {
-                case  DEVICE_INSTANCE_ID_ROTARY_VALVE:
-                    Name = "RotaryValve";
-                    m_pRotaryValve = (CRotaryValveDevice*)pDevice;
-                    break;
-                case DEVICE_INSTANCE_ID_AIR_LIQUID:
-                    Name = "AirLiquid";
-                    m_pAirLiquid = (CAirLiquidDevice*)pDevice;
-                    break;
-                case DEVICE_INSTANCE_ID_OVEN:
-                    Name = "Oven";
-                    m_pOven = (COvenDevice *)pDevice;
-                    break;
-                case DEVICE_INSTANCE_ID_RETORT:
-                    Name = "Retort";
-                    m_pRetort =  (CRetortDevice *)pDevice;
-                    break;
-                case DEVICE_INSTANCE_ID_MAIN_CONTROL:
-                    Name = "Main control";
-                    m_pPeriphery = (CPeripheryDevice *)pDevice;
-                    break;
-                default:
+                    m_pRotaryValves.insert(caller, (CRotaryValveDevice*)pDevice);
+                }
+                else if(value.Type.contains("AirLiquidDevice"))
+                {
+                    m_pAirLiquids.insert(caller, (CAirLiquidDevice*)pDevice);
+                }
+                else if(value.Type.contains("OvenDevice"))
+                {
+                    m_pOvens.insert(caller, (COvenDevice*)pDevice);
+                }
+                else if(value.Type.contains("RetortDevice"))
+                {
+                    m_pRetorts.insert(caller, (CRetortDevice*)pDevice);
+                }
+                else if(value.Type.contains("PeripheryDevice"))
+                {
+                    m_pPeripherys.insert(caller, (CPeripheryDevice*)pDevice);
+                }
+                else
+                {
                     LOG() << "unknown device detected";
-                    break;
                 }
             }
-
         }
+
     }
+
     emit ReportConfigurationFinished(m_instanceID, HdlInfo);
     if (DCL_ERR_FCT_CALL_SUCCESS == HdlInfo)
     {
@@ -446,9 +452,9 @@ void IDeviceProcessing::NotifySavedServiceInfor(const QString& deviceType)
 
 void IDeviceProcessing::ResetActiveCarbonFilterLifeTime(quint32 setVal)
 {
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        m_pAirLiquid->ResetActiveCarbonFilterLifeTime(setVal);
+        m_pAirLiquids[m_Sender]->ResetActiveCarbonFilterLifeTime(setVal);
     }
     ArchiveServiceInfor();
     m_SaveLifeCycleRecordTimer.start();//Note: It will not work in debug mode
@@ -713,9 +719,9 @@ ReturnCode_t IDeviceProcessing::ALSetPressureCtrlON()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->SetPressureCtrlON();
+        return m_pAirLiquids[m_Sender]->SetPressureCtrlON();
     }
     else
     {
@@ -737,9 +743,9 @@ ReturnCode_t IDeviceProcessing::ALSetPressureCtrlOFF()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->SetPressureCtrlOFF();
+        return m_pAirLiquids[m_Sender]->SetPressureCtrlOFF();
     }
     else
     {
@@ -761,9 +767,9 @@ ReturnCode_t IDeviceProcessing::ALReleasePressure()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->ReleasePressure();
+        return m_pAirLiquids[m_Sender]->ReleasePressure();
     }
     else
     {
@@ -785,9 +791,9 @@ ReturnCode_t IDeviceProcessing::ALPressure(float targetPressure)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->Pressure(targetPressure);
+        return m_pAirLiquids[m_Sender]->Pressure(targetPressure);
     }
     else
     {
@@ -809,9 +815,9 @@ ReturnCode_t IDeviceProcessing::ALVaccum(float targetPressure)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->Vaccum(targetPressure);
+        return m_pAirLiquids[m_Sender]->Vaccum(targetPressure);
     }
     else
     {
@@ -836,9 +842,9 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->Draining(DelayTime, targetPressure, IgnorePressure);
+        return m_pAirLiquids[m_Sender]->Draining(DelayTime, targetPressure, IgnorePressure);
     }
     else
     {
@@ -865,24 +871,24 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         return DCL_ERR_FCT_CALL_FAILED;
     }
     QTime delayTime = QTime::currentTime();
-    if((m_pRotaryValve)&&(m_pAirLiquid))
+    if((m_pRotaryValves.contains(m_Sender)&&(m_pAirLiquids.contains(m_Sender))))
     {
-        retCode = m_pAirLiquid->ReleasePressure();
+        retCode = m_pAirLiquids[m_Sender]->ReleasePressure();
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
         // Move RV to sealing position
-        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
+        retCode = m_pRotaryValves[m_Sender]->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
         if (DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION == retCode) // lost initial position
         {
            // Move to initial position and then move to sealing position again
-           retCode = m_pRotaryValve->ReqMoveToInitialPosition((RVPosition_t)RVPos);
+           retCode = m_pRotaryValves[m_Sender]->ReqMoveToInitialPosition((RVPosition_t)RVPos);
            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
            {
                return retCode;
            }
-           retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
+           retCode = m_pRotaryValves[m_Sender]->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
         }
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -894,7 +900,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         while (QTime::currentTime() < delayTime)
         {
             DelaySomeTime(100);
-            RVPosition_t position = m_pRotaryValve->ReqActRVPosition();
+            RVPosition_t position = m_pRotaryValves[m_Sender]->ReqActRVPosition();
             if (position == RVPos+1)
             {
                 IsRightPos = true;
@@ -907,10 +913,10 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         }
 
         // Set positive pressure (40 kpa)
-        retCode = m_pAirLiquid->Pressure(targetPressure);
+        retCode = m_pAirLiquids[m_Sender]->Pressure(targetPressure);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            m_pAirLiquid->ReleasePressure();
+            m_pAirLiquids[m_Sender]->ReleasePressure();
             return retCode;
         }
 
@@ -921,7 +927,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         while (QTime::currentTime() < delayTime)
         {
             DelaySomeTime(100);
-            pressure = m_pAirLiquid->GetPressure();
+            pressure = m_pAirLiquids[m_Sender]->GetPressure();
             if (qAbs(pressure - targetPressure) < 5.0)
             {
                 IsGetTargetPressure = true;
@@ -932,19 +938,19 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         // Wait for 2 minutes to see if 20kpa has been reached. If not, report error
         if (false == IsGetTargetPressure)
         {
-            pressure = m_pAirLiquid->GetPressure();
+            pressure = m_pAirLiquids[m_Sender]->GetPressure();
             if (pressure < 20.0)
             {
-                m_pAirLiquid->ReleasePressure();
+                m_pAirLiquids[m_Sender]->ReleasePressure();
                 return ERROR_DCL_FORCE_DRAINING_TIMEOUT_BULIDPRESSURE;
             }
         }
 
         // Move RV to tube position
-        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos));
+        retCode = m_pRotaryValves[m_Sender]->ReqMoveToRVPosition((RVPosition_t)(RVPos));
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            m_pAirLiquid->ReleasePressure();
+            m_pAirLiquids[m_Sender]->ReleasePressure();
             return retCode;
         }
 
@@ -973,16 +979,16 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         while (QTime::currentTime() < delayTime)
         {
             DelaySomeTime(100);
-            pressure = m_pAirLiquid->GetPressure();
+            pressure = m_pAirLiquids[m_Sender]->GetPressure();
             if (pressure < 3 * BasePressure)
             {
-                m_pAirLiquid->ReleasePressure();
+                m_pAirLiquids[m_Sender]->ReleasePressure();
                 return DCL_ERR_FCT_CALL_SUCCESS;
             }
         }
 
     }
-    m_pAirLiquid->ReleasePressure();
+    m_pAirLiquids[m_Sender]->ReleasePressure();
     return DCL_ERR_FCT_CALL_FAILED;
 }
 
@@ -1003,9 +1009,9 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime, bool EnableInsuffic
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->Filling(DelayTime, EnableInsufficientCheck, SafeReagent4Paraffin);
+        return m_pAirLiquids[m_Sender]->Filling(DelayTime, EnableInsufficientCheck, SafeReagent4Paraffin);
     }
     else
     {
@@ -1021,9 +1027,9 @@ ReturnCode_t IDeviceProcessing::ALStopCmdExec(quint8 CmdType)
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    if (m_pAirLiquid)
+    if (m_pAirLiquids.contains(m_Sender))
     {
-        m_pAirLiquid->StopCommandExec(CmdType);
+        m_pAirLiquids[m_Sender]->StopCommandExec(CmdType);
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
@@ -1044,9 +1050,9 @@ ReturnCode_t IDeviceProcessing::ALFillingForService(quint32 DelayTime, bool Enab
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->FillingForService(DelayTime, EnableInsufficientCheck);
+        return m_pAirLiquids[m_Sender]->FillingForService(DelayTime, EnableInsufficientCheck);
     }
     else
     {
@@ -1064,9 +1070,9 @@ ReturnCode_t IDeviceProcessing::ALFillingForService(quint32 DelayTime, bool Enab
 /****************************************************************************/
 qreal IDeviceProcessing::ALGetRecentPressure()
 {
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->GetRecentPressure();
+        return m_pAirLiquids[m_Sender]->GetRecentPressure();
     }
     else
     {
@@ -1091,9 +1097,9 @@ ReturnCode_t IDeviceProcessing::ALSetTempCtrlON(ALTempCtrlType_t Type)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->SetTempCtrlON(Type);
+        return m_pAirLiquids[m_Sender]->SetTempCtrlON(Type);
     }
     else
     {
@@ -1116,9 +1122,9 @@ ReturnCode_t IDeviceProcessing::ALSetTempCtrlOFF(ALTempCtrlType_t Type)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pAirLiquid)
+   if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->SetTempCtrlOFF(Type);
+        return m_pAirLiquids[m_Sender]->SetTempCtrlOFF(Type);
     }
     else
     {
@@ -1145,9 +1151,9 @@ ReturnCode_t IDeviceProcessing::ALSetTemperaturePid(ALTempCtrlType_t Type, quint
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pAirLiquid)
+   if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+        return m_pAirLiquids[m_Sender]->SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
     }
     else
     {
@@ -1174,9 +1180,9 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControl(ALTempCtrlType_t Type,
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pAirLiquid)
+   if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->StartTemperatureControl(Type, NominalTemperature, SlopeTempChange);
+        return m_pAirLiquids[m_Sender]->StartTemperatureControl(Type, NominalTemperature, SlopeTempChange);
     }
     else
     {
@@ -1209,9 +1215,9 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControlWithPID(ALTempCtrlType_
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+        return m_pAirLiquids[m_Sender]->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
     }
     else
     {
@@ -1233,9 +1239,9 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControlWithPID(ALTempCtrlType_
 /****************************************************************************/
 qreal IDeviceProcessing::ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->GetRecentTemperature(Type, Index);
+        return m_pAirLiquids[m_Sender]->GetRecentTemperature(Type, Index);
     }
     else
     {
@@ -1258,9 +1264,9 @@ TempCtrlState_t IDeviceProcessing::ALGetTemperatureControlState(ALTempCtrlType_t
     {
         return TEMPCTRL_STATE_ERROR;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->GetTemperatureControlState(Type);
+        return m_pAirLiquids[m_Sender]->GetTemperatureControlState(Type);
     }
     else
     {
@@ -1283,9 +1289,9 @@ ReturnCode_t IDeviceProcessing::ALTurnOnFan()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pAirLiquid)
+   if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->TurnOnFan();
+        return m_pAirLiquids[m_Sender]->TurnOnFan();
     }
     else
     {
@@ -1307,9 +1313,9 @@ ReturnCode_t IDeviceProcessing::ALTurnOffFan()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pAirLiquid)
+   if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->TurnOffFan();
+        return m_pAirLiquids[m_Sender]->TurnOffFan();
     }
     else
     {
@@ -1332,9 +1338,9 @@ ReturnCode_t IDeviceProcessing::ALAllStop()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->AllStop();
+        return m_pAirLiquids[m_Sender]->AllStop();
     }
     else
     {
@@ -1348,9 +1354,9 @@ ReturnCode_t IDeviceProcessing::ALControlValve(quint8 ValveIndex, quint8 ValveSt
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->ControlValve(ValveIndex, ValveState);
+        return m_pAirLiquids[m_Sender]->ControlValve(ValveIndex, ValveState);
     }
     else
     {
@@ -1361,9 +1367,9 @@ ReturnCode_t IDeviceProcessing::ALControlValve(quint8 ValveIndex, quint8 ValveSt
 bool IDeviceProcessing::ALGetHeatingStatus(ALTempCtrlType_t Type)
 {
     bool ret = false;
-    if (m_pAirLiquid)
+    if (m_pAirLiquids.contains(m_Sender))
     {
-        ret = m_pAirLiquid->IsTemperatureControlOn(Type);
+        ret = m_pAirLiquids[m_Sender]->IsTemperatureControlOn(Type);
     }
 
     return ret;
@@ -1379,9 +1385,9 @@ bool IDeviceProcessing::ALGetHeatingStatus(ALTempCtrlType_t Type)
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALBreakAllOperation()
 {
-    if(m_pAirLiquid)
+    if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->BreakAllOperation();
+        return m_pAirLiquids[m_Sender]->BreakAllOperation();
     }
     else
     {
@@ -1401,9 +1407,9 @@ ReturnCode_t IDeviceProcessing::ALBreakAllOperation()
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALSetPressureDrift(qreal pressureDrift)
 {
-   if(m_pAirLiquid)
+   if(m_pAirLiquids.contains(m_Sender))
     {
-        return m_pAirLiquid->SetPressureDrift(pressureDrift);
+        return m_pAirLiquids[m_Sender]->SetPressureDrift(pressureDrift);
     }
     else
     {
@@ -1425,9 +1431,9 @@ ReturnCode_t IDeviceProcessing::RVSetTempCtrlON()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->SetTempCtrlON();
+        return m_pRotaryValves[m_Sender]->SetTempCtrlON();
     }
     else
     {
@@ -1449,9 +1455,9 @@ ReturnCode_t IDeviceProcessing::RVSetTempCtrlOFF()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->SetTempCtrlOFF();
+        return m_pRotaryValves[m_Sender]->SetTempCtrlOFF();
     }
     else
     {
@@ -1477,9 +1483,9 @@ ReturnCode_t IDeviceProcessing::RVSetTemperaturePid(quint16 MaxTemperature, quin
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->SetTemperaturePid(MaxTemperature,ControllerGain,ResetTime,DerivativeTime);
+        return m_pRotaryValves[m_Sender]->SetTemperaturePid(MaxTemperature,ControllerGain,ResetTime,DerivativeTime);
     }
     else
     {
@@ -1505,9 +1511,9 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControl(qreal NominalTemperatu
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->StartTemperatureControl(NominalTemperature,SlopeTempChange);
+        return m_pRotaryValves[m_Sender]->StartTemperatureControl(NominalTemperature,SlopeTempChange);
     }
     else
     {
@@ -1538,9 +1544,9 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControlWithPID(qreal NominalTe
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pRotaryValve)
+   if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->StartTemperatureControlWithPID(NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+        return m_pRotaryValves[m_Sender]->StartTemperatureControlWithPID(NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
     }
     else
     {
@@ -1560,9 +1566,9 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControlWithPID(qreal NominalTe
 /****************************************************************************/
 qreal IDeviceProcessing::RVGetRecentTemperature(quint32 Index)
 {
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->GetRecentTemperature(Index);
+        return m_pRotaryValves[m_Sender]->GetRecentTemperature(Index);
     }
     else
     {
@@ -1583,9 +1589,9 @@ TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
     {
         return TEMPCTRL_STATE_ERROR;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->GetTemperatureControlState();
+        return m_pRotaryValves[m_Sender]->GetTemperatureControlState();
     }
     else
     {
@@ -1606,9 +1612,9 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition(RVPosition_t RVPositi
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->ReqMoveToInitialPosition(RVPosition);
+        return m_pRotaryValves[m_Sender]->ReqMoveToInitialPosition(RVPosition);
     }
     else
     {
@@ -1631,9 +1637,9 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->ReqMoveToRVPosition(RVPosition);
+        return m_pRotaryValves[m_Sender]->ReqMoveToRVPosition(RVPosition);
     }
     else
     {
@@ -1647,9 +1653,9 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToCurrentTubePosition(RVPosition_t Curr
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->ReqMoveToCurrentTubePosition(CurrentRVPosition);
+        return m_pRotaryValves[m_Sender]->ReqMoveToCurrentTubePosition(CurrentRVPosition);
     }
     else
     {
@@ -1666,9 +1672,9 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToCurrentTubePosition(RVPosition_t Curr
 /****************************************************************************/
 RVPosition_t IDeviceProcessing::RVReqActRVPosition()
 {
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->ReqActRVPosition();
+        return m_pRotaryValves[m_Sender]->ReqActRVPosition();
     }
     else
     {
@@ -1678,9 +1684,9 @@ RVPosition_t IDeviceProcessing::RVReqActRVPosition()
 
 quint32 IDeviceProcessing::GetCurrentLowerLimit()
 {
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->GetCurrentLowerLimit();
+        return m_pRotaryValves[m_Sender]->GetCurrentLowerLimit();
     }
     else
     {
@@ -1694,9 +1700,9 @@ ReturnCode_t IDeviceProcessing::RVSetTemperatureSwitchState(qint8 HeaterVoltage,
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRotaryValve)
+    if(m_pRotaryValves.contains(m_Sender))
     {
-        return m_pRotaryValve->SetTemperatureSwitchState(HeaterVoltage, AutoType);
+        return m_pRotaryValves[m_Sender]->SetTemperatureSwitchState(HeaterVoltage, AutoType);
     }
     else
     {
@@ -1719,9 +1725,9 @@ ReturnCode_t IDeviceProcessing::OvenSetTempCtrlON(OVENTempCtrlType_t Type)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->SetTempCtrlON(Type);
+        return m_pOvens[m_Sender]->SetTempCtrlON(Type);
     }
     else
     {
@@ -1744,9 +1750,9 @@ ReturnCode_t IDeviceProcessing::OvenSetTempCtrlOFF(OVENTempCtrlType_t Type)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->SetTempCtrlOFF(Type);
+        return m_pOvens[m_Sender]->SetTempCtrlOFF(Type);
     }
     else
     {
@@ -1773,9 +1779,9 @@ ReturnCode_t IDeviceProcessing::OvenSetTemperaturePid(OVENTempCtrlType_t Type, q
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+        return m_pOvens[m_Sender]->SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
     }
     else
     {
@@ -1803,9 +1809,9 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControl(OVENTempCtrlType_t T
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->StartTemperatureControl(Type, NominalTemperature, SlopeTempChange);
+        return m_pOvens[m_Sender]->StartTemperatureControl(Type, NominalTemperature, SlopeTempChange);
     }
     else
     {
@@ -1837,9 +1843,9 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControlWithPID(OVENTempCtrlT
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pOven)
+   if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+        return m_pOvens[m_Sender]->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
     }
     else
     {
@@ -1861,9 +1867,9 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControlWithPID(OVENTempCtrlT
 /****************************************************************************/
 qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
 {
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->GetRecentTemperature(Type, Index);
+        return m_pOvens[m_Sender]->GetRecentTemperature(Type, Index);
     }
     else
     {
@@ -1873,9 +1879,9 @@ qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint
 
 bool IDeviceProcessing::OvenGetHeatingStatus(OVENTempCtrlType_t Type)
 {
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->GetRecentHeatingStatus(Type);
+        return m_pOvens[m_Sender]->GetRecentHeatingStatus(Type);
     }
     else
     {
@@ -1891,9 +1897,9 @@ bool IDeviceProcessing::OvenGetHeatingStatus(OVENTempCtrlType_t Type)
 /****************************************************************************/
 quint16 IDeviceProcessing::OvenGetRecentLidStatus()
 {
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->GetRecentOvenLidStatus();
+        return m_pOvens[m_Sender]->GetRecentOvenLidStatus();
     }
     else
     {
@@ -1917,9 +1923,9 @@ TempCtrlState_t IDeviceProcessing::OvenGetTemperatureControlState(OVENTempCtrlTy
     {
         return TEMPCTRL_STATE_ERROR;
     }
-    if(m_pOven)
+    if(m_pOvens.contains(m_Sender))
     {
-        return m_pOven->GetTemperatureControlState(Type);
+        return m_pOvens[m_Sender]->GetTemperatureControlState(Type);
     }
     else
     {
@@ -1942,9 +1948,9 @@ ReturnCode_t IDeviceProcessing::RTSetTempCtrlON(RTTempCtrlType_t Type)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->SetTempCtrlON(Type);
+        return m_pRetorts[m_Sender]->SetTempCtrlON(Type);
     }
     else
     {
@@ -1967,9 +1973,9 @@ ReturnCode_t IDeviceProcessing::RTSetTempCtrlOFF(RTTempCtrlType_t Type)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->SetTempCtrlOFF(Type);
+        return m_pRetorts[m_Sender]->SetTempCtrlOFF(Type);
     }
     else
     {
@@ -1996,9 +2002,9 @@ ReturnCode_t IDeviceProcessing::RTSetTemperaturePid(RTTempCtrlType_t Type, quint
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+        return m_pRetorts[m_Sender]->SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
     }
     else
     {
@@ -2025,9 +2031,9 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControl(RTTempCtrlType_t Type,
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->StartTemperatureControl(Type, NominalTemperature, SlopeTempChange);
+        return m_pRetorts[m_Sender]->StartTemperatureControl(Type, NominalTemperature, SlopeTempChange);
     }
     else
     {
@@ -2058,9 +2064,9 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControlWithPID(RTTempCtrlType_
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pRetort)
+   if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+        return m_pRetorts[m_Sender]->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
     }
     else
     {
@@ -2081,9 +2087,9 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControlWithPID(RTTempCtrlType_
 /****************************************************************************/
 qreal IDeviceProcessing::RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
-        if(m_pRetort)
+        if(m_pRetorts.contains(m_Sender))
         {
-            return m_pRetort->GetRecentTemperature(Type, Index);
+            return m_pRetorts[m_Sender]->GetRecentTemperature(Type, Index);
         }
         else
         {
@@ -2106,9 +2112,9 @@ TempCtrlState_t IDeviceProcessing::RTGetTemperatureControlState(RTTempCtrlType_t
     {
         return TEMPCTRL_STATE_ERROR;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->GetTemperatureControlState(Type);
+        return m_pRetorts[m_Sender]->GetTemperatureControlState(Type);
     }
     else
     {
@@ -2129,9 +2135,9 @@ ReturnCode_t IDeviceProcessing::RTUnlock()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->Unlock();
+        return m_pRetorts[m_Sender]->Unlock();
     }
     else
     {
@@ -2152,9 +2158,9 @@ ReturnCode_t IDeviceProcessing::RTLock()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->Lock();
+        return m_pRetorts[m_Sender]->Lock();
     }
     else
     {
@@ -2168,9 +2174,9 @@ ReturnCode_t IDeviceProcessing::RTSetTemperatureSwitchState(RTTempCtrlType_t Typ
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->SetTemperatureSwitchState(Type, HeaterVoltage, AutoType);
+        return m_pRetorts[m_Sender]->SetTemperatureSwitchState(Type, HeaterVoltage, AutoType);
     }
     else
     {
@@ -2187,9 +2193,9 @@ ReturnCode_t IDeviceProcessing::RTSetTemperatureSwitchState(RTTempCtrlType_t Typ
 /****************************************************************************/
 quint16 IDeviceProcessing::RTGetRecentLockStatus()
 {
-    if(m_pRetort)
+    if(m_pRetorts.contains(m_Sender))
     {
-        return m_pRetort->GetRecentRetortLockStatus();
+        return m_pRetorts[m_Sender]->GetRecentRetortLockStatus();
     }
     else
     {
@@ -2210,9 +2216,9 @@ ReturnCode_t IDeviceProcessing::PerTurnOffMainRelay()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pPeriphery)
+    if(m_pPeripherys.contains(m_Sender))
     {
-        return m_pPeriphery->TurnOffMainRelay();
+        return m_pPeripherys[m_Sender]->TurnOffMainRelay();
     }
     else
     {
@@ -2233,9 +2239,9 @@ ReturnCode_t IDeviceProcessing::PerTurnOnMainRelay()
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pPeriphery)
+    if(m_pPeripherys.contains(m_Sender))
     {
-        return m_pPeriphery->TurnOnMainRelay();
+        return m_pPeripherys[m_Sender]->TurnOnMainRelay();
     }
     else
     {
@@ -2256,23 +2262,23 @@ ReturnCode_t IDeviceProcessing::PerControlAlarm(bool On, bool Remote)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pPeriphery)
+    if(m_pPeripherys.contains(m_Sender))
     {
         if (On) {
             if (Remote) {
-                return m_pPeriphery->TurnOnRemoteAlarm();
+                return m_pPeripherys[m_Sender]->TurnOnRemoteAlarm();
             }
             else {
-                return m_pPeriphery->TurnOnLocalAlarm();
+                return m_pPeripherys[m_Sender]->TurnOnLocalAlarm();
             }
 
         }
         else {
             if (Remote) {
-                return m_pPeriphery->TurnOffRemoteAlarm();
+                return m_pPeripherys[m_Sender]->TurnOffRemoteAlarm();
             }
             else {
-                return m_pPeriphery->TurnOffLocalAlarm();
+                return m_pPeripherys[m_Sender]->TurnOffLocalAlarm();
             }
         }
     }
@@ -2284,15 +2290,15 @@ ReturnCode_t IDeviceProcessing::PerControlAlarm(bool On, bool Remote)
 
 quint16 IDeviceProcessing::PerGetRecentAlarmStatus(qint8 type)
 {
-    if(m_pPeriphery)
+    if(m_pPeripherys.contains(m_Sender))
     {
         if (0 == type)
         {
-            return m_pPeriphery->GetRecentLocalAlarmStatus();
+            return m_pPeripherys[m_Sender]->GetRecentLocalAlarmStatus();
         }
         else if (1 == type)
         {
-            return m_pPeriphery->GetRecentRemoteAlarmStatus();
+            return m_pPeripherys[m_Sender]->GetRecentRemoteAlarmStatus();
         }
     }
 
@@ -2317,28 +2323,28 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if((m_pRotaryValve)&&(m_pAirLiquid))
+    if((m_pRotaryValves.contains(m_Sender))&&(m_pAirLiquids.contains(m_Sender)))
     {
-        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
+        retCode = m_pRotaryValves[m_Sender]->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
 
-        retCode = m_pAirLiquid->PressureForBottoleCheck();
+        retCode = m_pAirLiquids[m_Sender]->PressureForBottoleCheck();
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
 
         // turn off pump
-        m_pAirLiquid->StopCompressor();
+        m_pAirLiquids[m_Sender]->StopCompressor();
 
         // dealy one second to make sure the command has been sent to HW
         DelaySomeTime(1000);
 
         // Move RV to tube position
-        retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
+        retCode = m_pRotaryValves[m_Sender]->ReqMoveToRVPosition(TubePos);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
@@ -2351,7 +2357,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qint8 count = 3;
         while (count>0)
         {
-            pressure += m_pAirLiquid->GetPressure();
+            pressure += m_pAirLiquids[m_Sender]->GetPressure();
             count--;
         }
         pressure = pressure/3;
@@ -2374,7 +2380,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             baseLine = 0.53;
         }
 
-         m_pAirLiquid->LogDebug(QString("Current pressure in bootle check is: %1, and reagentGrpID is: %2").arg(pressure).arg(ReagentGrpID));
+         m_pAirLiquids[m_Sender]->LogDebug(QString("Current pressure in bootle check is: %1, and reagentGrpID is: %2").arg(pressure).arg(ReagentGrpID));
 
 #ifdef __arm__
         if(pressure < (0.4 * baseLine))
@@ -2417,15 +2423,15 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
     {
         return retCode;
     }
-    if((m_pRotaryValve)&&(m_pAirLiquid))
+    if((m_pRotaryValves.contains(m_Sender))&&(m_pAirLiquids.contains(m_Sender)))
     {
-        RVPosition_t currentPosition = m_pRotaryValve->ReqActRVPosition();
+        RVPosition_t currentPosition = m_pRotaryValves[m_Sender]->ReqActRVPosition();
         if(SealPosition != currentPosition)
         {
-            retCode = m_pRotaryValve->ReqMoveToRVPosition(SealPosition);
+            retCode = m_pRotaryValves[m_Sender]->ReqMoveToRVPosition(SealPosition);
             if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                m_pAirLiquid->LogDebug("In IDSealingCheck, ReqMoveToRVPosition failed");
+                m_pAirLiquids[m_Sender]->LogDebug("In IDSealingCheck, ReqMoveToRVPosition failed");
                 return retCode;
             }
         }
@@ -2435,16 +2441,16 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
         if(m_EnableLowerPressure)
         {
             targetPressure = 12.0;
-            retCode = m_pAirLiquid->SealingCheckPressure();
+            retCode = m_pAirLiquids[m_Sender]->SealingCheckPressure();
         }
         else
         {
             targetPressure = 30.0;
-            retCode = m_pAirLiquid->Pressure();
+            retCode = m_pAirLiquids[m_Sender]->Pressure();
         }
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            m_pAirLiquid->LogDebug("In IDSealingCheck, failure in setting 30Kpa pressure in 30 seconds");
+            m_pAirLiquids[m_Sender]->LogDebug("In IDSealingCheck, failure in setting 30Kpa pressure in 30 seconds");
             return retCode;
         }
         QTime delayTime = QTime::currentTime().addMSecs(30000);
@@ -2452,7 +2458,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
         while (QTime::currentTime() < delayTime)
         {
             DelaySomeTime(100);
-            if (std::abs(long(targetPressure - m_pAirLiquid->GetPressure())) < 5.0)
+            if (std::abs(long(targetPressure - m_pAirLiquids[m_Sender]->GetPressure())) < 5.0)
             {
                 targetPressureFlag = true;
                 break;
@@ -2460,17 +2466,17 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
         }
         if (false == targetPressureFlag)
         {
-            m_pAirLiquid->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE");
+            m_pAirLiquids[m_Sender]->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE");
             return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
         }
 #ifdef __arm__
         //make the stable threshold time 5 seconds
         DelaySomeTime(5000);
 #endif
-        qreal previousPressure = m_pAirLiquid->GetPressure();
+        qreal previousPressure = m_pAirLiquids[m_Sender]->GetPressure();
 
         // Turn off pump
-        m_pAirLiquid->StopCompressor();
+        m_pAirLiquids[m_Sender]->StopCompressor();
 
         // Due to the limitation of simulator, we just return success in PC.
 #ifndef __arm__
@@ -2482,13 +2488,13 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
         while (QTime::currentTime() < delayTime)
         {
             DelaySomeTime(100);
-            if(previousPressure-(m_pAirLiquid->GetPressure()) > ThresholdPressure)
+            if(previousPressure-(m_pAirLiquids[m_Sender]->GetPressure()) > ThresholdPressure)
             {
                 counter++;
                 if (counter>=3)
                 {
-                    m_pAirLiquid->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE(Wait for 30 seconds to get current pressure)");
-                    (void)m_pAirLiquid->ReleasePressure();
+                    m_pAirLiquids[m_Sender]->LogDebug("In IDSealingCheck, DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE(Wait for 30 seconds to get current pressure)");
+                    (void)m_pAirLiquids[m_Sender]->ReleasePressure();
                     return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
                 }
             }
@@ -2499,7 +2505,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure, RVPositi
         }
 
         LOG()<<"Sealing test: Succeed.";
-        (void)m_pAirLiquid->ReleasePressure();
+        (void)m_pAirLiquids[m_Sender]->ReleasePressure();
         return DCL_ERR_FCT_CALL_SUCCESS;
    }
    else
@@ -2514,57 +2520,57 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
     ReportError_t reportError;
     memset(&reportError, 0, sizeof(reportError));
     //FILE_LOG_L(laFCT, llERROR) << " Device name is: "<<devName.toStdString()<<" sensorname is: "<< sensorName;
-    if ("Retort" == devName && NULL != m_pRetort)
+    if ("Retort" == devName && NULL != m_pRetorts.contains(m_Sender))
     {
         if (RT_BOTTOM == sensorName)
         {
             //FILE_LOG_L(laFCT, llERROR) <<"Retort bottom current is: "<<m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
-            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+            reportError = m_pRetorts[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         }
         else if (RT_SIDE == sensorName)
         {
             //FILE_LOG_L(laFCT, llERROR) <<"Retort side current is: "<<m_pRetort->GetHardwareStatus(RT_SIDE).Current;
-            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+            reportError = m_pRetorts[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         }
     }
-    else if ("Oven" == devName && NULL != m_pOven)
+    else if ("Oven" == devName && NULL != m_pOvens.contains(m_Sender))
     {
         if (OVEN_BOTTOM == sensorName)
         {
             //FILE_LOG_L(laFCT, llERROR) <<"Oven Bottom current is: "<<m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
-            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+            reportError = m_pOvens[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
         }
         else if (OVEN_TOP == sensorName)
         {
             //FILE_LOG_L(laFCT, llERROR) <<"Oven top current is: "<<m_pOven->GetHeaterCurrent(OVEN_TOP);
-            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+            reportError = m_pOvens[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
         }
     }
-    else if ("RV" == devName && NULL != m_pRotaryValve)
+    else if ("RV" == devName && NULL != m_pRotaryValves.contains(m_Sender))
     {
         //FILE_LOG_L(laFCT, llERROR) <<"RV current is: "<<m_pRotaryValve->GetHeaterCurrent();
-        reportError = m_pRotaryValve->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+        reportError = m_pRotaryValves[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
     }
-    else if ("LA" == devName && NULL != m_pAirLiquid)
+    else if ("LA" == devName && NULL != m_pAirLiquids.contains(m_Sender))
     {
         if (AL_LEVELSENSOR == sensorName)
         {
             //FILE_LOG_L(laFCT, llERROR) <<"LA LevelSensor current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_LEVELSENSOR);
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
+            reportError = m_pAirLiquids[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
         }
         else if (AL_TUBE1 == sensorName)
         {
             //FILE_LOG_L(laFCT, llERROR) <<"LA Tube1 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE1);
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
+            reportError = m_pAirLiquids[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
         }
         else if (AL_TUBE2 == sensorName)
         {
             //FILE_LOG_L(laFCT, llERROR) <<"LA Tube2 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
+            reportError = m_pAirLiquids[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
         }
         else if (AL_FAN == sensorName)
         {
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
+            reportError = m_pAirLiquids[m_Sender]->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
         }
     }
 
@@ -2576,21 +2582,21 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
 quint8 IDeviceProcessing::GetHeaterSwitchType(const QString& DevName)
 {
     quint8 switchType = 0;
-    if ( ("Retort" == DevName && m_pRetort != NULL)  )
+    if ( ("Retort" == DevName && m_pRetorts.contains(m_Sender) != NULL)  )
     {
-        switchType = m_pRetort->GetRecentHeaterSwitchType();
+        switchType = m_pRetorts[m_Sender]->GetRecentHeaterSwitchType();
     }
-    else if ("Oven" == DevName && m_pOven != NULL)
+    else if ("Oven" == DevName && m_pOvens.contains(m_Sender) != NULL)
     {
 
     }
-    else if ("LA" == DevName && m_pAirLiquid != NULL)
+    else if ("LA" == DevName && m_pAirLiquids.contains(m_Sender) != NULL)
     {
 
     }
-    else if ("RV" == DevName && m_pRotaryValve != NULL)
+    else if ("RV" == DevName && m_pRotaryValves.contains(m_Sender) != NULL)
     {
-        switchType = m_pRotaryValve->GetRecentHeaterSwitchType();
+        switchType = m_pRotaryValves[m_Sender]->GetRecentHeaterSwitchType();
     }
 
     return switchType;
@@ -2601,44 +2607,44 @@ quint16 IDeviceProcessing::GetSensorCurrent(const QString& DevName, quint8 Index
     quint16 current = 0;
     if ("Retort" == DevName)
     {
-        if (0 == Index && m_pRetort != NULL)
+        if (0 == Index && m_pRetorts.contains(m_Sender) != NULL)
         {
-            current = m_pRetort->GetRecentCurrent(RT_SIDE);
+            current = m_pRetorts[m_Sender]->GetRecentCurrent(RT_SIDE);
         }
-        else if (1 == Index  && m_pRetort != NULL)
+        else if (1 == Index  && m_pRetorts.contains(m_Sender) != NULL)
         {
-            current = m_pRetort->GetRecentCurrent(RT_BOTTOM);
+            current = m_pRetorts[m_Sender]->GetRecentCurrent(RT_BOTTOM);
         }
     }
     else if ("Oven" == DevName)
     {
-        if (0 == Index && m_pOven != NULL)
+        if (0 == Index && m_pOvens.contains(m_Sender) != NULL)
         {
-            current = m_pOven->GetRecentCurrent(OVEN_TOP);
+            current = m_pOvens[m_Sender]->GetRecentCurrent(OVEN_TOP);
         }
-        else if (1 == Index && m_pOven != NULL)
+        else if (1 == Index && m_pOvens.contains(m_Sender) != NULL)
         {
-            current = m_pOven->GetRecentCurrent(OVEN_BOTTOM);
+            current = m_pOvens[m_Sender]->GetRecentCurrent(OVEN_BOTTOM);
         }
     }
     else if ("LA" == DevName)
     {
-        if (0 == Index && m_pAirLiquid != NULL)
+        if (0 == Index && m_pAirLiquids.contains(m_Sender) != NULL)
         {
-            current = m_pAirLiquid->GetRecentCurrent(AL_LEVELSENSOR);
+            current = m_pAirLiquids[m_Sender]->GetRecentCurrent(AL_LEVELSENSOR);
         }
-        else if (1 == Index && m_pAirLiquid != NULL)
+        else if (1 == Index && m_pAirLiquids.contains(m_Sender) != NULL)
         {
-            current = m_pAirLiquid->GetRecentCurrent(AL_TUBE1);
+            current = m_pAirLiquids[m_Sender]->GetRecentCurrent(AL_TUBE1);
         }
-        else if (2 == Index && m_pAirLiquid != NULL)
+        else if (2 == Index && m_pAirLiquids.contains(m_Sender) != NULL)
         {
-            current = m_pAirLiquid->GetRecentCurrent(AL_TUBE2);
+            current = m_pAirLiquids[m_Sender]->GetRecentCurrent(AL_TUBE2);
         }
     }
-    else if ("RV" == DevName && m_pRotaryValve != NULL)
+    else if ("RV" == DevName && m_pRotaryValves.contains(m_Sender) != NULL)
     {
-        current = m_pRotaryValve->GetRecentCurrent();
+        current = m_pRotaryValves[m_Sender]->GetRecentCurrent();
     }
 
     return current;
@@ -2660,24 +2666,24 @@ quint16 IDeviceProcessing::IDGetSlaveCurrent(HimSlaveType_t Type)
     switch(Type)
     {
     case Slave_3:
-        if(m_pRotaryValve)
+        if(m_pRotaryValves.contains(m_Sender))
         {
            // current = m_pRotaryValve->GetBaseModuleCurrent((quint16)Type);
-            current = m_pRotaryValve->GetrecentBaseModuleCurrent();
+            current = m_pRotaryValves[m_Sender]->GetrecentBaseModuleCurrent();
         }
         break;
     case Slave_5:
-        if(m_pOven)
+        if(m_pOvens.contains(m_Sender))
         {
             //current = m_pOven->GetBaseModuleCurrent((quint16)Type);
-            current = m_pOven->GetrecentBaseModuleCurrent();
+            current = m_pOvens[m_Sender]->GetrecentBaseModuleCurrent();
         }
         break;
     case Slave_15:
-        if(m_pAirLiquid)
+        if(m_pAirLiquids.contains(m_Sender))
         {
             //current = m_pAirLiquid->GetBaseModuleCurrent((quint16)Type);
-            current = m_pAirLiquid->GetrecentBaseModuleCurrent();
+            current = m_pAirLiquids[m_Sender]->GetrecentBaseModuleCurrent();
         }
         break;
     }
@@ -2690,24 +2696,24 @@ quint16 IDeviceProcessing::IDGetSlaveVoltage(HimSlaveType_t Type)
     switch(Type)
     {
     case Slave_3:
-        if(m_pRotaryValve)
+        if(m_pRotaryValves.contains(m_Sender))
         {
             //voltage = m_pRotaryValve->GetBaseModuleVoltage((quint16)Type);
-            voltage = m_pRotaryValve->GetrecentBaseModuleVoltage();
+            voltage = m_pRotaryValves[m_Sender]->GetrecentBaseModuleVoltage();
         }
         break;
     case Slave_5:
-        if(m_pOven)
+        if(m_pOvens.contains(m_Sender))
         {
            // voltage = m_pOven->GetBaseModuleVoltage((quint16)Type);
-            voltage = m_pOven->GetrecentBaseModuleVoltage();
+            voltage = m_pOvens[m_Sender]->GetrecentBaseModuleVoltage();
         }
         break;
     case Slave_15:
-        if(m_pAirLiquid)
+        if(m_pAirLiquids.contains(m_Sender))
         {
             //voltage = m_pAirLiquid->GetBaseModuleVoltage((quint16)Type);
-            voltage = m_pAirLiquid->GetrecentBaseModuleVoltage();
+            voltage = m_pAirLiquids[m_Sender]->GetrecentBaseModuleVoltage();
         }
         break;
     }
@@ -2721,32 +2727,32 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
 
 quint16 IDeviceProcessing::IDGetRemoteAlarmStatus()
 {
-    return m_pPeriphery->GetRemoteAlarmStatus();
+    return m_pPeripherys[m_Sender]->GetRemoteAlarmStatus();
 }
 
 quint16 IDeviceProcessing::IDGetLocalAlarmStatus()
 {
-    return m_pPeriphery->GetLocalAlarmStatus();
+    return m_pPeripherys[m_Sender]->GetLocalAlarmStatus();
 }
 
 ReturnCode_t IDeviceProcessing::IDSetAlarm(qint8 opcode)
 {
-    if (m_pPeriphery == NULL)
+    if (m_pPeripherys.contains(m_Sender) == NULL)
         return DCL_ERR_FCT_CALL_FAILED;
 
     switch (opcode) {
     case 5:
-        m_pPeriphery->TurnOnRemoteAlarm();
+        m_pPeripherys[m_Sender]->TurnOnRemoteAlarm();
     case 3:
-        m_pPeriphery->TurnOnLocalAlarm();
+        m_pPeripherys[m_Sender]->TurnOnLocalAlarm();
         break;
 
     case 4:
     case 2:
     case -1:
     default:
-        m_pPeriphery->TurnOffLocalAlarm();
-        m_pPeriphery->TurnOffRemoteAlarm();
+        m_pPeripherys[m_Sender]->TurnOffLocalAlarm();
+        m_pPeripherys[m_Sender]->TurnOffRemoteAlarm();
         break;
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -2764,7 +2770,12 @@ int IDeviceProcessing::DelaySomeTime(int DelayTime)
     return ret;
 }
 
-bool IDeviceProcessing::GetDeviceConfig(hwconfig* config)
+hwconfigType * IDeviceProcessing::GetDeviceConfig() const
+{    
+    return m_pDeviceConfig;
+}
+
+bool IDeviceProcessing::ReadDeviceConfig()
 {
     using xml_schema::parser_error;
     parser_error e;
@@ -2780,22 +2791,34 @@ bool IDeviceProcessing::GetDeviceConfig(hwconfig* config)
     {
         return false;
     }
-    auto filename = Global::SystemPaths::Instance().GetSettingsPath() + "/hw_specification.xml";
-    QFile hwconfigFile(filename);
-    if(!hwconfigFile.open(QFile::ReadOnly | QFile::Text))
+
+    auto filename = Global::SystemPaths::Instance().GetSettingsPath()+ "/";
+    filename += hwconfigFilename;
+    QFile file(filename);
+
+    if(!file.exists())
+    {
+        qDebug() << "File: " + filename + "not exist";
+        return false;
+    }
+
+    QByteArray reader;
+    if(file.open(QFile::ReadOnly))
+    {
+        reader = file.readAll();
+        qDebug() << reader;
+    }
+    else
     {
         return false;
     }
 
-    QTextStream in(&hwconfigFile);
-
-std::string str= in.readAll().toStdString();
-    hw_doc_p.parse(str.c_str());
+    hw_doc_p.parse(filename.toStdString());
     if((e = hw_doc_p._error()))
     {
         return false;
     }
-    config = hw_p.post();
+    m_pDeviceConfig = hw_p.post();
     if((e = hw_p._error()))
     {
         return false;
@@ -2803,6 +2826,34 @@ std::string str= in.readAll().toStdString();
     };
 
     return true;
+}
+
+void IDeviceProcessing::CreateDeviceMapping()
+{
+    if(m_pDeviceConfig == NULL)
+    {
+        if(!ReadDeviceConfig())
+        {
+            qDebug() << "Can't read hw_specification.xml";
+            return;
+        }
+    }
+
+    for(auto retort = m_pDeviceConfig->parameter_master().retorts().retort().begin(); retort != m_pDeviceConfig->parameter_master().retorts().retort().end(); retort++)
+    {
+        qDebug() << "Retort Name: " + QString::fromStdString((*retort).name());
+        QList<AbstractDevice_t> devcieList;
+        for(auto device = (*retort).devices().device().begin(); device != (*retort).devices().device().end(); device++)
+        {
+            AbstractDevice_t dev;
+            dev.Type = QString::fromStdString((*device).name());
+            bool ok = true;
+            dev.InstanceId = QString::fromStdString((*device).id()).toUInt(&ok, 16);
+            devcieList.append(dev);
+            qDebug() << "Device Name: " + QString::fromStdString((*device).name()) + " InstanceId: " + QString::fromStdString((*device).id());
+        }
+        m_callerDeviceMap.insert(QString::fromStdString((*retort).name()), devcieList);
+    }
 }
 
 } // namespace
