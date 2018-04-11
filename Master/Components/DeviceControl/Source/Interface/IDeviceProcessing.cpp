@@ -54,7 +54,8 @@ namespace DeviceControl
 //2* 60 * 60 * 1000;
 const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2 * 60 * 60 * 1000;  //!< 2 hours
 const int INTERVAL_SAVE_LIFE_CYCLE_RECORD =  10 * 60 * 1000;  //!< 10 mintues
-hwconfigType* IDeviceControl::m_pDeviceConfig = NULL;/****************************************************************************/
+
+/****************************************************************************/
 /*!
  *  \brief  Constructor of the class IDeviceProcessing
  *  \param DevProcTimerInterval  timer interval by ms
@@ -108,6 +109,7 @@ IDeviceProcessing::IDeviceProcessing(int DevProcTimerInterval) :
     CONNECTSIGNALSIGNAL(mp_DevProc, ReportGetServiceInfo(ReturnCode_t, const DataManager::CModule&, const QString&),
                      this, ReportGetServiceInfo(ReturnCode_t, const DataManager::CModule&, const QString&));
     m_ParentThreadID = QThread::currentThreadId();
+
 
     CreateDeviceMapping();
 

@@ -26,7 +26,7 @@ class MockDeviceControl : public QObject, public IDeviceControl {
     MockDeviceControl(){}
 //    MockIDeviceControl(const MockIDeviceControl&){}
     virtual ~MockDeviceControl(){}
- MOCK_METHOD1(GetDeviceConfig, bool(hwconfig* config));
+ MOCK_CONST_METHOD0(GetDeviceConfig, hwconfigType*());
   MOCK_METHOD0(EmergencyStop,
       void());
   MOCK_METHOD0(Standby,

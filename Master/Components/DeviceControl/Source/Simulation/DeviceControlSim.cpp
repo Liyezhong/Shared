@@ -5,7 +5,7 @@
 
 namespace DeviceControl
 {
-hwconfigType* IDeviceControl::m_pDeviceConfig = NULL;
+
 DeviceControlSim::DeviceControlSim(int n)
 //    : mb_StandBy(false),
 //      mb_Stop(false)
@@ -13,6 +13,7 @@ DeviceControlSim::DeviceControlSim(int n)
 
 {
     CreateDevices();
+    m_pDeviceConfig = NULL;
 
 }
 
