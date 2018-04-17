@@ -51,7 +51,7 @@ public:
      *  \return from CmdProgramAborted
      */
     /****************************************************************************/
-    CmdProgramAborted(int Timeout, bool IsContaminated);
+    CmdProgramAborted(const QString& RetortID, int Timeout, bool IsContaminated);
     ~CmdProgramAborted();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -62,11 +62,13 @@ public:
      */
     /****************************************************************************/
     bool IsRetortContaminated() const {return m_IsRetortContaminated;}
+    const QString& GetRetortID() const {return m_RetortID;}
  private:
     CmdProgramAborted(const CmdProgramAborted &);                     ///< Not implemented.
     const CmdProgramAborted & operator = (const CmdProgramAborted &); ///< Not implemented.
 private:
     bool m_IsRetortContaminated;       ///<  Definition/Declaration of variable m_IsRetortContaminated
+    QString m_RetortID;
     
 }; // end class CmdProgramAborted
 
@@ -84,6 +86,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProgramAborted &
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
+    Stream << Cmd.m_RetortID;
     Stream << Cmd.m_IsRetortContaminated;
     return Stream;
 }
@@ -102,6 +105,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdProgramAborted &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
+    Stream >> Cmd.m_RetortID;
     Stream >> Cmd.m_IsRetortContaminated;
     return Stream;
 }

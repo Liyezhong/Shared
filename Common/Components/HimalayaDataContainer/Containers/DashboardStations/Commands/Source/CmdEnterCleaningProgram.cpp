@@ -24,7 +24,8 @@ namespace MsgClasses {
 QString CmdEnterCleaningProgram::NAME = "MsgClasses::CmdEnterCleaningProgram";
 
 
-CmdEnterCleaningProgram::CmdEnterCleaningProgram(int Timeout, const QString& lastReagentGroupID) :
+CmdEnterCleaningProgram::CmdEnterCleaningProgram(const QString& RetortID, int Timeout, const QString& lastReagentGroupID) :
+    m_RetortID(RetortID),
     Command(Timeout),
     m_LastReagentGroupID(lastReagentGroupID)
 {

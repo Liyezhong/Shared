@@ -51,7 +51,7 @@ public:
      *  \return from CmdEnterCleaningProgram
      */
     /****************************************************************************/
-    CmdEnterCleaningProgram(int Timeout, const QString& lastReagentGroupID);
+    CmdEnterCleaningProgram(const QString& RetortID, int Timeout, const QString& lastReagentGroupID);
     ~CmdEnterCleaningProgram();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -62,11 +62,14 @@ public:
      */
     /****************************************************************************/
     inline QString LastReagentGroupID() const {return m_LastReagentGroupID;}
+
+    const QString& GetRetortID() const {return m_RetortID;}
  private:
     CmdEnterCleaningProgram(const CmdEnterCleaningProgram &);                     ///< Not implemented.
     const CmdEnterCleaningProgram & operator = (const CmdEnterCleaningProgram &); ///< Not implemented.
 private:
     QString m_LastReagentGroupID;       ///<  Definition/Declaration of variable m_LastReagentGroupID
+    QString m_RetortID;
     
 }; // end class CmdEnterCleaningProgram
 
