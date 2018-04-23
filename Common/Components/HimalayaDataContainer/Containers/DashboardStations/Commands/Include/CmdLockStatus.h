@@ -52,7 +52,7 @@ public:
      *  \return from CmdLockStatus
      */
     /****************************************************************************/
-    CmdLockStatus(int timeout, DataManager::LockType_t lockType, bool isLocked);
+    CmdLockStatus(const QString& RetortID, int timeout, DataManager::LockType_t lockType, bool isLocked);
     ~CmdLockStatus();
     virtual QString GetName() const;
     /****************************************************************************/
@@ -71,11 +71,14 @@ public:
      */
     /****************************************************************************/
     inline bool IsLocked() const {return m_Locked;}
+
+    const QString& RetortName() const {return m_RetortID;}
     
 private:
     CmdLockStatus(const CmdLockStatus &);                     ///< Not implemented.
     const CmdLockStatus & operator = (const CmdLockStatus &); ///< Not implemented.
 private:
+    QString m_RetortID;
     DataManager::LockType_t m_LockType;       ///<  Definition/Declaration of variable m_LockType
     bool m_Locked;       ///<  Definition/Declaration of variable m_Locked
     
@@ -95,6 +98,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdLockStatus &Cmd)
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
+    Stream << Cmd.m_RetortID;
     Stream << (int)Cmd.m_LockType;
     Stream << Cmd.m_Locked;
     return Stream;
@@ -113,6 +117,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdLockStatus &Cmd)
 {
     // copy base class data
     Cmd.CopyFromStream(Stream);
+    Stream >> Cmd.m_RetortID;
     // copy internal data
     int temp;
     Stream >> temp;

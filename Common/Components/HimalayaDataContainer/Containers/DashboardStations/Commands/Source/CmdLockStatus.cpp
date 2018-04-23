@@ -24,8 +24,9 @@ namespace MsgClasses {
 QString CmdLockStatus::NAME = "MsgClasses::CmdLockStatus";
 
 
-CmdLockStatus::CmdLockStatus(int timeout, DataManager::LockType_t lockType, bool isLocked) :
+CmdLockStatus::CmdLockStatus(const QString& RetortID, int timeout, DataManager::LockType_t lockType, bool isLocked) :
     Command(timeout),
+    m_RetortID(RetortID),
     m_LockType(lockType),
     m_Locked(isLocked)
 {
