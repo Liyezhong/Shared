@@ -66,7 +66,8 @@ IDeviceProcessing::IDeviceProcessing(int DevProcTimerInterval) :
         m_reqTaskParameter1(0), m_reqTaskParameter2(0), m_machine(this), m_TimerSaveServiceInfor(this),
         m_DevProcTimerInterval(DevProcTimerInterval),
         m_SaveLifeCycleRecordTimer(this),
-        hwconfigFilename("hw_specification.xml")
+        hwconfigFilename("hw_specification.xml"),
+        m_pDeviceManager(nullptr)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
@@ -357,6 +358,7 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing::RouteConfigurationFinished: " << (int) HdlInfo;
     if((HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)||(HdlInfo == DCL_ERR_TIMEOUT))
     {
+        m_pDeviceManager = new DeviceManager(m_pDeviceConfig, mp_DevProc);
         // find the mapped device type
         for(auto itor = m_callerDeviceMap.begin(); itor != m_callerDeviceMap.end(); itor++)
         {
@@ -456,7 +458,8 @@ void IDeviceProcessing::ResetActiveCarbonFilterLifeTime(quint32 setVal)
 {
     if(m_pAirLiquids.contains(m_Sender))
     {
-        m_pAirLiquids[m_Sender]->ResetActiveCarbonFilterLifeTime(setVal);
+        auto ff = std::bind(&CAirLiquidDevice::ResetActiveCarbonFilterLifeTime, std::placeholders::_1, setVal);
+        ff(m_pAirLiquids[m_Sender]);
     }
     ArchiveServiceInfor();
     m_SaveLifeCycleRecordTimer.start();//Note: It will not work in debug mode
@@ -1011,9 +1014,12 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime, bool EnableInsuffic
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquids.contains(m_Sender))
+    auto pDevice = m_pDeviceManager->Allocate("AirLiquidDevice");
+    if(pDevice != nullptr)
     {
-        return m_pAirLiquids[m_Sender]->Filling(DelayTime, EnableInsufficientCheck, SafeReagent4Paraffin);
+        auto ret = ((CAirLiquidDevice*)pDevice)->Filling(DelayTime, EnableInsufficientCheck, SafeReagent4Paraffin);
+        m_pDeviceManager->Free(pDevice);
+        return ret;
     }
     else
     {

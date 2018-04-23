@@ -13,8 +13,6 @@ DeviceControlSim::DeviceControlSim(int n)
 
 {
     CreateDevices();
-    m_pDeviceConfig = NULL;
-
 }
 
 DeviceControlSim::~DeviceControlSim()
@@ -37,7 +35,13 @@ void DeviceControlSim::CreateDevices()
                                                        new CtrlBase("RVPos"),
                                                        new CtrlBase("RTTemp"),
                                                        new CtrlBase("RTLock"),
-                                                       new CtrlBase("OvernTemp")
+                                                       new CtrlBase("OvernTemp"),
+                                                        new CtrlBase("OvenLid"),
+                                                        new CtrlBase("RVVolatage"),
+                                                        new CtrlBase("ALVolatage"),
+                                                        new CtrlBase("OvenVolatage"),
+                                                        new CtrlBase("IDAlarm"),
+                                                        new CtrlBase("Alarm")
                                                       }));
 
 
@@ -48,21 +52,45 @@ void DeviceControlSim::CreateDevices()
                                                        new CtrlBase("RVPos"),
                                                        new CtrlBase("RTTemp"),
                                                        new CtrlBase("RTLock"),
-                                                       new CtrlBase("OvernTemp")
+                                                       new CtrlBase("OvernTemp"),
+                                                        new CtrlBase("OvenLid"),
+                                                        new CtrlBase("RVVolatage"),
+                                                        new CtrlBase("ALVolatage"),
+                                                        new CtrlBase("OvenVolatage"),
+                                                        new CtrlBase("IDAlarm"),
+                                                        new CtrlBase("Alarm")
+                                                      }));
+    m_deviceList.insert("Common", QVector<CtrlBase*>({new CtrlBase("ALTemp"),
+                                                       new CtrlBase("ALPressure"),
+                                                       new CtrlBase("ALFan"),
+                                                       new CtrlBase("RVTemp"),
+                                                       new CtrlBase("RVPos"),
+                                                       new CtrlBase("RTTemp"),
+                                                       new CtrlBase("RTLock"),
+                                                       new CtrlBase("OvernTemp"),
+                                                      new CtrlBase("OvenLid"),
+                                                      new CtrlBase("RVVolatage"),
+                                                      new CtrlBase("ALVolatage"),
+                                                      new CtrlBase("OvenVolatage"),
+                                                      new CtrlBase("IDAlarm"),
+                                                      new CtrlBase("Alarm")
                                                       }));
 }
 
 CtrlBase* DeviceControlSim:: GetSubCtrl(const QString id, const QString device)
 {
+    CtrlBase* ctrl = nullptr;
     for(auto itor = m_deviceList[id].begin(); itor != m_deviceList[id].end(); itor++)
     {
         if((*itor)->GetName() == device)
-        {
-            qDebug()<<"DeviceControlSim, RetortName: " + id + "Device: " + device;
-            return *itor;
+        {            
+            ctrl = *itor;
+            break;
         }
     }
-    return nullptr;
+    if(ctrl == nullptr)
+        qDebug()<<"DeviceControlSim, RetortName: " + id + "Device: " + device;
+    return ctrl;
 }
 
 void DeviceControlSim::Standby()
@@ -139,12 +167,17 @@ ReturnCode_t DeviceControlSim::ALSetPressureCtrlOFF()
 ReturnCode_t DeviceControlSim::ALReleasePressure()
 {
     GetSubCtrl(m_Sender, "ALPressure")->SetTarget(0);
+    GetSubCtrl(m_Sender, "ALPressure")->SetOnOff(true);
+
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 ReturnCode_t DeviceControlSim::ALPressure(float targetPressure)
 {
     GetSubCtrl(m_Sender, "ALPressure")->SetTarget(targetPressure);
+
+    GetSubCtrl(m_Sender, "ALPressure")->SetOnOff(true);
+
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
@@ -187,11 +220,13 @@ qreal DeviceControlSim::ALGetRecentPressure()
 
 ReturnCode_t DeviceControlSim::ALSetTempCtrlON(ALTempCtrlType_t Type)
 {
+    GetSubCtrl(m_Sender, "ALTemp")->SetOnOff(true);
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 ReturnCode_t DeviceControlSim::ALSetTempCtrlOFF(ALTempCtrlType_t type)
 {
+    GetSubCtrl(m_Sender, "ALTemp")->SetOnOff(false);
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
@@ -602,10 +637,10 @@ void DeviceControlSim::OnTimeOutSaveLifeCycleRecord()
 
 }
 
-//void DeviceControlSim::Start()
-//{
-//    emit ReportInitializationFinished(DEVICE_INSTANCE_ID_DEVPROC, DCL_ERR_FCT_CALL_SUCCESS);
-//}
+void DeviceControlSim::Start()
+{
+    emit ReportInitializationFinished(DEVICE_INSTANCE_ID_DEVPROC, DCL_ERR_FCT_CALL_SUCCESS);
+}
 
 
 hwconfigType* DeviceControlSim::GetDeviceConfig() const

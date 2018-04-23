@@ -18,4 +18,5 @@ SUBDIRS =   ../../../Master/Components/Scheduler/Test/Scheduler.pro \
             #../Components/NetworkComponents/Test/NetworkComponentsTest.pro
 ../../../Master/Components/Scheduler/Test/TestSchedulerCommandProcessor.pro\
 
+
 CONFIG += ordered

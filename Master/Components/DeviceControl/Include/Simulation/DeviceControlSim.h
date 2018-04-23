@@ -55,7 +55,14 @@ public:
 
     static void Update1(qreal current, qreal target, qreal factor, QVector<ValueNode*>* valueList)
     {
-        for(auto d = current; d <= target; d += (target-current)*factor)
+        if(current < target*(1- factor))
+        {
+            ValueNode* data = new ValueNode{QDateTime::currentDateTime(), target};
+            valueList->append(data);
+            return;
+        }
+
+        for(auto d = current; d < target; d += (target-current)*factor)
         {
             ValueNode* data = new ValueNode{QDateTime::currentDateTime(), d};
             valueList->append(data);
@@ -66,13 +73,14 @@ public:
     {
         if(on)
         {
-            // load fake data
+          /*  // load fake data
 
             auto f = std::bind(&CtrlBase::Update1, m_Current, m_Target, 0.2, &m_ValueList);
-            f();
+            f()*/;
         }
         else
         {
+            m_Current = 0;
             m_Index = 0;
         }
         m_bOn = on;
@@ -83,14 +91,29 @@ public:
     void SetTarget(qreal target)
     {
         m_Target = target;
+        m_Current = 0;
+        m_Index = 0;
+
+
+        auto f = std::bind(&CtrlBase::Update1, m_Current, m_Target, 0.2, &m_ValueList);
+        f();
     }
 
     qreal GetCurrent()
     {
         if(m_bDisposed)
-            return 0;
+            return 0;       
 
-        m_Index++;
+        if (!m_ValueList.isEmpty())
+        {
+            m_Current = m_ValueList[m_Index]->value;
+        }
+
+        if ( (m_Index < m_ValueList.count()-1) && !m_ValueList.isEmpty())
+        {
+            m_Index++;
+        }
+
         return m_Current;
     }
 
@@ -258,6 +281,9 @@ private:
 
     QMap<QString, QVector<CtrlBase*>> m_deviceList;
     const QString hwconfigFilename;
+
+public:
+    void Start();
 };
 
 }

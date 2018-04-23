@@ -46,6 +46,8 @@
 #include "DeviceControl/Include/Devices/PeripheryDevice.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/Interface/IDeviceControl.h"
+#include "DeviceControl/Include/Devices/DeviceManager.h"
+#include <exception>
 
 namespace DeviceControl
 {
@@ -60,6 +62,7 @@ namespace DeviceControl
 /****************************************************************************/
 class IDeviceProcessing : public QObject, public IDeviceControl
 {
+    friend class TestIDeviceProcessing;
     Q_OBJECT
 
 public:
@@ -69,6 +72,19 @@ public:
     //! Returns the serial number from config file
 //    static bool GetSerialNumber(QString& SerialNo){return DeviceProcessing::GetSerialNumber(SerialNo);}
     hwconfigType * GetDeviceConfig() const override;
+
+    inline IDeviceControl* WithSender(const QString& sender) override
+    {
+        if(m_pDeviceManager == nullptr)
+        {
+            throw std::runtime_error("DeviceManager not initialized yet");
+            return nullptr;
+        }
+
+        m_pDeviceManager->SetSender(sender);
+
+        return this;
+    }
     //! Emergency stop
     virtual void EmergencyStop();   // should be called if the device's cover was opened by the user
     //! Switch to standby mode
@@ -1075,6 +1091,7 @@ private:
     int m_DevProcTimerInterval;              //!< timer interval for mp_DevProcTimer
     QTimer m_SaveLifeCycleRecordTimer;
     const QString hwconfigFilename;
+    DeviceManager* m_pDeviceManager;
 };
 
 } //namespace

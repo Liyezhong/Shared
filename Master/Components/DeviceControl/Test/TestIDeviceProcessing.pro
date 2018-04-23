@@ -23,11 +23,14 @@ HEADERS += ../Include/Global/*.h
 #PRE_TARGETDEPS += ../hwconfig/libxsde/xsde/libxsde.a
 
 
+
 UseLibs(Global DataManager DeviceControl)
 
-unix:!macx: LIBS += -L../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/ -lxsde
+LIBS += ../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/libxsde.a
 
-INCLUDEPATH += $../../../../../Shared/ExternalPackages/xsde/libxsde
-DEPENDPATH += $../../../../../Shared/ExternalPackages/xsde/libxsde
+#unix:!macx: LIBS += -L../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/ -lxsde
 
-unix:!macx: PRE_TARGETDEPS += ../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/libxsde.a
+#INCLUDEPATH += $../../../../../Shared/ExternalPackages/xsde/libxsde
+#DEPENDPATH += $../../../../../Shared/ExternalPackages/xsde/libxsde
+
+#unix:!macx: PRE_TARGETDEPS += ../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/libxsde.a

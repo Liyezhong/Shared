@@ -19,7 +19,7 @@ HEADERS +=  ../Include/CanCommunication/*.h \
             ../Include/Interface/*.h \
             ../Include/Simulation/*.h \
             ../../../../../Shared/Common/Components/FunctionModules/*.h \
-            ../hwconfig/*.hpp
+            ../hwconfig/*.hpp \
 #    DeviceModuleModel.h
 
 SOURCES +=  ../Source/CanCommunication/*.cpp \
@@ -30,10 +30,11 @@ SOURCES +=  ../Source/CanCommunication/*.cpp \
             ../Source/Devices/*.cpp \
             ../Source/Interface/*.cpp \
             ../Source/Simulation/*.cpp \
-            ../hwconfig/*.cpp
+            ../hwconfig/*.cpp \
+
 #    DeviceModuleModel.cpp
 
-LIBS += ../../../../../Shared/ExternalPackages/xsde/libxsde/libxsde.a
+LIBS += ../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/libxsde.a
 
 
 QMAKE_CXXFLAGS += -Wall -Wno-strict-aliasing

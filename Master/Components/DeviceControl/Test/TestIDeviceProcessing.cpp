@@ -20,6 +20,7 @@
 }
 
 namespace DeviceControl {
+hwconfigType* IDeviceControl::m_pDeviceConfig = NULL;
 
 class TestIDeviceProcessing : public QObject {
     Q_OBJECT
@@ -43,6 +44,7 @@ public:
     ~TestIDeviceProcessing()
     {
         delete p_IDeviceProcessing;
+
     }
 
 public slots:
@@ -52,9 +54,9 @@ public slots:
         qDebug() << "ReportInitializationFinished";
     }
 
-    void DevProcConfigurationAckn(quint32 /*a*/, ReturnCode_t /*b*/)
+    void DevProcConfigurationAckn(quint32 /*a*/, ReturnCode_t b)
     {
-        m_ConfigFinished = true;
+        m_ConfigFinished = (b==DCL_ERR_FCT_CALL_SUCCESS);
         qDebug() << "ReportConfigurationFinished";
     }
 
@@ -88,6 +90,8 @@ private slots:
     void utVerifyDeviceMap();
     void utFailure_if_caller_is_not_set();
     void utSuccess_if_caller_is_set();
+    void utDeviceInstance_is_not_Empty_if_DeviceConfiguration_is_Done();
+    void utDevice_not_available_if_SharedDevice_is_occupied_By_other();
     void cleanupTestCase();
 
 public:
@@ -100,10 +104,14 @@ private:
 void TestIDeviceProcessing::initTestCase()
 {
     QVERIFY(p_IDeviceProcessing);
+
+    QVERIFY_EXCEPTION_THROWN(p_IDeviceProcessing->WithSender("Retort_A")->ALFilling(100, false, false), std::runtime_error);
+
     QVERIFY(Global::SystemPaths::Instance().GetSettingsPath().length() != 0);
     QCOREAPPLICATION_EXEC(1000);
     //! Restart device control layer configuration
     QVERIFY(p_IDeviceProcessing->RestartConfigurationService() == DCL_ERR_FCT_CALL_SUCCESS);
+
     QCOREAPPLICATION_EXEC(10000);
     while (1)
     {
@@ -253,12 +261,40 @@ void TestIDeviceProcessing::utVerifyDeviceMap()
 
 void TestIDeviceProcessing::utFailure_if_caller_is_not_set()
 {
+    //arrange
+    //act
+
+    //assert
     QCOMPARE(p_IDeviceProcessing->ALFilling(100, false, false), DCL_ERR_FCT_CALL_SUCCESS);
 }
 
 void TestIDeviceProcessing::utSuccess_if_caller_is_set()
 {
-    QCOMPARE(p_IDeviceProcessing->WithSender("RetortA")->ALFilling(100, false, false), DCL_ERR_FCT_CALL_SUCCESS);
+    p_IDeviceProcessing->WithSender("Retort_A")->ResetActiveCarbonFilterLifeTime(2.0);
+
+    QCOMPARE(p_IDeviceProcessing->WithSender("Retort_A")->ALFilling(100, false, false), DCL_ERR_FCT_CALL_SUCCESS);
+}
+
+
+void TestIDeviceProcessing::utDeviceInstance_is_not_Empty_if_DeviceConfiguration_is_Done()
+{
+    QVERIFY2(p_IDeviceProcessing->m_pDeviceManager != nullptr, "DeviceManager is not initialized");
+    QVERIFY2(!p_IDeviceProcessing->m_pDeviceManager->IsEmpty(), "No devices mapped");
+}
+
+void TestIDeviceProcessing::utDevice_not_available_if_SharedDevice_is_occupied_By_other()
+{
+    // arrange
+    CBaseDevice* pAirLiquidDevice;
+//    p_IDeviceProcessing->WithSender("Retort_A")->ALFilling(100, false, false);
+
+    auto ret = ((IDeviceProcessing*)p_IDeviceProcessing->WithSender("Retort_A"))->m_pDeviceManager->Allocate("AirLiquidDevice");
+
+    auto ret2 = ((IDeviceProcessing*)p_IDeviceProcessing->WithSender("Retort_B"))->m_pDeviceManager->Allocate("AirLiquidDevice");
+
+    qDebug() << typeid (ret).name();
+    QVERIFY2(ret, "1st allocate, Device is not allocated");
+    QVERIFY2(!ret2, "2nd allocate, Device is locked");
 }
 
 void TestIDeviceProcessing::cleanupTestCase()
