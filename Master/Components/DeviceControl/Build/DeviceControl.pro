@@ -34,8 +34,6 @@ SOURCES +=  ../Source/CanCommunication/*.cpp \
 
 #    DeviceModuleModel.cpp
 
-LIBS += ../../../../../Shared/ExternalPackages/xsde/libxsde/xsde/libxsde.a
-
 
 QMAKE_CXXFLAGS += -Wall -Wno-strict-aliasing
 

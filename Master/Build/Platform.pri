@@ -22,7 +22,7 @@ CONFIG += debug_and_release
 
 INCLUDEPATH += ../..
 INCLUDEPATH += ../../../../../Shared/Common/Components \
-               ../../../../../Shared/ExternalPackages/xsde/libxsde/
+               ../../../../../Shared/ExternalPackages/xsde/xsde-3.2.0-x86_64-linux-gnu/libxsde/
 INCLUDEPATH += ../../../../../
 DEPENDPATH += ../..
 
